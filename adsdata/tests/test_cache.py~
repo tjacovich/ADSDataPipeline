@@ -1,0 +1,11 @@
+
+from mock import patch
+from mock import mock_open
+import mock
+import unittest
+
+class TestMemoryCache(unittest.TestCase):
+
+    def test_refereed(self):
+        with patch('__builtin__.open',
+                    mock_open(read_data='asdf\njkl')):
