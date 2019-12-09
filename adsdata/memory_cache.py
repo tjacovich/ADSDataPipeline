@@ -8,6 +8,9 @@ logger = setup_logging('adsdata', 'INFO')
 
 class BaseNetwork:
 
+    def __init__(self, filename):
+        self.network = self._load(filename)
+        
     def _load(self, filename):
         """load file containing entire citation network into dict"""
         global logger
@@ -32,18 +35,23 @@ class ReferenceNetwork(BaseNetwork):
 
     def __init__(self):
         """load file containing entire citation network into dict"""
-        self.network = self._load('reference filename')
+        BaseNetwork.__init__(self, 'reference filename')
 
 
 class CitationNetwork(BaseNetwork):
-
+    
     def __init__(self):
         """load file containing entire citation network into dict"""
-        self.network = self._load('citation filename')
+        BaseNetwork.__init__(self, 'reference filename')
 
 
 class Refereed:
-    """a simple file with one bibcode on each line"""
+    """a simple file with one bibcode on each line
+
+    I've read that memberhip of a set is O(1) suggesting there some hashing in the background
+    but, membership test seems to use the iterator.  
+    It is important that membership test be O(1) rather than O(n).  
+    """
     def __init__(self):
         self.refereed = self._load('refereed filename')
         
@@ -62,4 +70,8 @@ class Refereed:
         logger.info('completed refereed')    
         return d
 
+    def __iter__(self):
+        return self.refereed.__iter__()
 
+    def __next__(self):
+        return self.refereed.__next__()

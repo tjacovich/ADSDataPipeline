@@ -15,6 +15,7 @@ class TestMemoryCache(unittest.TestCase):
         m.return_value.__iter__ = lambda self: iter(self.readline, '')
         with patch('__builtin__.open', m):
             ref = memory_cache.Refereed()
+            self.assertTrue('asdf' in ref)
             self.assertTrue('asdf' in ref.refereed)
             self.assertFalse('asdfasdf' in ref.refereed)
 
