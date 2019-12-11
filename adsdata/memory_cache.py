@@ -6,6 +6,22 @@ from adsputils import setup_logging
 
 logger = setup_logging('adsdata', 'INFO')
 
+cache = {}
+
+def init():
+    global cache
+    if cache:
+        # init has already been called
+        return cache
+    cache['reference'] = ReferenceNetwork()
+    cache['citation'] = CitationNetwork()
+    cache['refereed'] = Refereed()
+    return cache
+
+def get():
+    return cache
+
+
 class BaseNetwork:
 
     def __init__(self, filename):
