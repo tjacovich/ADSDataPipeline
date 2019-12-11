@@ -55,3 +55,12 @@ class TestReader(unittest.TestCase):
             self.assertFalse(f.read_value_for('CCCCCCCCCCCCCCCCCCC'))            
             self.assertTrue(f.read_value_for('EEEEEEEEEEEEEEEEEEE'))            
             self.assertFalse(f.read_value_for('FFFFFFFFFFFFFFFFFFF'))
+
+        with patch('__builtin__.open', return_value=StringIO.StringIO('AAAAAAAAAAAAAAAAAAA\tA\nAAAAAAAAAAAAAAAAAAA\tAA\nAAAAAAAAAAAAAAAAAAA\tAAA\nBBBBBBBBBBBBBBBBBBB\tB\nDDDDDDDDDDDDDDDDDDD\tD\nDDDDDDDDDDDDDDDDDDD\tDD\nEEEEEEEEEEEEEEEEEEE\tE')):
+            f = reader.StandardFileReader('foo', 'filename')
+            self.assertEqual(['A', 'AA', 'AAA'], f.read_value_for('AAAAAAAAAAAAAAAAAAA'))
+            self.assertEqual(['B'], f.read_value_for('BBBBBBBBBBBBBBBBBBB'))
+            self.assertFalse(f.read_value_for('CCCCCCCCCCCCCCCCCCC'))
+            self.assertEqual(['D', 'DD'], f.read_value_for('DDDDDDDDDDDDDDDDDDD'))
+            self.assertEqual(['E'], f.read_value_for('EEEEEEEEEEEEEEEEEEE'))
+            self.assertFalse(f.read_value_for('FFFFFFFFFFFFFFFFFFF'))
