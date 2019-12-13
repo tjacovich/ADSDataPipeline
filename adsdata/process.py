@@ -1,6 +1,7 @@
 
 from collections import OrderedDict()
 
+from adsmsg.msg import NonBibRecord
 
 import reader
 
@@ -32,21 +33,41 @@ data_files = OrderedDict([
     ])
 
 
-
 def process():
+    # read a line and generate nonbib record
+    d = read_next()
+    while (d is not None):
+        # process it
+        d = read_next()
+        r = convert(d)
+
+def convert(d):
+    """convert the passed dict of info from files into a dict matching NonBibRecord
+
+    most values are read into an array, 
+    the exception is boolean membership like refereed"""
+    ret = {}
+    for k in d:
+        if k == 'canonical':
+            ret[k] = d[k]
+        elif k == 'refereed' or 'private' or 'pub_openaccess':
+            ret[k] = d[k]
+        elif k == 'simbad':
+            rek[k] = 'todo'
+        
+
+def read_next():
+    """read all the info for the next bibcode"""
+    global data_files
+    d = dict()
     for x in data_files:
         if x is 'canonical':
-            current_bibcode = data_files['canonical']['file_descriptor'].readline()
+            d['bibcode'] = data_files['canonical']['file_descriptor'].readline()
+            if d['bibcode'] is None:
+                return None
         else:
-            if current_bibcode == data_files[x]['last_bibcode']:
-                # here if the last read has current data
-                data_files[x]['current_data'] = data_files[x]['last_data']
-            else:
-                l = data_files[x]['file_descriptor'].readline
-                if l.startsWith(current_bibcode):
-                    
-        
-    
+            d[x] = x['file_descriptor'].read_value_for(d['bibcode'])
+    return d
 
 def open():
     global data_files
