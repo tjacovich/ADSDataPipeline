@@ -71,8 +71,10 @@ class BibcodeFileReader(ADSClassicInputStream):
     def __init__(self, file_):
         super(BibcodeFileReader, self).__init__(file_)
 
-        
     def process_line(self, line):
+        return line.strip()
+    
+    def process_linezzz(self, line):
         bibcode = line[:-1]
         row = '{}\t{}\n'.format(bibcode, self.read_count)
         return row
@@ -186,7 +188,7 @@ class StandardFileReader(ADSClassicInputStream):
         # at this point we have read beyond the desired bibcode, must back up
         self._iostream.seek(current_location)
         print 'returning value {}'.format(value)
-        return value
+        return self.process_line(value)
         
             
         
@@ -228,13 +230,12 @@ class StandardFileReader(ADSClassicInputStream):
         return self.read()
 
         
-    def process_line(self, bibcode, value):
+    def process_line(self, value):
         as_array = self.file_type in self.array_types
         quote_value = self.file_type in self.quote_values
         tab_separator = self.file_type in self.tab_separated_values
         processed_value = self.process_value(value, as_array, quote_value, tab_separator)
-        row = '{}\t{}\n'.format(bibcode, processed_value)
-        return row
+        return processed_value
     
     def _bibcode_match(self, bibcode):
         """ peek ahead to next line for bibcode and check for mactch"""
@@ -248,12 +249,17 @@ class StandardFileReader(ADSClassicInputStream):
 
         
     def process_value(self, value, as_array=False, quote_value=False, tab_separator=False):
-        """convert value to what Postgres will accept"""
+        """convert file value to something more useful"""
         if '\x00' in value:
-            # postgres does not like nulls in strings
+            # there should not be nulls in strings
             self.logger.error('in columnFileIngest.process_value with null value in string: {}', value)
             value = value.replace('\x00', '')
-    
+
+        if as_array:
+            value = value[0].split('\t')
+            return value
+
+        
         return_value = ''
         if tab_separator and isinstance(value, list) and len(value) == 1:
             value = value[0]

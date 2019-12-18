@@ -51,14 +51,14 @@ class ReferenceNetwork(BaseNetwork):
 
     def __init__(self):
         """load file containing entire citation network into dict"""
-        BaseNetwork.__init__(self, 'reference filename')
+        BaseNetwork.__init__(self, './adsdata/tests/data1/' + 'config/links/reference/all.links')
 
 
 class CitationNetwork(BaseNetwork):
     
     def __init__(self):
         """load file containing entire citation network into dict"""
-        BaseNetwork.__init__(self, 'reference filename')
+        BaseNetwork.__init__(self, './adsdata/tests/data1/' + 'config/links/citation/all.links')
 
 
 class Refereed:
@@ -69,7 +69,8 @@ class Refereed:
     It is important that membership test be O(1) rather than O(n).  
     """
     def __init__(self):
-        self.refereed = self._load('refereed filename')
+        root_dir = './adsdata/tests/data1/'  # hack        
+        self.refereed = self._load(root_dir + 'config/links/refereed/all.links')
         
     def _load(self, filename):
         logger.info('starting to load refereed')

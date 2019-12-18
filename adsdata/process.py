@@ -27,8 +27,8 @@ data_files['reference'] = {'path': 'config/links/reference/all.links'}
 data_files['relevance'] = {'path': 'config/links/relevance/docmetrics.tab'}
 data_files['simbad'] = {'path': 'config/links/simbad/simbad_objects.tab'}
 
-data_files['data_link'] = {'path': 'facet_datasources/datasources.links'}
-data_files['ejournal_link'] = {'path': 'electr/all.links'}
+#data_files['data_link'] = {'path': 'facet_datasources/datasources.links'}
+#data_files['ejournal_link'] = {'path': 'electr/all.links'}
 
 
 def process():
@@ -70,22 +70,21 @@ def read_next():
     d = dict()
     for x in data_files:
         if x is 'canonical':
-            d['bibcode'] = data_files['canonical']['file_descriptor'].readline()
-            if d['bibcode'] is None:
+            d['canonical'] = data_files['canonical']['file_descriptor'].readline()
+            if d['canonical'] is None:
                 return None
         else:
-            d[x] = x['file_descriptor'].read_value_for(d['bibcode'])
+            d[x] = data_files[x]['file_descriptor'].read_value_for(d['canonical'])
     return d
 
-def open():
+def open(root_dir='/proj/ads/abstracts'):
     global data_files
     # open all the files and out file descriptor back in dict
-    root_dir = './adsdata/tests/data1/'  # hack
     for x in data_files:
-        reader_class = reader.StandardFileReader
-        if 'reader_file' in data_files[x]:
-            reader_class = data_files[x]['reader_file']
-        data_files[x]['file_descriptor'] = reader_class(root_dir + x['path'])
-        
+        if 'file_reader' in data_files[x]:
+            reader_class = data_files[x]['file_reader']
+            data_files[x]['file_descriptor'] = reader_class(root_dir + data_files[x]['path'])
+        else:
+            data_files[x]['file_descriptor'] = reader.StandardFileReader(x, root_dir + data_files[x]['path'])
 
 
