@@ -63,7 +63,6 @@ class ADSClassicInputStream(object):
     def process_line(self, line):
         return line
     
-    
    
 class BibcodeFileReader(ADSClassicInputStream):
     """add id field to bibcode"""
@@ -74,84 +73,32 @@ class BibcodeFileReader(ADSClassicInputStream):
     def process_line(self, line):
         return line.strip()
     
-    def process_linezzz(self, line):
-        bibcode = line[:-1]
-        row = '{}\t{}\n'.format(bibcode, self.read_count)
-        return row
-
     def read_bibcode(self):
         bibcode = self.readline()
         if bibcode:
             bibcode = bibcode.strip()
         return bibcode
     
- 
-class OnlyTrueFileReader(ADSClassicInputStream):
-    """adds default True value when reading file with only bibcodes, e.g., refereed column data file"""
-    def __init__(self, file_):
-        super(OnlyTrueFileReader, self).__init__(file_)
-        
-    def read_value_for(self, bibcode):
-        """return True if bibcode is in file, None othewise
-
-        assumes bibcodes in file are sorted and passed bibcode values are sorted
-        there are three possibilities:
-            next line in file is the right one
-            need to skip some number of lines to get to the right one
-            there is no data in the file for the passed bibcode"""
-        file_location = self._iostream.tell()
-        next_line = self._iostream.readline()
-        if not next_line:
-            return None  # here on EOF
-        next_line = next_line.strip()
-        if bibcode == next_line:
-            # if we are on the right line
-            # file only has bibcodes, return value for property exists
-            return True
-        elif bibcode > next_line:
-            while bibcode > next_line:
-                next_line = self._iostream.readline()
-                if not next_line:
-                    return None    # here on EOF
-                next_line = next_line.strip()
-            if bibcode == next_line:
-                # skipped ahead to right line
-                return 'T'
-        # no data for passed bibcode
-        # reset file pointer so skipped bibcodes read again
-        self._iostream.seek(file_location)
-        return None
-
 
 class StandardFileReader(ADSClassicInputStream):
     """reads most nonbib column files
 
     can read files where for a bibcode is on one line or on consecutive lines
     """
-    def __init__(self, file_type_, file_):
+    def __init__(self, file_):
         super(StandardFileReader, self).__init__(file_)
-        self.file_type = file_type_
         
-        # the following lists controls how they are processed
-
-        # as_array: should values be read in as an array and output to sql as an array
-        #  for example, downloads and grants are an array while relevance has several distinct values but isn't an array
-        self.array_types = ('download', 'reads', 'author', 'reference', 'grants', 'citation', 'reader', 'simbad', 'ned', 'datalinks')
-        # quote_value: should individual values sent to sql be in quotes.  
-        #  for example, we don't quote reads, but we do names of authors
-        self.quote_values = ('author','simbad','grants', 'ned', 'datalinks')
-        # tab_separator: is the tab a separator in the input data, default is comma
-        self.tab_separated_values = ('author', 'download', 'reads')
-
 
     def read_value_for(self, bibcode):
         """return the value from the file for the passed bibcode or None if not in file
 
+        requires file are sorted by bibcode
+        the file may not info for the requested bibcode
         some files repeat a bibcode on consecutive lines to provide multiple values
         other files do not repeat a bibcode and provide multiple values on a single line
 
         """
-        # first, skip over lines
+        # first, skip over lines in file
         # until we either find the passed bibcode or determine it isn't in the file
         start_location = self._iostream.tell()
         current_location = start_location
@@ -160,148 +107,49 @@ class StandardFileReader(ADSClassicInputStream):
             print 'already at eof, bibcode = {}'.format(bibcode)
             return None    # eof
         current_line = current_line.strip()
-        print 'starting with {}'.format(current_line)
         while current_line[:19].strip() < bibcode:
-            print 'looking for bibcode {}, line []'.format(bibcode, current_line)
             current_location = self._iostream.tell()
             current_line = self._iostream.readline().strip()
             if not current_line:
-                print 'eof in loop! {}, passed {}'.format(current_line, bibcode)
                 return None    # eof
 
-        
         # at this point, we have either read to the desired bibcode
-        # it doesn't exist and we read past it
+        # or it doesn't exist and we read past it
         if bibcode != current_line[:19]:
-            print 'not found, at {}'.format(current_line)
+            # bibcode not in file
             self._iostream.seek(start_location)    # perhaps this backs up more than needed, I'm not sure
             return None
 
         # at this point, we have the first line with the bibcode in it
         # roll up other values on adjacent lines in file        
         value = []
-        while (current_line is not None) & (bibcode == current_line[:19]):  # is true at least once
+        while (current_line is not None) and (bibcode == current_line[:19]):  # is true at least once
             value.append(current_line[20:].strip())
             current_location = self._iostream.tell()
             current_line = self._iostream.readline()
 
         # at this point we have read beyond the desired bibcode, must back up
         self._iostream.seek(current_location)
-        print 'returning value {}'.format(value)
-        return self.process_line(value)
+        # if file had no value for the bibcode (e.g., refereed) generate default value
+        return self.process_value(value)
         
-            
-        
-
-        
-    def readzzz(self, size=-1):
-        """returns the data from the file for the next bibcode
-
-        peeks ahead in file and concatenates data if its bibcode matches
-        makes at least one and potentially multiple readline calls on iostream """
-        self.read_count += 1
-        if self.read_count % 100000 == 0:
-            self.logger.debug('nonbib file ingest, processing {}, count = {}'.format(self.file_type, self.read_count))
-        line = self._iostream.readline()
-        if len(line) == 0  or (self.config['MAX_ROWS'] > 0 and self.read_count > self.config['MAX_ROWS']):
-            self.logger.info('nonbib file ingest, processed {}, contained {} lines'.format(self._file, self.read_count))
-            return ''
-
-        bibcode = line[:19]
-        while ' ' in bibcode or '\t' in bibcode:
-            self.logger.error('invalid bibcode {} in file {}'.format(bibcode, self._file))
-            line = self._iostream.readline()
-            bibcode = line[:19]
-        value = line[20:-1]
-
-        # does the next line match the current bibcode?
-        match = self._bibcode_match(bibcode)
-
-        if self.file_type in (self.array_types):
-            value = [value]
-        while match:
-            line = self._iostream.readline()
-            value.append(line[20:-1])
-            match = self._bibcode_match(bibcode)
-        return self.process_line(bibcode, value)
-    
-
-    def readlinezzz(self):
-        return self.read()
-
-        
-    def process_line(self, value):
-        as_array = self.file_type in self.array_types
-        quote_value = self.file_type in self.quote_values
-        tab_separator = self.file_type in self.tab_separated_values
-        processed_value = self.process_value(value, as_array, quote_value, tab_separator)
-        return processed_value
-    
-    def _bibcode_match(self, bibcode):
-        """ peek ahead to next line for bibcode and check for mactch"""
-        file_location = self._iostream.tell()
-        next_line = self._iostream.readline()
-        self._iostream.seek(file_location)
-        next_bib = next_line[:19]
-        if bibcode == next_bib:
-            return True
-        return False
-
-        
-    def process_value(self, value, as_array=False, quote_value=False, tab_separator=False):
+    def process_value(self, value):
         """convert file value to something more useful"""
-        if '\x00' in value:
+        if isinstance(value, str) and '\x00' in value:
             # there should not be nulls in strings
             self.logger.error('in columnFileIngest.process_value with null value in string: {}', value)
             value = value.replace('\x00', '')
 
-        if as_array:
-            value = value[0].split('\t')
-            return value
-
-        
-        return_value = ''
-        if tab_separator and isinstance(value, list) and len(value) == 1:
-            value = value[0]
-    
-        output_separator = ','
-        if (as_array == False):
-            output_separator = '\t'
-    
-        if isinstance(value, str) and '\t' in value:
-            # tab separator in string means we need to create a sql array
-            values = value.split('\t')
-            # should check for double quotes in names
-            for v in values:
-                if quote_value and v[0] != '"':
-                    v = '"' + v + '"'
-                if len(return_value) == 0:
-                    return_value = v
-                else:
-                    return_value += output_separator + v
-                
-        elif isinstance(value, list):
-            # array of values to conver to sql
-            for v in value:
-                v = v.replace('\t', ' ')
-                if quote_value and ((len(v) > 0 and v[0] != '"') or (len(v) == 0)):
-                    v = '"' + v + '"'
-                elif not quote_value and len(v) == 0:
-                    v = 0
-                if len(return_value) == 0:
-                    return_value = v 
-                else:
-                    return_value += output_separator + v
-
-        elif isinstance(value, str):
-            if quote_value and value[0] != '"':
-                return_value = '"' + value + '"'
-            else:
-                return_value = value
-    
-        if as_array:
-            # postgres array are contained within curly braces
-            return_value = '{' + return_value + '}'
+        return_value = value
+        if return_value == ['']:
+            # here when the file did not have a value (e.g., refereed, etc.)
+            # for these boolean file we assign a default value of True
+            return_value = True
+        elif len(return_value) == 1 and isinstance(return_value[0], str) and '\t' in return_value[0]:
+            # tab separator in string means we need to convert to array
+            # if the array has more than one element it is an error
+            print('error processing file {}, there were multiple lines in file containing tabs {}, first line was used'.format(self._file, value))
+            return_value = return_value[0].split('\t')
         return return_value
 
 # for datalinks table entries that may or may not have a link_sub_type
