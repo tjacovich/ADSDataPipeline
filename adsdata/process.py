@@ -16,13 +16,13 @@ data_files['citation'] = {'path': 'config/links/citation/all.links'}
 data_files['download'] = {'path': 'config/links/reads/downloads.links'}
 data_files['grants'] = {'path': 'config/links/grants/all.links'}
 data_files['ned_objects'] = {'path': 'config/links/ned/ned_objects.tab'}
-data_files['nonarticle'] = {'path': 'config/links/nonarticle/all.links'}
-data_files['ocrabstract'] = {'path': 'config/links/ocr/all.links'}
-data_files['private'] = {'path': 'config/links/private/all.links'}
-data_files['pub_openaccess'] = {'path': 'config/links/openaccess/pub.dat'}
+data_files['nonarticle'] = {'path': 'config/links/nonarticle/all.links', 'data_type': bool}
+data_files['ocrabstract'] = {'path': 'config/links/ocr/all.links', 'data_type': bool}
+data_files['private'] = {'path': 'config/links/private/all.links', 'data_type': bool}
+data_files['pub_openaccess'] = {'path': 'config/links/openaccess/pub.dat', 'data_type': bool}
 data_files['readers'] = {'path': 'config/links/alsoread_bib/all.links'}
 data_files['reads'] = {'path': 'config/links/reads/all.links'}
-data_files['refereed'] = {'path': 'config/links/refereed/all.links'}
+data_files['refereed'] = {'path': 'config/links/refereed/all.links', 'data_type': bool}
 data_files['reference'] = {'path': 'config/links/reference/all.links'}
 data_files['relevance'] = {'path': 'config/links/relevance/docmetrics.tab'}
 data_files['simbad'] = {'path': 'config/links/simbad/simbad_objects.tab'}
@@ -34,13 +34,17 @@ nonbib_keys = data_files.keys()
 
 def process():
     # read a line and generate nonbib record
+    open(root_dir='./adsdata/tests/data1/')
     d = read_next()
     while (d is not None):
         # process it
         d = read_next()
         rec = convert(d)
+        print('in process, rec = {}'.format(rec))
         nonbib = NonBibRecord(**rec)
         met = metrics.compute_metrics(d['canonical'], len(d['author']))
+        import pdb
+        pdb.set_trace()
         met_proto = MetricsRecord(**met)
         print('processed {} {}'.format( d['canonical'], nonbib))
 
@@ -101,6 +105,6 @@ def open(root_dir='/proj/ads/abstracts'):
             reader_class = data_files[x]['file_reader']
             data_files[x]['file_descriptor'] = reader_class(root_dir + data_files[x]['path'])
         else:
-            data_files[x]['file_descriptor'] = reader.StandardFileReader(root_dir + data_files[x]['path'])
+            data_files[x]['file_descriptor'] = reader.StandardFileReader(root_dir + data_files[x]['path'], data_type=data_files[x].get('data_type', list))
 
 

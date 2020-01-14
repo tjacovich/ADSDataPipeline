@@ -1,5 +1,12 @@
+from collections import defaultdict
+from datetime import datetime
+from adsmsg import MetricsRecord
+from adsputils import load_config, setup_logging
 
 import memory_cache
+
+logger = setup_logging('ADSData', 'INFO')
+
 
 def compute_metrics(bibcode, author_num):
     # hack: eventually need lots of info for bibcode, not just author_num
@@ -10,14 +17,15 @@ def compute_metrics(bibcode, author_num):
 
     author_num = 20  # hack
     
-    total_normalized_citations = 0
-    normalized_reference = 0.0
-    citations_json_records = []
     citations = bibcode_to_cites[bibcode]
+    citations_histogram = defaultdict(float)
+    citations_json_records = []
+    citation_normalized_references = 0.0
     citation_num = len(citations)
+    normalized_reference = 0.0
     refereed_citations = []
     reference_num = len(bibcode_to_references[bibcode])
-    citations_histogram = defaultdict(float)
+    total_normalized_citations = 0.0
 
     if citations:
         for citation_bibcode in citations:
@@ -51,3 +59,13 @@ def compute_metrics(bibcode, author_num):
                 len(citations), citation_normalized_references, refereed_citation_num, total_normalized_citations,citations_histogram, an_citations, an_refereed_citations))
     logger.info('refereed_citation_num {}, rn_citations {}'.format(refereed_citation_num, rn_citations))
 
+
+    modtime = datetime.now()
+    reads = []
+    downloads = []
+    ret = {'bibcode': bibcode, 'an_citations': an_citations, 'an_refereed_citations': an_refereed_citations,
+           'author_num': author_num, 'citation_num': citation_num, 'citations': citations,
+           'downloads': downloads, 'modtime': modtime, 'reads': reads, 'refereed': bibcode in refereed,
+           'refereed_citation_num': refereed_citation_num, 'reference_num': reference_num,
+           'rn_citations': rn_citations, 'rn_citation_hist': rn_citations_hist}  #  'citation_record': citations_json_records,
+    return ret

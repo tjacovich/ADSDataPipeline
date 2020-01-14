@@ -85,9 +85,10 @@ class StandardFileReader(ADSClassicInputStream):
 
     can read files where for a bibcode is on one line or on consecutive lines
     """
-    def __init__(self, file_):
+    def __init__(self, file_, data_type = list):
         super(StandardFileReader, self).__init__(file_)
-        
+        self.data_type = data_type
+
 
     def read_value_for(self, bibcode):
         """return the value from the file for the passed bibcode or None if not in file
@@ -118,7 +119,7 @@ class StandardFileReader(ADSClassicInputStream):
         if bibcode != current_line[:19]:
             # bibcode not in file
             self._iostream.seek(start_location)    # perhaps this backs up more than needed, I'm not sure
-            return None
+            self._get_absent_value()
 
         # at this point, we have the first line with the bibcode in it
         # roll up other values on adjacent lines in file        
@@ -143,14 +144,28 @@ class StandardFileReader(ADSClassicInputStream):
         return_value = value
         if return_value == ['']:
             # here when the file did not have a value (e.g., refereed, etc.)
-            # for these boolean file we assign a default value of True
-            return_value = True
+            return_value = self._get_default_value()
+
         elif len(return_value) == 1 and isinstance(return_value[0], str) and '\t' in return_value[0]:
             # tab separator in string means we need to convert to array
             # if the array has more than one element it is an error
             print('error processing file {}, there were multiple lines in file containing tabs {}, first line was used'.format(self._file, value))
             return_value = return_value[0].split('\t')
         return return_value
+
+    def _get_absent_value(self):
+        if self.data_type is bool:
+            return False
+        elif self.data_type is list:
+            return []
+
+    def _get_default_value(self):
+        # for these boolean file we assign a default value of True
+        if self.data_type is bool:
+            return True
+        elif self.data_type is list:
+            return []
+
 
 # for datalinks table entries that may or may not have a link_sub_type
 # that includes ARTICLE types that do have sub_type and

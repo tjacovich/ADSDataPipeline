@@ -15,20 +15,20 @@ class TestReader(unittest.TestCase):
     
     def test_refereed(self):
         with patch('__builtin__.open', return_value=StringIO.StringIO('AAAAAAAAAAAAAAAAAAA\nBBBBBBBBBBBBBBBBBBB\nDDDDDDDDDDDDDDDDDDD\nEEEEEEEEEEEEEEEEEEE')):
-            f = reader.StandardFileReader('filename')
+            f = reader.StandardFileReader('filename', bool)
             self.assertTrue(f.read_value_for('AAAAAAAAAAAAAAAAAAA'))
             self.assertTrue(f.read_value_for('BBBBBBBBBBBBBBBBBBB'))
             self.assertFalse(f.read_value_for('CCCCCCCCCCCCCCCCCCC'))
-            self.assertTrue('T', f.read_value_for('DDDDDDDDDDDDDDDDDDD'))
+            self.assertTrue(True, f.read_value_for('DDDDDDDDDDDDDDDDDDD'))
 
         with patch('__builtin__.open', return_value=StringIO.StringIO('AAAAAAAAAAAAAAAAAAA\nBBBBBBBBBBBBBBBBBBB\nDDDDDDDDDDDDDDDDDDD\nEEEEEEEEEEEEEEEEEEE')):
-            f = reader.StandardFileReader('filename')
+            f = reader.StandardFileReader('filename', bool)
             self.assertTrue(f.read_value_for('BBBBBBBBBBBBBBBBBBB'))
             self.assertTrue(f.read_value_for('DDDDDDDDDDDDDDDDDDD'))
             self.assertTrue(f.read_value_for('EEEEEEEEEEEEEEEEEEE'))            
 
         with patch('__builtin__.open', return_value=StringIO.StringIO('AAAAAAAAAAAAAAAAAAA\nBBBBBBBBBBBBBBBBBBB\nDDDDDDDDDDDDDDDDDDD\nEEEEEEEEEEEEEEEEEEE')):
-            f = reader.StandardFileReader('filename')
+            f = reader.StandardFileReader('filename', bool)
             self.assertFalse(f.read_value_for('CCCCCCCCCCCCCCCCCCC'))            
             self.assertTrue(f.read_value_for('EEEEEEEEEEEEEEEEEEE'))            
             self.assertFalse(f.read_value_for('FFFFFFFFFFFFFFFFFFF'))

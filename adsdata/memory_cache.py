@@ -26,6 +26,9 @@ class BaseNetwork:
 
     def __init__(self, filename):
         self.network = self._load(filename)
+
+    def __getitem__(self, bibcode):
+        return self.network[bibcode]
         
     def _load(self, filename):
         """load file containing entire citation network into dict"""
@@ -35,7 +38,6 @@ class BaseNetwork:
         with open(filename) as f:
             for line in f:
                 # need more clean up on input
-                print('line: {}'.format(line))
                 line = line.strip()
                 bibcode1 = line[:19]
                 bibcode2 = line[20:39]
