@@ -33,9 +33,6 @@ class TestReader(unittest.TestCase):
             self.assertTrue(f.read_value_for('EEEEEEEEEEEEEEEEEEE'))            
             self.assertFalse(f.read_value_for('FFFFFFFFFFFFFFFFFFF'))
 
-    def test_canonical(self):
-        pass
-
     def test_standard(self):
         # test that we can read values for bibcodes
         with patch('__builtin__.open', return_value=StringIO.StringIO("""AAAAAAAAAAAAAAAAAAA\tA
@@ -85,3 +82,20 @@ EEEEEEEEEEEEEEEEEEE\tE""")):
             self.assertEqual(['D', 'DD'], f.read_value_for('DDDDDDDDDDDDDDDDDDD'))
             self.assertEqual(['E'], f.read_value_for('EEEEEEEEEEEEEEEEEEE'))
             self.assertFalse(f.read_value_for('FFFFFFFFFFFFFFFFFFF'))
+
+    def test_links(self):
+        """read in data links files"""
+        # facet_datasources/datasources.links
+        with patch('__builtin__.open', return_value=StringIO.StringIO('AAAAAAAAAAAAAAAAAAA\tARI\t1\thttp://dc.g-vo.org/arigfh/katkat/byhdw/qp/1202')):
+                   f = reader.StandardFileReader('filename')
+                   self.assertEqual(['ARI', '1', 'http://dc.g-vo.org/arigfh/katkat/byhdw/qp/1202'], f.read_value_for('AAAAAAAAAAAAAAAAAAA'))
+
+        # electr/all.links
+        with patch('__builtin__.open', return_value=StringIO.StringIO('AAAAAAAAAAAAAAAAAAA\thttps://doi.org/10.3931%2Fe-rara-477')):
+                   f = reader.StandardFileReader('filename')
+                   self.assertEqual(['https://doi.org/10.3931%2Fe-rara-477'], f.read_value_for('AAAAAAAAAAAAAAAAAAA'))
+
+        # eprint_html/all.links
+        with patch('__builtin__.open', return_value=StringIO.StringIO('AAAAAAAAAAAAAAAAAAA\thttps://arxiv.org/abs/0908.1823')):
+                   f = reader.StandardFileReader('filename')
+                   self.assertEqual(['https://arxiv.org/abs/0908.1823'], f.read_value_for('AAAAAAAAAAAAAAAAAAA'))

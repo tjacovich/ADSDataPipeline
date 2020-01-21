@@ -27,6 +27,11 @@ data_files['reference'] = {'path': 'config/links/reference/all.links'}
 data_files['relevance'] = {'path': 'config/links/relevance/docmetrics.tab'}
 data_files['simbad'] = {'path': 'config/links/simbad/simbad_objects.tab'}
 
+#data_files['electr'] = {'path': 'config/links/eprint_html/all.links'}
+#data_files['pub_html'] = {'path': 'config/links/electr/all.links'}
+
+
+
 #data_files['data_link'] = {'path': 'facet_datasources/datasources.links'}
 #data_files['ejournal_link'] = {'path': 'electr/all.links'}
 
@@ -55,6 +60,7 @@ def convert(d):
     most values are read into an array, 
     the exception is boolean membership like refereed"""
     ret = {}
+    esources = []
     for k in nonbib_keys:  # should we iterate over keys in protobuf instead?
         if k == 'canonical':
             ret['bibcode'] = d[k]
@@ -68,6 +74,9 @@ def convert(d):
             # if there is no value, provide boolean default
             ret[k] = False
             print 'changing private to false: {}'.format(ret)
+        elif k in ('pub_html'):
+            if k is 'pub_html' and d[k]:
+                esources.append(k.upper_case())
         else:
             ret[k] = d[k]
         if k in ('citation', 'reads'):
