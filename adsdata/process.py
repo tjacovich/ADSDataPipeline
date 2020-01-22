@@ -27,7 +27,7 @@ data_files['reference'] = {'path': 'config/links/reference/all.links'}
 data_files['relevance'] = {'path': 'config/links/relevance/docmetrics.tab'}
 data_files['simbad'] = {'path': 'config/links/simbad/simbad_objects.tab'}
 
-#data_files['electr'] = {'path': 'config/links/eprint_html/all.links'}
+data_files['electr'] = {'path': 'config/links/eprint_html/all.links'}
 #data_files['pub_html'] = {'path': 'config/links/electr/all.links'}
 
 
@@ -61,6 +61,7 @@ def convert(d):
     the exception is boolean membership like refereed"""
     ret = {}
     esources = []
+    links_data = []
     for k in nonbib_keys:  # should we iterate over keys in protobuf instead?
         if k == 'canonical':
             ret['bibcode'] = d[k]
@@ -77,6 +78,8 @@ def convert(d):
         elif k in ('pub_html'):
             if k is 'pub_html' and d[k]:
                 esources.append(k.upper_case())
+                t = k.split('_')[1].lower_case()
+                links_data.append({'access': '', 'instances': '', 'title': '', 'type': t , 'url': d[k]}
         else:
             ret[k] = d[k]
         if k in ('citation', 'reads'):
