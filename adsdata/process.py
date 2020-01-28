@@ -5,8 +5,10 @@ from adsmsg import NonBibRecord, MetricsRecord
 import metrics
 import reader
 
-# read one line from each file
+# read data for the current bibcode from all the files
 # generate a complete nonbib record
+# send it to master
+# generate a complete metrics record
 # send it to master
 
 data_files = OrderedDict()
@@ -57,7 +59,7 @@ def process():
         rec = convert(d)
         print('in process, rec = {}'.format(rec))
         nonbib = NonBibRecord(**rec)
-        met = metrics.compute_metrics(d['canonical'], len(d['author']))
+        met = metrics.compute_metrics(d)
         import pdb
         pdb.set_trace()
         met_proto = MetricsRecord(**met)

@@ -8,29 +8,31 @@ import memory_cache
 logger = setup_logging('ADSData', 'INFO')
 
 
-def compute_metrics(bibcode, author_num):
+def compute_metrics(d):
+    """passed a dict with the full nonbib record read from many files"""
+
+    bibcode = d['canonical']
+    author_num = len(d['authors'])
     # hack: eventually need lots of info for bibcode, not just author_num
     cache = memory_cache.get()
     refereed = cache['refereed']
     bibcode_to_references = cache['reference']
     bibcode_to_cites = cache['citation']
 
-    author_num = 20  # hack
-    
-    citations = bibcode_to_cites[bibcode]
+    citations = bibcode_to_cites.get(bibcode, [])
     citations_histogram = defaultdict(float)
     citations_json_records = []
     citation_normalized_references = 0.0
     citation_num = len(citations)
     normalized_reference = 0.0
     refereed_citations = []
-    reference_num = len(bibcode_to_references[bibcode])
+    reference_num = len(bibcode_to_references.get(bibcode, []))
     total_normalized_citations = 0.0
 
-    if citations:
+    if citation_num:
         for citation_bibcode in citations:
             citation_refereed = citation_bibcode in refereed
-            len_citation_reference = len(bibcode_to_references[citation_bibcode])
+            len_citation_reference = len(bibcode_to_references.get(citation_bibcode), [])
             citation_normalized_references = 1.0 / float(max(5, len_citation_reference))
             total_normalized_citations += citation_normalized_references
             normalized_reference += citation_normalized_references
@@ -61,8 +63,8 @@ def compute_metrics(bibcode, author_num):
 
 
     modtime = datetime.now()
-    reads = []
-    downloads = []
+    reads = d['reads']
+    downloads = d['downloads']
     ret = {'bibcode': bibcode, 'an_citations': an_citations, 'an_refereed_citations': an_refereed_citations,
            'author_num': author_num, 'citation_num': citation_num, 'citations': citations,
            'downloads': downloads, 'modtime': modtime, 'reads': reads, 'refereed': bibcode in refereed,
