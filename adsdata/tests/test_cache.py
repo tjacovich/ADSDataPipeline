@@ -37,3 +37,4 @@ class TestMemoryCache(unittest.TestCase):
             self.assertTrue('2014arXiv1401.7089B' in cite.network['2003ASPC..295..361M'])
             self.assertEqual(len(cite.network['2003ASPC..295..361M']), 2)
             self.assertEqual(len(cite.network), 2)
+            self.assertEqual([], cite.network['asdf'])

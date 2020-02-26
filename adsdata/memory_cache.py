@@ -33,7 +33,7 @@ class BaseNetwork:
     def _load(self, filename):
         """load file containing entire citation network into dict"""
         global logger
-        d = defaultdict(set)
+        d = defaultdict(list)
         count = 0
         with open(filename) as f:
             for line in f:
@@ -41,12 +41,15 @@ class BaseNetwork:
                 line = line.strip()
                 bibcode1 = line[:19]
                 bibcode2 = line[20:39]
-                d[bibcode1].add(bibcode2)
+                d[bibcode1].append(bibcode2)
                 count += 1
                 if count % 1000000 == 0:
                     logger.info('reading {}, count = {}'.format(filename, count))
         return d
         # logger.info('completed {}, count = {}'.format(filename, count))
+
+    def get(self, bibcode):
+        return self.network[bibcode]
 
 
 class ReferenceNetwork(BaseNetwork):
@@ -76,13 +79,13 @@ class Refereed:
         
     def _load(self, filename):
         logger.info('starting to load refereed')
-        d = set()
+        d = []
         count = 0
         with open(filename) as f:
             for line in f:
                 # need more clean up on input
                 line = line.strip()
-                d.add(line)
+                d.append(line)
                 count += 1
                 if count % 1000000 == 0:
                     logger.info('reading refereed, count = {}'.format(count))

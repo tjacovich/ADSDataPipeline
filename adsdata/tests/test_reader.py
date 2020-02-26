@@ -99,3 +99,25 @@ EEEEEEEEEEEEEEEEEEE\tE""")):
         with patch('__builtin__.open', return_value=StringIO.StringIO('AAAAAAAAAAAAAAAAAAA\thttps://arxiv.org/abs/0908.1823')):
                    f = reader.StandardFileReader('filename')
                    self.assertEqual(['https://arxiv.org/abs/0908.1823'], f.read_value_for('AAAAAAAAAAAAAAAAAAA'))
+
+    def test_list(self):
+        # first line of config/links/reads/downloads.links
+        download_line = '1057wjlf.book.....C\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1'
+        with patch('__builtin__.open', return_value=StringIO.StringIO(download_line)):
+            f = reader.StandardFileReader('filename')
+            l = f.read_value_for('1057wjlf.book.....C')
+            print '!!', l
+            self.assertEqual(1, l[0])
+            self.assertEqual(0, l[1])
+            self.assertEqual(0, l[-2])
+            self.assertEqual(1, l[-1])
+        citation_lines = '1890GSAB....1..411D\t2011ESRv..106..215H\n1890GSAB....1..411D\t2014SedG..311...60T\n1890GSAB....1..411D\t2015GSAB..127.1816C'
+        with patch('__builtin__.open', return_value=StringIO.StringIO(citation_lines)):
+            f = reader.StandardFileReader('filename')
+            l = f.read_value_for('1890GSAB....1..411D')
+            print '!!', l
+            self.assertEqual('2011ESRv..106..215H', l[0])
+            self.assertEqual('2014SedG..311...60T', l[1])
+            self.assertEqual('2015GSAB..127.1816C', l[2])
+            self.assertEqual(3, len(l))
+

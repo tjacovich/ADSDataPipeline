@@ -16,4 +16,4 @@ class TestMetrics(unittest.TestCase):
              'citations':  [], 'id': 11, 'reference': ["1997BoLMe..85..475M"]}
         with patch('adsdata.memory_cache.get', return_value={'refereed': [], 'reference': {}, 'citation': {}}):
             m = metrics.compute_metrics(d)
-            self.assertEqual(True, m)
+            self.assertEqual(m['bibcode'], d['canonical'])

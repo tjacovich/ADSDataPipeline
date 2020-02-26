@@ -15,7 +15,7 @@ class ADSClassicInputStream(object):
         ## self.logger.info('nonbib file ingest, file {}'.format(self._file))
         self.config = {}
         ## self.config.update(load_config())
-
+        self.dottab_file = self._file.endswith('.tab')
         self._iostream = open(file_, 'r')
         
         
@@ -151,6 +151,9 @@ class StandardFileReader(ADSClassicInputStream):
             # if the array has more than one element it is an error
             print('error processing file {}, there were multiple lines in file containing tabs {}, first line was used'.format(self._file, value))
             return_value = return_value[0].split('\t')
+            if return_value[0].isdigit() and not self.dottab_file:
+                t = [int(i) for i in return_value]
+                return_value = t
         return return_value
 
     def _get_absent_value(self):

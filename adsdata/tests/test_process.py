@@ -13,7 +13,7 @@ class TestMemoryCache(unittest.TestCase):
     
     def test_open(self):
         """can we open data files in the test directory"""
-        process.open('./adsdata/tests/data1/')
+        process.open_all('./adsdata/tests/data1/')
         for k in process.data_files:
             self.assertTrue('file_descriptor' in process.data_files[k])
 
@@ -24,7 +24,7 @@ class TestMemoryCache(unittest.TestCase):
 
     def test_read(self):
         """can we read in all the data for a bibcode"""
-        process.open('./adsdata/tests/data1/')
+        process.open_all('./adsdata/tests/data1/')
         d = process.read_next()
         self.assertEqual(d['canonical'], '1057wjlf.book.....C')
         self.assertEqual(len(d['author']), 1)
@@ -44,8 +44,11 @@ class TestMemoryCache(unittest.TestCase):
         self.assertFalse(d['simbad'])
 
     def test_protobuf(self):
-        process.open('./adsdata/tests/data1/')
+        process.open_all('./adsdata/tests/data1/')
         d = process.read_next()
         c = process.convert(d)
         nonbib = NonBibRecord(**c)
         print('nonbib = {}'.format(nonbib))
+
+    def test_convert(self):
+        self.assertEqual('2003ASPC..295..361M', process.convert({'canonical': '2003ASPC..295..361M'})['bibcode'])
