@@ -30,7 +30,7 @@ class TestMemoryCache(unittest.TestCase):
         self.assertEqual(len(d['author']), 1)
         self.assertEqual(d['author'], ['Chao, C'])
         self.assertFalse(d['citation'])
-        self.assertEqual(d['download'], ['1','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','1'])
+        self.assertEqual(d['download'], [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1])
         self.assertFalse(d['grants'])
         self.assertFalse(d['ned_objects'])
         self.assertTrue(d['nonarticle'])
@@ -38,9 +38,9 @@ class TestMemoryCache(unittest.TestCase):
         self.assertFalse(d['private'])
         self.assertFalse(d['pub_openaccess'])
         self.assertEqual(d['readers'], ['4fc45951aa', '557ebfd055', '57fcb9018a'])
-        self.assertEqual(d['reads'], ['0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '21', '6'])
+        self.assertEqual(d['reads'], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 21, 6])
         self.assertFalse(d['refereed'])
-        self.assertEqual(d['relevance'], ['0.32', '0',  '25', '0'])
+        self.assertEqual(d['relevance'], [0.32, 0,  25, 0])
         self.assertFalse(d['simbad'])
 
     def test_protobuf(self):

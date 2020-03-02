@@ -151,8 +151,14 @@ class StandardFileReader(ADSClassicInputStream):
             # if the array has more than one element it is an error
             print('error processing file {}, there were multiple lines in file containing tabs {}, first line was used'.format(self._file, value))
             return_value = return_value[0].split('\t')
-            if return_value[0].isdigit() and not self.dottab_file:
-                t = [int(i) for i in return_value]
+            if return_value[0].replace('.', '', 1).isdigit():   #  and not self.dottab_file:
+                t = []
+                for i in return_value:
+                    if i.isdigit():
+                        t.append(int(i))
+                    else:
+                        t.append(float(i))
+                # t = [int(i) for i in return_value]
                 return_value = t
         return return_value
 

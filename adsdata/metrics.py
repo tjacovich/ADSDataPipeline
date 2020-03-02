@@ -26,7 +26,9 @@ def compute_metrics(d):
     citations_histogram = defaultdict(float)
     citations_json_records = []
     citation_normalized_references = 0.0
-    citation_num = len(citations)
+    citations_num = 0
+    if citations:
+        citation_num = len(citations)
     normalized_reference = 0.0
     refereed_citations = []
     reference_num = len(bibcode_to_references.get(bibcode))

@@ -50,21 +50,25 @@ data_files['inspire'] = {'path': 'config/links/spires/all.links'}
 nonbib_keys = data_files.keys()
 
 def process():
-    # read a line and generate nonbib record
-    open(root_dir='./adsdata/tests/data1/')
+    # read one (logical) line from each file
+    # generate nonbib and metrics record
+    open_all(root_dir='./adsdata/tests/data1/')
     d = read_next()
     while (d is not None):
-        # process it
-        d = read_next()
-        rec = convert(d)
-        print('in process, rec = {}'.format(rec))
-        nonbib = NonBibRecord(**rec)
-        met = metrics.compute_metrics(d)
-        import pdb
-        pdb.set_trace()
-        met_proto = MetricsRecord(**met)
-        print('processed {} {}'.format( d['canonical'], nonbib))
-
+        try:
+            # process it
+            bibcode = d['canonical']
+            print('bibcode::: {}'.format(bibcode))
+            if len(bibcode) == 0:
+                print('exiting main loop')
+                break
+            d = read_next()
+            rec = convert(d)
+            nonbib = NonBibRecord(**rec)
+            met = metrics.compute_metrics(d)
+            met_proto = MetricsRecord(**met)
+        except AttributeError as e:
+            print('error processing bibcode {}'.format(d['canonical']))
         
 def convert(d):
     """convert the passed dict of info from column files into a dict matching NonBibRecord
@@ -80,15 +84,15 @@ def convert(d):
             ret['bibcode'] = d[k]
         elif k in ('author', 'canonical', 'download', 'citation', 'nonarticle', 'ocrabstract', 'private', 'pub_openaccess', 'reads', 'refereed', 'relevance', 'simbad'):
             pass  # field not in protobuf, do not copy
-        elif k in ('citation', 'grants', 'ned_objects', 'reference', 'relevance') and not d[k]:
+        elif k in ('citation', 'grants', 'ned_objects', 'reference', 'relevance') and (not k in d or d[k]):
             # if there is no value, provide array default
             print('providing default for {}'.format(k))
             ret[k] = []
-        elif k in ('foo') and not d[k]:
+        elif k in ('foo') and not (k in d or not d[k]):
             # if there is no value, provide boolean default
             ret[k] = False
             print 'changing private to false: {}'.format(ret)
-        elif k in ('associated') and d[k]:
+        elif k in ('associated') and k in d and d[k]:
             # sample:
             #    1825AN......4..241B     1825AN......4..241B Main Paper
             #    1825AN......4..241B     2010AN....331..852K Translation
@@ -97,21 +101,22 @@ def convert(d):
             for current in d[k]:
                 urls.append(current.split('\t')[0][:19])
                 titles.append(current.split('\t')[0][20:])
+
             links_data.append({'title': ','.join(titles), 'url': ','.join(urls),  # do we need quotes around array elements?
                                'link_type': k.upper(), 'link_sub_type': 'NA', 'item_count': len(links_data), 'title': []})
             properties.add('ESOURCE')
-        elif k in ('presentation', 'librarycatalog', 'inspire') and d[k]:
+        elif k in ('presentation', 'librarycatalog', 'inspire') and k in d:
             # sample:
             #   1997kbls.confE..10C	http://online.kitp.ucsb.edu/online/bblunch/carroll/
-            links_data.append({'link_type': k.upper(), 'link_sub_type': 'NA', 'url': [d[k]], 'item_count': len(links_data), 'title': []})
+            links_data.append({'link_type': k.upper(), 'link_sub_type': 'NA', 'url': d[k], 'item_count': len(links_data), 'title': []})
             properties.add(k.upper())
 
-        elif k in ('pub_html', 'eprint_html', 'pub_pdf', 'ads_pdf', 'eprint_pdf', 'author_html', 'author_pdf', 'ads_pdf'):
+        elif k in ('pub_html', 'eprint_html', 'pub_pdf', 'ads_pdf', 'eprint_pdf', 'author_html', 'author_pdf', 'ads_pdf') and k in d:
             if d[k]:
                 esources.append(k.upper())
                 t = k.split('_')[1].lower()
                 links_data.append({'item_count': len(links_data), 'title': [],
-                                   'link_type': 'ESOURCE', 'link_sub_type': t.upper(), 'url': [d[k]]})
+                                   'link_type': 'ESOURCE', 'link_sub_type': t.upper(), 'url': d[k]})
             if 'author' in k:
                 properties.add('AUTHOR_OPENACCESS')
             if 'ads' in k:
@@ -121,7 +126,7 @@ def convert(d):
             properties.add('ESOURCE')
             properties.add('OPENACCESS')
 
-        if k in ('citation', 'reads'):
+        if k in ('citation', 'reads') and k in d:
             count = 0
             if d[k]:
                 count = len(d[k])
@@ -152,7 +157,7 @@ def read_next():
             d[x] = data_files[x]['file_descriptor'].read_value_for(d['canonical'])
     return d
 
-def open(root_dir='/proj/ads/abstracts'):
+def open_all(root_dir='/proj/ads/abstracts'):
     global data_files
     # open all the files and out file descriptor back in dict
     for x in data_files:
