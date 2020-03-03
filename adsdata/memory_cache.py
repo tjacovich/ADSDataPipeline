@@ -48,6 +48,13 @@ class BaseNetwork:
         return d
         # logger.info('completed {}, count = {}'.format(filename, count))
 
+
+    def __iter__(self):
+        return self.network.__iter__()
+
+    def __next__(self):
+        return self.network.__next__()
+        
     def get(self, bibcode):
         return self.network[bibcode]
 
@@ -75,7 +82,7 @@ class Refereed:
     """
     def __init__(self):
         root_dir = './adsdata/tests/data1/'  # hack        
-        self.refereed = self._load(root_dir + 'config/links/refereed/all.links')
+        self.network = self._load(root_dir + 'config/links/refereed/all.links')
         
     def _load(self, filename):
         logger.info('starting to load refereed')
@@ -91,9 +98,3 @@ class Refereed:
                     logger.info('reading refereed, count = {}'.format(count))
         logger.info('completed refereed')    
         return d
-
-    def __iter__(self):
-        return self.refereed.__iter__()
-
-    def __next__(self):
-        return self.refereed.__next__()

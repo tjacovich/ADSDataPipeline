@@ -5,7 +5,7 @@ from adsputils import load_config, setup_logging
 
 import memory_cache
 
-logger = setup_logging('ADSData', 'INFO')
+# logger = setup_logging('ADSData', 'INFO')
 
 
 def compute_metrics(d):
@@ -26,7 +26,7 @@ def compute_metrics(d):
     citations_histogram = defaultdict(float)
     citations_json_records = []
     citation_normalized_references = 0.0
-    citations_num = 0
+    citation_num = 0
     if citations:
         citation_num = len(citations)
     normalized_reference = 0.0
@@ -62,10 +62,9 @@ def compute_metrics(d):
     # normalized info
     rn_citations = normalized_reference 
     rn_citations_hist = dict(citations_histogram)
-    logger.info('bibcode: {}, len(citations): {}, citation_normalized_references {}, refereed_citation_num {}, total_normalized_citations {}, citations_histogram {}, an_citations {}, an_refereed_citations {}'.format(bibcode, 
-                len(citations), citation_normalized_references, refereed_citation_num, total_normalized_citations,citations_histogram, an_citations, an_refereed_citations))
-    logger.info('refereed_citation_num {}, rn_citations {}'.format(refereed_citation_num, rn_citations))
-
+    #logger.info('bibcode: {}, len(citations): {}, citation_normalized_references {}, refereed_citation_num {}, total_normalized_citations {}, citations_histogram {}, an_citations {}, an_refereed_citations {}'.format(bibcode, 
+    #            len(citations), citation_normalized_references, refereed_citation_num, total_normalized_citations,citations_histogram, an_citations, an_refereed_citations))
+    # logger.info('refereed_citation_num {}, rn_citations {}'.format(refereed_citation_num, rn_citations))
 
     modtime = datetime.now()
     reads = d['reads']
@@ -75,4 +74,6 @@ def compute_metrics(d):
            'downloads': downloads, 'modtime': modtime, 'reads': reads, 'refereed': bibcode in refereed,
            'refereed_citation_num': refereed_citation_num, 'reference_num': reference_num,
            'rn_citations': rn_citations, 'rn_citation_hist': rn_citations_hist}  #  'citation_record': citations_json_records,
+
+
     return ret
