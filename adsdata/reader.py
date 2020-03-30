@@ -17,8 +17,6 @@ class ADSClassicInputStream(object):
         ## self.config.update(load_config())
         self.dottab_file = self._file.endswith('.tab')
         self._iostream = open(file_, 'r')
-        
-        
 
     def __enter__(self, *args, **kwargs):
         return self
@@ -40,7 +38,6 @@ class ADSClassicInputStream(object):
         self._iostream.close()
         del self._iostream
 
-
     def read(self, size=-1):
         """called by iterators, use for column files where bibcodes are not repeated"""
         self.read_count += 1
@@ -53,7 +50,6 @@ class ADSClassicInputStream(object):
             return ''
         return self.process_line(line)
     
-
     def readline(self):
         # consider changing to call read
         self.read_count += 1
@@ -85,10 +81,10 @@ class StandardFileReader(ADSClassicInputStream):
 
     can read files where for a bibcode is on one line or on consecutive lines
     """
-    def __init__(self, file_, data_type = list):
+
+    def __init__(self, file_, data_type=list):
         super(StandardFileReader, self).__init__(file_)
         self.data_type = data_type
-
 
     def read_value_for(self, bibcode):
         """return the value from the file for the passed bibcode or None if not in file
@@ -237,7 +233,7 @@ class DataLinksWithTargetFileReader(StandardFileReader):
 
     def _separate(self, line):
         if (len(line) == 0):
-            return ['','','']
+            return ['', '', '']
         parts = line.split('\t', 2)
         return [parts[0], parts[1], parts[1]+'\t'+parts[2]]
 

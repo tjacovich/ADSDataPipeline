@@ -16,8 +16,8 @@ class TestMemoryCache(unittest.TestCase):
         with patch('__builtin__.open', m):
             ref = memory_cache.Refereed()
             self.assertTrue('asdf' in ref)
-            self.assertTrue('asdf' in ref.refereed)
-            self.assertFalse('asdfasdf' in ref.refereed)
+            self.assertTrue('asdf' in ref.network)
+            self.assertFalse('asdfasdf' in ref.network)
 
     def test_reference(self):
         m = mock_open(read_data='2014arXiv1401.7089B\t2003ASPC..295..361M\n2016PhRvL.116f1102A\t2003ASPC..295..361M\n')
