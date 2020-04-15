@@ -121,3 +121,15 @@ EEEEEEEEEEEEEEEEEEE\tE""")):
             self.assertEqual('2015GSAB..127.1816C', l[2])
             self.assertEqual(3, len(l))
 
+    def test_downloads(self):
+        bibcodes = ['1057wjlf.book.....C', '1886Natur..34Q.131.', '1905PhRvI..21..247N', '1908PhRvI..27..367N']
+        downloads = [[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+                     [],
+                     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 0, 1, 0, 0, 0, 0],
+                     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
+
+        r = reader.StandardFileReader('./adsdata/tests/data1/config/links/reads/downloads.links')
+        for i in range(0, len(bibcodes) - 1):
+            x = r.read_value_for(bibcodes[i])
+            self.assertEqual(x, downloads[i])

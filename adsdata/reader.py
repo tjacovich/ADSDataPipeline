@@ -145,7 +145,7 @@ class StandardFileReader(ADSClassicInputStream):
         elif len(return_value) == 1 and isinstance(return_value[0], str) and '\t' in return_value[0]:
             # tab separator in string means we need to convert to array
             # if the array has more than one element it is an error
-            print('error processing file {}, there were multiple lines in file containing tabs {}, first line was used'.format(self._file, value))
+            # print('error processing file {}, there were multiple lines in file containing tabs {}, first line was used'.format(self._file, value))
             return_value = return_value[0].split('\t')
             if return_value[0].replace('.', '', 1).isdigit():   #  and not self.dottab_file:
                 t = []

@@ -73,7 +73,7 @@ def compute_metrics(d):
            'author_num': author_num, 'citation_num': citation_num, 'citations': citations,
            'downloads': downloads, 'modtime': modtime, 'reads': reads, 'refereed': bibcode in refereed,
            'refereed_citation_num': refereed_citation_num, 'reference_num': reference_num,
-           'rn_citations': rn_citations, 'rn_citation_hist': rn_citations_hist}  #  'citation_record': citations_json_records,
+           'rn_citations': rn_citations, 'rn_citations_hist': rn_citations_hist}  #  'citation_record': citations_json_records,
 
 
     return ret

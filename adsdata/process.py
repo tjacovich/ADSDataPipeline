@@ -53,20 +53,24 @@ def process():
     # read one (logical) line from each file
     # generate nonbib and metrics record
     open_all(root_dir='./adsdata/tests/data1/')
+    count = 0
     d = read_next()
     while (d is not None):
         try:
             # process it
             bibcode = d['canonical']
             print('bibcode::: {}'.format(bibcode))
-            if len(bibcode) == 0:
+            if len(bibcode) == 0 or count > 3:
                 print('exiting main loop')
                 break
             d = read_next()
+            import pdb
+            pdb.set_trace()
             rec = convert(d)
             nonbib = NonBibRecord(**rec)
             met = metrics.compute_metrics(d)
             met_proto = MetricsRecord(**met)
+            count += 1
         except AttributeError as e:
             print('error processing bibcode {}'.format(d['canonical']))
         
