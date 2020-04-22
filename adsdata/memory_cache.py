@@ -30,6 +30,9 @@ class BaseNetwork:
     def __getitem__(self, bibcode):
         return self.network[bibcode]
         
+    def __setitem__(self, bibcode, value):
+        self.network[bibcode] = value
+
     def _load(self, filename):
         """load file containing entire citation network into dict"""
         global logger

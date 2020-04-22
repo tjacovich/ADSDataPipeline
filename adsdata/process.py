@@ -60,20 +60,33 @@ def process():
             # process it
             bibcode = d['canonical']
             print('bibcode::: {}'.format(bibcode))
-            if len(bibcode) == 0 or count > 3:
+            if len(bibcode) == 0 or count > 10:
                 print('exiting main loop')
                 break
             d = read_next()
-            import pdb
-            pdb.set_trace()
             rec = convert(d)
             nonbib = NonBibRecord(**rec)
+            print('bibcode: {}, nonbib: {}'.format(bibcode, nonbib))
             met = metrics.compute_metrics(d)
             met_proto = MetricsRecord(**met)
+            print('bibcode: {}, metrics: {}'.format(bibcode, met_proto))
             count += 1
         except AttributeError as e:
             print('error processing bibcode {}'.format(d['canonical']))
-        
+
+
+def process_bibcode(bibcodes):
+    open_all(root_dir='./adsdata/tests/data1/')
+    for bibcode in bibcodes:
+        d = read_next_bibcode(bibcode)
+        rec = convert(d)
+        print('bibcode: {}, nonbib: {}\n'.format(bibcode, rec))
+        nonbib = NonBibRecord(**rec)
+        met = metrics.compute_metrics(d)
+        print('bibcode: {}, metrics: {}\n'.format(bibcode, met))
+        met_proto = MetricsRecord(**met)
+
+            
 def convert(d):
     """convert the passed dict of info from column files into a dict matching NonBibRecord
 
@@ -160,6 +173,15 @@ def read_next():
         else:
             d[x] = data_files[x]['file_descriptor'].read_value_for(d['canonical'])
     return d
+
+def read_next_bibcode(bibcode):
+    d = dict()
+    d['canonical'] = bibcode
+    for x in data_files:
+        if x is not 'canonical':
+            d[x] = data_files[x]['file_descriptor'].read_value_for(bibcode)
+    return d
+
 
 def open_all(root_dir='/proj/ads/abstracts'):
     global data_files

@@ -13,8 +13,8 @@ def compute_metrics(d):
 
     bibcode = d['canonical']
     author_num = 1
-    if 'author' in d and d['author']:
-        author_num = len(d['author'])
+    if 'authors' in d and d['authors']:
+        author_num = max(len(d['authors']), 1)
 
     # hack: eventually need lots of info for bibcode, not just author_num
     cache = memory_cache.get()
@@ -72,8 +72,9 @@ def compute_metrics(d):
     ret = {'bibcode': bibcode, 'an_citations': an_citations, 'an_refereed_citations': an_refereed_citations,
            'author_num': author_num, 'citation_num': citation_num, 'citations': citations,
            'downloads': downloads, 'modtime': modtime, 'reads': reads, 'refereed': bibcode in refereed,
-           'refereed_citation_num': refereed_citation_num, 'reference_num': reference_num,
-           'rn_citations': rn_citations, 'rn_citations_hist': rn_citations_hist}  #  'citation_record': citations_json_records,
-
+           'refereed_citations': refereed_citations, 'refereed_citation_num': refereed_citation_num,
+           'reference_num': reference_num,
+           'rn_citations': rn_citations, 'rn_citations_hist': rn_citations_hist,
+           'rn_citation_data': citations_json_records}
 
     return ret

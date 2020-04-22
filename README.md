@@ -6,8 +6,8 @@
 Computing metrics requires the entire reference and citation networks
 as well a list of all the refereed bibcodes.  The reference and
 citation networks are cached into python defaultdicts where the
-default value is [].  Refereed status is cached in a python list
-of bibcodes.
+key is the bibcode and the default value is [].  Refereed status is
+cached in a python list of bibcodes.
 
 # Nonbib Processing
 Conceptually, the code reads one line from each of the ~30 input

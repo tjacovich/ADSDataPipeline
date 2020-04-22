@@ -101,7 +101,7 @@ class StandardFileReader(ADSClassicInputStream):
         current_location = start_location
         current_line = self._iostream.readline()
         if not current_line:
-            print 'already at eof, bibcode = {}'.format(bibcode)
+            # print 'already at eof, bibcode = {}'.format(bibcode)
             return None    # eof
         current_line = current_line.strip()
         while current_line[:19].strip() < bibcode:
@@ -148,12 +148,16 @@ class StandardFileReader(ADSClassicInputStream):
             # print('error processing file {}, there were multiple lines in file containing tabs {}, first line was used'.format(self._file, value))
             return_value = return_value[0].split('\t')
             if return_value[0].replace('.', '', 1).isdigit():   #  and not self.dottab_file:
-                t = []
-                for i in return_value:
-                    if i.isdigit():
-                        t.append(int(i))
-                    else:
-                        t.append(float(i))
+                try:
+                    t = []
+                    for i in return_value:
+                        if i.isdigit():
+                            t.append(int(i))
+                        else:
+                            t.append(float(i))
+                except ValueError as e:
+                    self.logger.error('ValueError in reader.proces_value, value: {}, data_type: []'.format(value, self.data_type))
+                
                 # t = [int(i) for i in return_value]
                 return_value = t
         return return_value
