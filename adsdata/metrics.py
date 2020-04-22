@@ -13,8 +13,8 @@ def compute_metrics(d):
 
     bibcode = d['canonical']
     author_num = 1
-    if 'authors' in d and d['authors']:
-        author_num = max(len(d['authors']), 1)
+    if 'author' in d and d['author']:
+        author_num = max(len(d['author']), 1)
 
     # hack: eventually need lots of info for bibcode, not just author_num
     cache = memory_cache.get()

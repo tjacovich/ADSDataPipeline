@@ -15,7 +15,7 @@ class TestMetrics(unittest.TestCase):
 
 
     def test_trivial_fields(self):
-        d = {'canonical': "1998PPGeo..22..553A", 'refereed': False, 'authors': ["Arnfield, A. L."],
+        d = {'canonical': "1998PPGeo..22..553A", 'refereed': False, 'author': ["Arnfield, A. L."],
              'reads': [1, 2, 3, 4], 'download': [0, 1, 2, 3],
              'citations':  ['1998PPGeo..22..553B'], 'id': 11, 'reference': ["1997BoLMe..85..475M"]}
         m = mock_open(read_data='')
@@ -31,7 +31,7 @@ class TestMetrics(unittest.TestCase):
             self.assertEqual(met['downloads'], d['download'])
 
     def test_num_fields(self):
-        d = {'canonical': "1998PPGeo..22..553A", 'refereed': False, 'authors': ["Arnfield, A. L."],
+        d = {'canonical': "1998PPGeo..22..553A", 'refereed': False, 'author': ["Arnfield, A. L."],
              'reads': [1, 2, 3, 4], 'download': [0, 1, 2, 3],
              'citations':  ['1998PPGeo..22..553A'], 'id': 11, 'reference': ["1997BoLMe..85..475M"]}
         m = mock_open(read_data='')
@@ -44,12 +44,12 @@ class TestMetrics(unittest.TestCase):
             met = metrics.compute_metrics(d)
             self.assertEqual(met['citation_num'], len(d['citations']))
             self.assertEqual(met['reference_num'], len(d['reference']))
-            self.assertEqual(met['author_num'], len(d['authors']))
+            self.assertEqual(met['author_num'], len(d['author']))
             self.assertEqual(met['refereed_citation_num'], 0)
 
     def test_with_citations(self):
         d = {'canonical': "1997BoLMe..85..475M", 'refereed': True, 
-             'authors': ["Meesters, A. G. C. A.", "Bink, N. J.",  "Henneken, E. A. C.",
+             'author': ["Meesters, A. G. C. A.", "Bink, N. J.",  "Henneken, E. A. C.",
                          "Vugts, H. F.", "Cannemeijer, F."],
              'download': [], 'reads': [],
              'citations': ["1998PPGeo..22..553A", "1999P&SS...47..951S", "2000BoLMe..97..385O",

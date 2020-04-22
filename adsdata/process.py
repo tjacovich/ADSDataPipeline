@@ -12,36 +12,36 @@ import reader
 # send it to master
 
 data_files = OrderedDict()
-data_files['canonical'] = {'path': 'config/bibcodes.list.can', 'file_reader': reader.BibcodeFileReader}
-data_files['author'] = {'path': 'config/links/facet_authors/all.links'}
-data_files['citation'] = {'path': 'config/links/citation/all.links'}
-data_files['download'] = {'path': 'config/links/reads/downloads.links'}
-data_files['grants'] = {'path': 'config/links/grants/all.links'}
-data_files['ned_objects'] = {'path': 'config/links/ned/ned_objects.tab'}
-data_files['nonarticle'] = {'path': 'config/links/nonarticle/all.links', 'data_type': bool}
-data_files['ocrabstract'] = {'path': 'config/links/ocr/all.links', 'data_type': bool}
-data_files['private'] = {'path': 'config/links/private/all.links', 'data_type': bool}
-data_files['pub_openaccess'] = {'path': 'config/links/openaccess/pub.dat', 'data_type': bool}
-data_files['readers'] = {'path': 'config/links/alsoread_bib/all.links'}
-data_files['reads'] = {'path': 'config/links/reads/all.links'}
-data_files['refereed'] = {'path': 'config/links/refereed/all.links', 'data_type': bool}
-data_files['reference'] = {'path': 'config/links/reference/all.links'}
-data_files['relevance'] = {'path': 'config/links/relevance/docmetrics.tab'}
-data_files['simbad'] = {'path': 'config/links/simbad/simbad_objects.tab'}
+data_files['canonical'] = {'path': 'bibcodes.list.can', 'file_reader': reader.BibcodeFileReader}
+data_files['author'] = {'path': 'links/facet_authors/all.links'}
+data_files['citation'] = {'path': 'links/citation/all.links'}
+data_files['download'] = {'path': 'links/reads/downloads.links'}
+data_files['grants'] = {'path': 'links/grants/all.links'}
+data_files['ned_objects'] = {'path': 'links/ned/ned_objects.tab'}
+data_files['nonarticle'] = {'path': 'links/nonarticle/all.links', 'data_type': bool}
+data_files['ocrabstract'] = {'path': 'links/ocr/all.links', 'data_type': bool}
+data_files['private'] = {'path': 'links/private/all.links', 'data_type': bool}
+data_files['pub_openaccess'] = {'path': 'links/openaccess/pub.dat', 'data_type': bool}
+data_files['readers'] = {'path': 'links/alsoread_bib/all.links'}
+data_files['reads'] = {'path': 'links/reads/all.links'}
+data_files['refereed'] = {'path': 'links/refereed/all.links', 'data_type': bool}
+data_files['reference'] = {'path': 'links/reference/all.links'}
+data_files['relevance'] = {'path': 'links/relevance/docmetrics.tab'}
+data_files['simbad'] = {'path': 'links/simbad/simbad_objects.tab'}
 
-data_files['pub_html'] = {'path': 'config/links/electr/all.links'}
-data_files['eprint_html'] = {'path': 'config/links/eprint_html/all.links'}
-data_files['pub_pdf'] = {'path': 'config/links/pub_pdf/all.links'}
-data_files['ads_pdf'] = {'path': 'config/links/ads_pdf/all.links'}
-data_files['eprint_pdf'] = {'path': 'config/links/eprint_pdf/all.links'}
-data_files['author_html'] = {'path': 'config/links/author_html/all.links'}
-data_files['author_pdf'] = {'path': 'config/links/author_pdf/all.links'}
-data_files['ads_pdf'] = {'path': 'config/links/ads_scan/all.links'}
-data_files['associated'] = {'path': 'config/links/associated/all.links'}
-data_files['presentation'] = {'path': 'config/links/video/all.links'}
-data_files['librarycatalog'] = {'path': 'config/links/library/all.links'}
-data_files['inspire'] = {'path': 'config/links/spires/all.links'}
-# data_files['toc'] = {'path': 'config/links/toc/all.links'}  # I don't see how data in this file affect the nonbib record
+data_files['pub_html'] = {'path': 'links/electr/all.links'}
+data_files['eprint_html'] = {'path': 'links/eprint_html/all.links'}
+data_files['pub_pdf'] = {'path': 'links/pub_pdf/all.links'}
+data_files['ads_pdf'] = {'path': 'links/ads_pdf/all.links'}
+data_files['eprint_pdf'] = {'path': 'links/eprint_pdf/all.links'}
+data_files['author_html'] = {'path': 'links/author_html/all.links'}
+data_files['author_pdf'] = {'path': 'links/author_pdf/all.links'}
+data_files['ads_pdf'] = {'path': 'links/ads_scan/all.links'}
+data_files['associated'] = {'path': 'links/associated/all.links'}
+data_files['presentation'] = {'path': 'links/video/all.links'}
+data_files['librarycatalog'] = {'path': 'links/library/all.links'}
+data_files['inspire'] = {'path': 'links/spires/all.links'}
+# data_files['toc'] = {'path': 'links/toc/all.links'}  # I don't see how data in this file affect the nonbib record
 
 
 #data_files['data_link'] = {'path': 'facet_datasources/datasources.links'}
@@ -52,7 +52,8 @@ nonbib_keys = data_files.keys()
 def process():
     # read one (logical) line from each file
     # generate nonbib and metrics record
-    open_all(root_dir='./adsdata/tests/data1/')
+    # open_all(root_dir='./adsdata/tests/data1/')
+    open_all(root_dir='./logs/input/current/')
     count = 0
     d = read_next()
     while (d is not None):
@@ -72,7 +73,7 @@ def process():
             print('bibcode: {}, metrics: {}'.format(bibcode, met_proto))
             count += 1
         except AttributeError as e:
-            print('error processing bibcode {}'.format(d['canonical']))
+            print('error processing bibcode: {}, error: {}'.format(d['canonical'], e))
 
 
 def process_bibcode(bibcodes):
