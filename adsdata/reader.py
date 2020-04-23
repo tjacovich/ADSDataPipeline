@@ -1,4 +1,5 @@
 
+import traceback
 from adsputils import setup_logging, load_config
 
 
@@ -156,7 +157,8 @@ class StandardFileReader(ADSClassicInputStream):
                         else:
                             t.append(float(i))
                 except ValueError as e:
-                    self.logger.error('ValueError in reader.proces_value, value: {}, data_type: []'.format(value, self.data_type))
+                    self.logger.error('ValueError in reader.proces_value, value: {}, data_type: [], {}'.format(value, self.data_type, str(e)))
+                    print(traceback.format_exc())
                 
                 # t = [int(i) for i in return_value]
                 return_value = t

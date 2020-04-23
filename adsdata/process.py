@@ -1,5 +1,6 @@
 
 from collections import OrderedDict
+import traceback
 
 from adsmsg import NonBibRecord, MetricsRecord
 import metrics
@@ -73,7 +74,8 @@ def process():
             print('bibcode: {}, metrics: {}'.format(bibcode, met_proto))
             count += 1
         except AttributeError as e:
-            print('error processing bibcode: {}, error: {}'.format(d['canonical'], e))
+            print('error processing bibcode: {}, error: {}'.format(d['canonical'], str(e)))
+            print(traceback.format_exc())
 
 
 def process_bibcode(bibcodes):

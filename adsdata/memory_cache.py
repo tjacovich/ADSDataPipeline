@@ -65,14 +65,14 @@ class ReferenceNetwork(BaseNetwork):
 
     def __init__(self):
         """load file containing entire citation network into dict"""
-        BaseNetwork.__init__(self, './logs/input/current/' + 'config/links/reference/all.links')
+        BaseNetwork.__init__(self, './logs/input/current/' + 'links/reference/all.links')
 
 
 class CitationNetwork(BaseNetwork):
     
     def __init__(self):
         """load file containing entire citation network into dict"""
-        BaseNetwork.__init__(self, './logs/input/current/' + 'config/links/citation/all.links')
+        BaseNetwork.__init__(self, './logs/input/current/' + 'links/citation/all.links')
 
 
 class Refereed:
@@ -84,7 +84,7 @@ class Refereed:
     """
     def __init__(self):
         root_dir = './logs/input/current/'  # hack        
-        self.network = self._load(root_dir + 'config/links/refereed/all.links')
+        self.network = self._load(root_dir + 'links/refereed/all.links')
 
     def __iter__(self):
         return self.network.__iter__()
