@@ -98,8 +98,8 @@ class TestMetrics(unittest.TestCase):
                                  "bibcode": "1998PPGeo..22..553A", "ref_norm": 0.20000000298023224}
             rn_citation_data1 = {"cityear": 1999, "pubyear": 1997, "auth_norm": 0.20000000298023224,
                                  "bibcode": "1999P&SS...47..951S", "ref_norm": 0.02083333395421505}
-            self.compare_citation_data(met['citation_record'][0], rn_citation_data)
-            self.compare_citation_data(met['citation_record'][1], rn_citation_data1)
+            self.compare_citation_data(met['rn_citation_data'][0], rn_citation_data)
+            self.compare_citation_data(met['rn_citation_data'][1], rn_citation_data1)
             y = int(d['canonical'][:4])
             today = datetime.today()
             age = max(1.0, today.year - y + 1) 

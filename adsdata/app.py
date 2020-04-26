@@ -1,6 +1,6 @@
 from adsputils import ADSCelery
 
 
-class AdsDataCelery(ADSCelery):
+class ADSDataPipelineCelery(ADSCelery):
     
     pass
