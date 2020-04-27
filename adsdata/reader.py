@@ -137,8 +137,6 @@ class StandardFileReader(ADSClassicInputStream):
         #     # here when the file did not have a value (e.g., refereed, etc.)
         #    return_value = self.default_value 
 
-        print 'value = {}'.format(value)
-
         if isinstance(value, bool):
             return_value = value
         elif (len(value) == 1 and '\t' in value[0]):
