@@ -153,7 +153,19 @@ EEEEEEEEEEEEEEEEEEE\tE""")):
                                              'url': ['1850AJ......1...57H', '1850AJ......1...72H'],
                                              'title': ['Main Paper', 'Erratum']}},
                              x)
-                   
+
+    def test_simbad(self):
+        with patch('__builtin__.open', return_value=StringIO.StringIO('1857AN.....45...89S\t1500441\tLP*')):
+            f = reader.StandardFileReader('simbad_objects', 'filename')
+            x = f.read_value_for('1857AN.....45...89S')
+            self.assertEqual({'simbad_objects': ['1500441', 'LP*']}, x)
+
+    def test_ned(self):
+        with patch('__builtin__.open', return_value=StringIO.StringIO('1885AN....112..285E\tMESSIER_031\tG\n1885AN....112..285E\tSN_1885A\tSN')):
+            f = reader.StandardFileReader('ned_objects', 'filename')
+            x = f.read_value_for('1885AN....112..285E')
+            self.assertEqual({'ned_objects': ["MESSIER_031 G", "SN_1885A SN"]}, x)
+
     def test_isfloat(self):
         self.assertTrue(reader.isFloat('1.2'))
         self.assertTrue(reader.isFloat('1'))

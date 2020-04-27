@@ -137,24 +137,27 @@ class StandardFileReader(ADSClassicInputStream):
         #     # here when the file did not have a value (e.g., refereed, etc.)
         #    return_value = self.default_value 
 
+        print 'value = {}'.format(value)
+
         if isinstance(value, bool):
             return_value = value
         elif (len(value) == 1 and '\t' in value[0]):
             # tab separator in string means we need to convert elements to array
-            # convert valid ints and floats to numeric representation
-            t = []
             return_value = value[0].split('\t')
-            try:
-                for x in return_value:
-                    if x.isdigit():
-                        t.append(int(x))
-                    elif isFloat(x):
-                        t.append(float(x))
-                    else:
-                        # value is a string
-                        t.append(x)
-                return_value = t
-            except ValueError as e:
+            if data_files[self.filetype].get('string_to_number', True):
+                # convert valid ints and floats to numeric representation
+                t = []
+                try:
+                    for x in return_value:
+                        if x.isdigit():
+                            t.append(int(x))
+                        elif isFloat(x):
+                            t.append(float(x))
+                        else:
+                            # value is a string
+                            t.append(x)
+                    return_value = t
+                except ValueError as e:
                     app.logger.error('ValueError in reader.proces_value, value: {}, default_value: {}, {}'.format(value, self.default_value, str(e)))
                     app.logger.error(traceback.format_exc())
                     return_value = self.default_value
@@ -169,6 +172,11 @@ class StandardFileReader(ADSClassicInputStream):
                     if i >= len(x):
                         x.append([])
                     x[i].append(parts[i])
+            return_value = x
+        elif (len(value) > 1):
+            x = []
+            for r in value:
+                x.append(r.replace('\t', ' '))
             return_value = x
         # convert array to dict if needed
         if 'subparts' in data_files[self.filetype] and return_value != data_files[self.filetype]['default_value']:
