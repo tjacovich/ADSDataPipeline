@@ -1,7 +1,8 @@
 
 import traceback
-from adsputils import setup_logging, load_config
+import app
 from file_defs import data_files
+
 
 class ADSClassicInputStream(object):
     """file like object used to read nonbib column data files
@@ -12,11 +13,8 @@ class ADSClassicInputStream(object):
     def __init__(self, filetype, filename):
         self.filename = filename
         self.filetype = filetype
-        self.read_count = 0   # needed for logging
-        ## self.logger = setup_logging('AdsDataSqlSync', 'DEBUG')
-        ## self.logger.info('nonbib file ingest, file {}'.format(self._file))
+        self.read_count = 0   # used in logging
         self.config = {}
-        ## self.config.update(load_config())
         self.dottab_file = self.filename.endswith('.tab')
         self._iostream = open(filename, 'r')
 
@@ -44,11 +42,11 @@ class ADSClassicInputStream(object):
         """called by iterators, use for column files where bibcodes are not repeated"""
         self.read_count += 1
         if self.read_count % 100000 == 0:
-            self.logger.debug('nonbib file ingest, count = {}'.format(self.read_count))
+            app.logger.debug('nonbib file ingest, count = {}'.format(self.read_count))
             
         line = self._iostream.readline()
         if len(line) == 0 or (self.config['MAX_ROWS'] > 0 and self.read_count > self.config['MAX_ROWS']):
-            self.logger.info('nonbib file ingest, processed {}, contained {} lines'.format(self.filename, self.read_count))
+            app.logger.info('nonbib file ingest, processed {}, contained {} lines'.format(self.filename, self.read_count))
             return ''
         return self.process_line(line)
     
@@ -62,27 +60,11 @@ class ADSClassicInputStream(object):
         return line
     
    
-class BibcodeFileReader(ADSClassicInputStream):
-    """add id field to bibcode"""
-    
-    def __init__(self, file_):
-        super(BibcodeFileReader, self).__init__(file_)
-
-    def process_line(self, line):
-        return line.strip()
-    
-    def read_bibcode(self):
-        bibcode = self.readline()
-        if bibcode:
-            bibcode = bibcode.strip()
-        return bibcode
-    
-
 class StandardFileReader(ADSClassicInputStream):
     """reads nonbib column files
 
     processing is based on the file's properties dict
-    requires file are sorted by bibcode    
+    requires file are sorted by bibcode
     """
 
     def __init__(self, filetype, filename):
@@ -147,7 +129,7 @@ class StandardFileReader(ADSClassicInputStream):
         """convert file value to something more useful"""
         if isinstance(value, str) and '\x00' in value:
             # there should not be nulls in strings
-            self.logger.error('in columnFileIngest.process_value with null value in string: {}', value)
+            app.logger.error('in columnFileIngest.process_value with null value in string: {}', value)
             value = value.replace('\x00', '')
 
         return_value = value
@@ -173,8 +155,8 @@ class StandardFileReader(ADSClassicInputStream):
                         t.append(x)
                 return_value = t
             except ValueError as e:
-                    self.logger.error('ValueError in reader.proces_value, value: {}, default_value: {}, {}'.format(value, self.default_value, str(e)))
-                    self.logger.error(traceback.format_exc())
+                    app.logger.error('ValueError in reader.proces_value, value: {}, default_value: {}, {}'.format(value, self.default_value, str(e)))
+                    app.logger.error(traceback.format_exc())
                     return_value = self.default_value
         elif (len(value) > 1) and 'subparts' in data_files[self.filetype]:
             # here on multi-line dict (e.g., associations)
@@ -189,7 +171,7 @@ class StandardFileReader(ADSClassicInputStream):
                     x[i].append(parts[i])
             return_value = x
         # convert array to dict if needed
-        if 'subparts' in data_files[self.filetype]:
+        if 'subparts' in data_files[self.filetype] and return_value != data_files[self.filetype]['default_value']:
             d = {}
             for i in range(len(data_files[self.filetype]['subparts'])):
                 k = data_files[self.filetype]['subparts'][i]
@@ -198,7 +180,7 @@ class StandardFileReader(ADSClassicInputStream):
                     v = return_value[i]
                 d[k] = v
             return_value = d
-        if 'extra_values' in data_files[self.filetype]:
+        if 'extra_values' in data_files[self.filetype] and return_value != data_files[self.filetype]['default_value']:
             d.update(data_files[self.filetype]['extra_values'])
             return_value = d
         return {self.filetype: return_value}

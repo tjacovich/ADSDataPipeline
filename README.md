@@ -23,7 +23,7 @@ does not appear in every file so one can't just read the next line
 from every file and naively merge.  Also, in some files the data for a
 bibcode is spread acroos multiple lines (requiring merging of data).
 
-# Describing And Reading Files
+# Describing And Reading Files  
 About 30 files need to be consumed.  As noted above, due to the
 properties the files encode and slight variations in file formats,
 having code to read all the various files can be compliated.  This
@@ -36,12 +36,12 @@ This is true if you read a file holding scalar data (e.g., refereed),
 an array of data (e.g., downloads) or a hashtable of data (e.g.,
 relevance or eprint_html).   
 
-How are the various file idiosycrasies and properties are encoded?
+How are the various file idiosycrasies and properties are encoded?  
 There is a 'file properties' dict for each file.  All these
 property dictionares are in the file adsdata/file_defs.py.
 
 
-What idiosycrasies and properties are supported?
+What idiosycrasies and properties are supported?  
 As noted above, the various files encode data of different type
 (boolean, array, hashtables, etc.).  So for each file we encode the
 default value to use for bibcodes that aren't in the file.
@@ -65,8 +65,8 @@ summary of the data read in.  There is code in process.py that
 converts the full nonbib dict to a nonbib protobuf.  
 
 # Status/To Do
-Data links and metrics values need better unit tests and must be validated.
-There is no code to submit protobufs to rabbitmq.
-Delete BibcodeFileReader
-Test on adsvm04 with full data
+There is no code to submit protobufs to rabbitmq.  
+Clean up ADSClassicInputStream, it might have stuff that is not long
+used.  
+Test on adsvm04 with full data  
 
