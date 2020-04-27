@@ -32,8 +32,8 @@ def process():
             bibcode = d['canonical']
             if count % 100 == 0:
                 app.logger.info('processing, count = {}, current bibcode = {}'.format(count, bibcode))
-            if len(bibcode) == 0 or count > 10:
-                print('exiting main loop')
+            if len(bibcode) == 0:
+                print('no bibcode, exiting main loop')
                 break
             rec = convert(d)
             nonbib = NonBibRecord(**rec)
@@ -124,9 +124,11 @@ def read_next():
     d = {}
     for x in data_files:
         if x is 'canonical':
-            d['canonical'] = data_files['canonical']['file_descriptor'].readline().strip()
+            d['canonical'] = data_files['canonical']['file_descriptor'].readline()
             if d['canonical'] is None:
                 return None
+            else:
+                d['canonical'] = d['canonical'].strip()
         else:
             d.update(data_files[x]['file_descriptor'].read_value_for(d['canonical']))
     return d
