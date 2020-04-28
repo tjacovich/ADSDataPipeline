@@ -2,8 +2,10 @@
 from collections import defaultdict
 from adsputils import setup_logging
 
+import tasks
 # code for in-memory caches
 
+app = tasks.app
 logger = setup_logging('adsdata', 'INFO')
 
 cache = {}
@@ -30,6 +32,9 @@ class BaseNetwork:
     def __getitem__(self, bibcode):
         return self.network[bibcode]
         
+    def __setitem__(self, bibcode, value):
+        self.network[bibcode] = value
+
     def _load(self, filename):
         """load file containing entire citation network into dict"""
         global logger
@@ -62,14 +67,14 @@ class ReferenceNetwork(BaseNetwork):
 
     def __init__(self):
         """load file containing entire citation network into dict"""
-        BaseNetwork.__init__(self, './adsdata/tests/data1/' + 'config/links/reference/all.links')
+        BaseNetwork.__init__(self, app.conf['INPUT_DATA_ROOT'] + '/links/reference/all.links')
 
 
 class CitationNetwork(BaseNetwork):
     
     def __init__(self):
         """load file containing entire citation network into dict"""
-        BaseNetwork.__init__(self, './adsdata/tests/data1/' + 'config/links/citation/all.links')
+        BaseNetwork.__init__(self, app.conf['INPUT_DATA_ROOT'] + '/links/citation/all.links')
 
 
 class Refereed:
@@ -80,8 +85,7 @@ class Refereed:
     It is important that membership test be O(1) rather than O(n).  
     """
     def __init__(self):
-        root_dir = './adsdata/tests/data1/'  # hack        
-        self.network = self._load(root_dir + 'config/links/refereed/all.links')
+        self.network = self._load(app.conf['INPUT_DATA_ROOT'] + '/links/refereed/all.links')
 
     def __iter__(self):
         return self.network.__iter__()
