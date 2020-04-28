@@ -153,7 +153,7 @@ class StandardFileReader(ADSClassicInputStream):
                             t.append(float(x))
                         else:
                             # value is a string
-                            t.append(x)
+                            t.append(x.strip())
                     return_value = t
                 except ValueError as e:
                     app.logger.error('ValueError in reader.proces_value, value: {}, default_value: {}, {}'.format(value, self.default_value, str(e)))
@@ -169,12 +169,12 @@ class StandardFileReader(ADSClassicInputStream):
                 for i in range(len(parts)):
                     if i >= len(x):
                         x.append([])
-                    x[i].append(parts[i])
+                    x[i].append(parts[i].strip())
             return_value = x
         elif (len(value) > 1):
             x = []
             for r in value:
-                x.append(r.replace('\t', ' '))
+                x.append(r.replace('\t', ' ').strip())
             return_value = x
         # convert array to dict if needed
         if 'subparts' in data_files[self.filetype] and return_value != data_files[self.filetype]['default_value']:

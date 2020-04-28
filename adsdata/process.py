@@ -19,7 +19,7 @@ logger = app.logger
 nonbib_keys = data_files.keys()
 
 
-def process():
+def process(compute_metrics=True):
     # keep reading one (logical) line from each file
     # generate nonbib and metrics record
     
@@ -37,8 +37,9 @@ def process():
                 break
             rec = convert(d)
             nonbib = NonBibRecord(**rec)
-            met = metrics.compute_metrics(d)
-            met_proto = MetricsRecord(**met)
+            if compute_metrics:
+                met = metrics.compute_metrics(d)
+                met_proto = MetricsRecord(**met)
             d = read_next()
             count += 1
         except AttributeError as e:
@@ -49,7 +50,7 @@ def process():
             app.logger.error('Error! perhaps while processing bibcode: {}, error: {}'.format(d['canonical'], str(e)))
 
 
-def process_bibcodes(bibcodes):
+def process_bibcodes(bibcodes, compute_metrics=True):
     """this funciton is useful when debugging"""
     open_all(root_dir=app.conf['INPUT_DATA_ROOT'])
     for bibcode in bibcodes:
@@ -59,10 +60,11 @@ def process_bibcodes(bibcodes):
         app.logger.info('bibcode: {}, nonbib converted: {}'.format(bibcode, converted))
         nonbib_proto = NonBibRecord(**converted)
         app.logger.info('bibcode: {}, nonbib protobuf: {}'.format(bibcode, nonbib_proto))
-        met = metrics.compute_metrics(nonbib)
-        app.logger.info('bibcode: {}, metrics: {}'.format(bibcode, met))
-        met_proto = MetricsRecord(**met)
-        app.logger.info('bibcode: {}, metrics protobuf: {}'.format(bibcode, met_proto))
+        if compute_metrics:
+            met = metrics.compute_metrics(nonbib)
+            app.logger.info('bibcode: {}, metrics: {}'.format(bibcode, met))
+            met_proto = MetricsRecord(**met)
+            app.logger.info('bibcode: {}, metrics protobuf: {}'.format(bibcode, met_proto))
 
 
 def convert(passed):
