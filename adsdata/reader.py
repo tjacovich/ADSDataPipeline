@@ -45,9 +45,9 @@ class ADSClassicInputStream(object):
             app.logger.debug('nonbib file ingest, count = {}'.format(self.read_count))
             
         line = self._iostream.readline()
-        if len(line) == 0 or (self.config['MAX_ROWS'] > 0 and self.read_count > self.config['MAX_ROWS']):
-            app.logger.info('nonbib file ingest, processed {}, contained {} lines'.format(self.filename, self.read_count))
-            return ''
+        #if len(line) == 0 or (self.config['MAX_ROWS'] > 0 and self.read_count > self.config['MAX_ROWS']):
+        #    app.logger.info('nonbib file ingest, processed {}, contained {} lines'.format(self.filename, self.read_count))
+        #    return ''
         return self.process_line(line)
     
     def readline(self):
@@ -126,7 +126,10 @@ class StandardFileReader(ADSClassicInputStream):
         return self.process_value(value)
         
     def process_value(self, value):
-        """convert file value to something more useful"""
+        """convert file value to something more useful
+        
+        passed value is either default or string from file, convert to dict
+        """
         if isinstance(value, str) and '\x00' in value:
             # there should not be nulls in strings
             app.logger.error('in columnFileIngest.process_value with null value in string: {}', value)

@@ -23,8 +23,9 @@ def main():
         args.bibcodes = args.bibcodes.split(' ')
         args.bibcodes.sort()
 
-    c = memory_cache.init()    
-    print 'cache created'
+    if args.compute_metrics is True:
+        c = memory_cache.init()    
+        print 'cache created'
 
     if args.bibcodes:
         process.process_bibcodes(args.bibcodes, compute_metrics=args.compute_metrics)

@@ -35,12 +35,16 @@ def process(compute_metrics=True):
             if len(bibcode) == 0:
                 print('no bibcode, exiting main loop')
                 break
-            rec = convert(d)
-            nonbib = NonBibRecord(**rec)
+            if not app.conf.get('TEST_NO_PROCESSING', False):
+                rec = convert(d)
+                nonbib = NonBibRecord(**rec)
             if compute_metrics:
                 met = metrics.compute_metrics(d)
                 met_proto = MetricsRecord(**met)
             d = read_next()
+            if app.conf.get('TEST_MAX_ROWS', -1) > 0:
+                if app.conf['TEST_MAX_ROWS'] >= count:
+                    break  # useful during testing
             count += 1
         except AttributeError as e:
             app.logger.error('AttributeError while processing bibcode: {}, error: {}'.format(d['canonical'], str(e)))
