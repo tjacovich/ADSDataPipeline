@@ -58,8 +58,8 @@ class ADSClassicInputStream(object):
     
     def process_line(self, line):
         return line
-    
-   
+
+
 class StandardFileReader(ADSClassicInputStream):
     """reads nonbib column files
 
@@ -201,3 +201,15 @@ def isFloat(s):
         return True
     except ValueError:
         return False
+
+
+class TestFileReader(StandardFileReader):
+
+    def __init__(self, filetype, filename):
+        super(StandardFileReader, self).__init__(filetype, filename)
+
+    def read_value_for(self, bibcode):
+        current_line = self._iostream.readline()
+        return current_line
+
+

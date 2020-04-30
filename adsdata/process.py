@@ -6,6 +6,8 @@ from adsmsg import NonBibRecord, MetricsRecord
 import tasks
 import metrics
 import reader
+import aggregator
+
 from file_defs import data_files
 
 # read data for the current bibcode from all the files
@@ -18,6 +20,24 @@ app = tasks.app
 logger = app.logger
 nonbib_keys = data_files.keys()
 
+
+def test_process(compute_metrics=True):
+    agg = aggregator.TestAggregator()
+    agg.open_all()
+    count = 0
+    s = agg.read_next()
+    while s:
+        try:
+            if count % 100 == 0:
+                app.logger.info('process, count = {}, line = x[:40]'.format(count, s))
+            s = agg.read_next()
+            count = count + 1
+            if s is None:
+                break
+        except:
+            e = sys.exc_info()[0]
+            app.logger.error('Error! perhaps while processing line: {}, error: {}'.format(s[:40], str(e)))
+                 
 
 def process(compute_metrics=True):
     # keep reading one (logical) line from each file
