@@ -29,7 +29,7 @@ def test_process(compute_metrics=True):
     while s:
         try:
             if count % 100 == 0:
-                app.logger.info('process, count = {}, line = x[:40]'.format(count, s))
+                app.logger.info('process, count = {}, line = {}'.format(count, s[:40]))
             s = agg.read_next()
             count = count + 1
             if s is None:
@@ -45,6 +45,7 @@ def process(compute_metrics=True):
     
     open_all(root_dir=app.conf['INPUT_DATA_ROOT'])
     count = 0
+    skip_lines(100000)
     d = read_next()
     while (d is not None):
         try:
@@ -178,4 +179,13 @@ def open_all(root_dir='/proj/ads/abstracts'):
     for x in data_files:
         data_files[x]['file_descriptor'] = reader.StandardFileReader(x, root_dir + data_files[x]['path'])
 
-
+        
+def skip_lines(n):
+    c = 0
+    app.logger.info('starting to skip canonical lines')
+    while c < n:
+        data_files['canonical']['file_descriptor'].readline()
+        if c % 1000 == 0:
+            print('skipping canonical at {}'.format(c))
+        c = c + 1
+    app.logger.info('done skippline lines')
