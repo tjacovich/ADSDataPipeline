@@ -13,10 +13,14 @@ def main():
     parser = argparse.ArgumentParser(description='Process user input.')
     parser.add_argument('-b', '--bibcodes', dest='bibcodes', action='store',
                         help='A list of bibcodes separated by spaces')
-    parser.add_argument('--no-metrics', dest='compute_metrics', action='store_false',
-                        help='after cache init user can enter bibcodes')
     parser.add_argument('-i', '--interactive', dest='interactive', action='store_true',
                         help='after cache init user can enter bibcodes')
+    parser.add_argument('--no-metrics', dest='compute_metrics', action='store_false',
+                        help='after cache init user can enter bibcodes')
+    parser.add_argument('--test', dest='test', action='store_true',
+                        help='use test aggegator')
+
+
     args = parser.parse_args()
 
     if args.bibcodes:
@@ -33,6 +37,8 @@ def main():
         while True:
             i = raw_input('enter bibcode: ')
             process.process_bibcodes([i.strip()], compute_metrics=args.compute_metrics)
+    elif args.test:
+        process.test_process(False)
     else:
         process.process(compute_metrics=args.compute_metrics)
     
