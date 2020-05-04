@@ -1,7 +1,9 @@
 
 import traceback
-import app
+import tasks
 from file_defs import data_files
+
+app = tasks.app
 
 
 class ADSClassicInputStream(object):
@@ -70,9 +72,23 @@ class StandardFileReader(ADSClassicInputStream):
     def __init__(self, filetype, filename):
         super(StandardFileReader, self).__init__(filetype, filename)
         self.filetype = filetype
+        self.buffer = None  # holds at most one line of text
         self.default_value = False,
         if 'default_value' in data_files[filetype]:
             self.default_value = data_files[filetype]['default_value']
+
+    def pushline(self, s):
+        if self.buffer:
+            app.logger.error('in file {}, {}, pushline called when buffer is not None: {}'.format(self.filetype, self.filename, self.buffer))
+        self.buffer = s
+
+    def getline(self):
+        if self.buffer:
+            x = self.buffer
+            self.buffer = None
+            return x
+        else:
+            return self._iostream.readline()
 
     def read_value_for(self, bibcode):
         """return the value from the file for the passed bibcode
@@ -87,41 +103,49 @@ class StandardFileReader(ADSClassicInputStream):
         this reader handles all cases based on the file property dict
         """
         # first, are we at eof
-        start_location = self._iostream.tell()
-        current_location = start_location
-        current_line = self._iostream.readline()
+        current_line = self.getline()
         if not current_line:
             # here if we are already at eof, bibcode isn't in file
+            # app.logger.info('at eof for {} and {}'.format(self.filetype, bibcode))
             return self.process_value(self.default_value)
 
         # next, skip over lines in file until we:
         #   either find the passed bibcode or determine it isn't in the file
+        skip_count = 0
         current_line = current_line.strip()
         while current_line[:19].strip() < bibcode:
-            current_location = self._iostream.tell()
-            current_line = self._iostream.readline().strip()
+            current_line = self.getline().strip()
+            skip_count = skip_count + 1
             if not current_line:
+                # app.logger.info('skip_count = {} for {}'.format(skip_count, self.filetype))
                 return self.process_value(self.default_value)
+        # app.logger.info('skip_count = {} for {} '.format(skip_count, self.filetype))
 
         # at this point, we have either read to the desired bibcode
         # or it doesn't exist and we read past it
         if bibcode != current_line[:19]:
             # bibcode not in file
-            self._iostream.seek(start_location)    # perhaps this backs up more than needed, I'm not sure
+            self.pushline(current_line)
             return self.process_value(self.default_value)
+
+        if self.default_value is True or self.default_value is False:
+            return self.process_value(True)  # boolean files hold singleton values
 
         # at this point, we have the first line with the bibcode in it
         # roll up possible other values on adjacent lines in file
-        value = []
-        while (current_line is not None) and (bibcode == current_line[:19]):  # is true at least once
-            if self.default_value is True or self.default_value is False:
-                return self.process_value(True)  # boolean files hold singleton values
-            value.append(current_line[20:].strip())
-            current_location = self._iostream.tell()
-            current_line = self._iostream.readline()
 
+        value = []
+        value.append(current_line[20:].strip())
+        current_line = self.getline()
+        print('current line is {}'.format(current_line))
+        while data_files[self.filetype].get('multiline', False) and (current_line is not None) and (bibcode == current_line[:19]):
+            value.append(current_line[20:].strip())
+            current_line = self.getline()
+        # app.logger.info('number of read lines = {} for {}'.format(len(value), self.filetype))
+            
         # at this point we have read beyond the desired bibcode, must back up
-        self._iostream.seek(current_location)
+        # app.logger.info('file adjust going from {} to {} for {}'.format(self._iostream.tell(), current_location, self.filetype))
+        self.pushline(current_line)
         # finally, convert raw input into something useful
         return self.process_value(value)
         
@@ -162,6 +186,7 @@ class StandardFileReader(ADSClassicInputStream):
                     app.logger.error('ValueError in reader.proces_value, value: {}, default_value: {}, {}'.format(value, self.default_value, str(e)))
                     app.logger.error(traceback.format_exc())
                     return_value = self.default_value
+
         elif (len(value) > 1) and 'subparts' in data_files[self.filetype]:
             # here on multi-line dict (e.g., associations)
             # interleave data on successive lines e.g., merge first element in each array, second element, etc.

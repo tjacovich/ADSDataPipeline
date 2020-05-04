@@ -67,6 +67,7 @@ EEEEEEEEEEEEEEEEEEE\tE""")):
             self.assertEqual({'reads': ['E']}, f.read_value_for('EEEEEEEEEEEEEEEEEEE'))
             self.assertEqual({'reads': []}, f.read_value_for('FFFFFFFFFFFFFFFFFFF'))
 
+    def test_repeated_bibcode(self):
         # test that repeated bibcodes are properly rolled up
         with patch('__builtin__.open', return_value=StringIO.StringIO("""AAAAAAAAAAAAAAAAAAA\tA
 AAAAAAAAAAAAAAAAAAA\tAA
@@ -75,13 +76,13 @@ BBBBBBBBBBBBBBBBBBB\tB
 DDDDDDDDDDDDDDDDDDD\tD
 DDDDDDDDDDDDDDDDDDD\tDD
 EEEEEEEEEEEEEEEEEEE\tE""")):
-            f = reader.StandardFileReader('reads', 'filename')
-            self.assertEqual({'reads': ['A', 'AA', 'AAA']}, f.read_value_for('AAAAAAAAAAAAAAAAAAA'))
-            self.assertEqual({'reads': ['B']}, f.read_value_for('BBBBBBBBBBBBBBBBBBB'))
-            self.assertEqual({'reads': []}, f.read_value_for('CCCCCCCCCCCCCCCCCCC'))
-            self.assertEqual({'reads': ['D', 'DD']}, f.read_value_for('DDDDDDDDDDDDDDDDDDD'))
-            self.assertEqual({'reads': ['E']}, f.read_value_for('EEEEEEEEEEEEEEEEEEE'))
-            self.assertEqual({'reads': []}, f.read_value_for('FFFFFFFFFFFFFFFFFFF'))
+            f = reader.StandardFileReader('citation', 'filename')
+            self.assertEqual({'citation': ['A', 'AA', 'AAA']}, f.read_value_for('AAAAAAAAAAAAAAAAAAA'))
+            self.assertEqual({'citation': ['B']}, f.read_value_for('BBBBBBBBBBBBBBBBBBB'))
+            self.assertEqual({'citation': []}, f.read_value_for('CCCCCCCCCCCCCCCCCCC'))
+            self.assertEqual({'citation': ['D', 'DD']}, f.read_value_for('DDDDDDDDDDDDDDDDDDD'))
+            self.assertEqual({'citation': ['E']}, f.read_value_for('EEEEEEEEEEEEEEEEEEE'))
+            self.assertEqual({'citation': []}, f.read_value_for('FFFFFFFFFFFFFFFFFFF'))
 
     def test_links(self):
         """read in data links files"""

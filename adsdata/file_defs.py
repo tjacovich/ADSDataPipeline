@@ -7,21 +7,22 @@ from collections import OrderedDict
 data_files = OrderedDict()
 data_files['canonical'] = {'path': 'bibcodes.list.can', 'default_value': ''}
 data_files['author'] = {'path': 'links/facet_authors/all.links', 'default_value': []}
-data_files['citation'] = {'path': 'links/citation/all.links', 'default_value': []}
+data_files['citation'] = {'path': 'links/citation/all.links', 'default_value': [], 'multiline': True}
 data_files['download'] = {'path': 'links/reads/downloads.links', 'default_value': []}
-data_files['grants'] = {'path': 'links/grants/all.links', 'default_value': [], 'string_to_number': False}
-data_files['ned_objects'] = {'path': 'links/ned/ned_objects.tab', 'default_value': [], 'string_to_number': False}
-data_files['nonarticle'] = {'path': 'links/nonarticle/all.links', 'default_value': False}
+data_files['grants'] = {'path': 'links/grants/all.links', 'default_value': [], 'string_to_number': False, 'multiline': True}
+data_files['ned_objects'] = {'path': 'links/ned/ned_objects.tab', 'default_value': [], 'string_to_number': False, 'multiline': True}
+data_files['nonarticle'] = {'path': 'links/nonarticle/all.links', 'default_value': False, 'multiline': True}
 data_files['ocrabstract'] = {'path': 'links/ocr/all.links', 'default_value': False}
 data_files['private'] = {'path': 'links/private/all.links', 'default_value': False}
 data_files['pub_openaccess'] = {'path': 'links/openaccess/pub.dat', 'default_value': False}
-data_files['readers'] = {'path': 'links/alsoread_bib/all.links', 'default_value': []}
+data_files['readers'] = {'path': 'links/alsoread_bib/all.links', 'default_value': [], 'multiline': True}
 data_files['reads'] = {'path': 'links/reads/all.links', 'default_value': []}
 data_files['refereed'] = {'path': 'links/refereed/all.links', 'default_value': False}
-data_files['reference'] = {'path': 'links/reference/all.links', 'default_value': []}
+data_files['reference'] = {'path': 'links/reference/all.links', 'default_value': [], 'multiline': True}
 data_files['relevance'] = {'path': 'links/relevance/docmetrics.tab', 'default_value': {},
                            'subparts': ['boost', 'citation_count', 'read_count', 'norm_cites']}
-data_files['simbad_objects'] = {'path': 'links/simbad/simbad_objects.tab', 'default_value': [], 'string_to_number': False}
+data_files['simbad_objects'] = {'path': 'links/simbad/simbad_objects.tab', 'default_value': [],
+                                'string_to_number': False, 'multiline': True}
 
 data_files['pub_html'] = {'path': 'links/electr/all.links', 'default_value': {},
                           'extra_values': {'link_type': 'ESOURCE', 'link_sub_type': 'PUB_HTML'},
@@ -49,16 +50,16 @@ data_files['ads_pdf'] = {'path': 'links/ads_scan/all.links', 'default_value': {}
                          'subparts': ['url']}
 data_files['associated'] = {'path': 'links/associated/all.links', 'default_value': {},
                             'extra_values': {'link_type': 'ASSOCIATED', 'link_sub_type': 'NA'},
-                            'subparts': ['url', 'title']}
+                            'subparts': ['url', 'title'], 'multiline': True}
 data_files['presentation'] = {'path': 'links/video/all.links', 'default_value': {},
                               'extra_values': {'link_type': 'PRESENTATION', 'link_sub_type': 'NA'},
-                              'subparts': ['url', 'title']}
+                              'subparts': ['url', 'title'], 'multiline': True}
 data_files['librarycatalog'] = {'path': 'links/library/all.links', 'default_value': {},
                                 'extra_values': {'link_type': 'LIBRARYCATALOG', 'link_sub_type': 'NA'},
-                                'subparts': ['url', 'title']}
+                                'subparts': ['url', 'title'], 'multiline': True}
 data_files['inspire'] = {'path': 'links/spires/all.links', 'default_value': {},
                          'extra_values': {'link_type': 'INSPIRE', 'link_sub_type': 'NA'},
-                         'subparts': ['url', 'title']}
+                         'subparts': ['url', 'title'], 'multiline': True}
 data_files['toc'] = {'path': 'links/toc/all.links', 'default_value': {},
                      'extra_values': {'link_type': 'TOC', 'link_sub_type': 'NA'},
                      'subparts': ['url']}

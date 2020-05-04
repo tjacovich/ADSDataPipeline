@@ -45,7 +45,7 @@ def process(compute_metrics=True):
     
     open_all(root_dir=app.conf['INPUT_DATA_ROOT'])
     count = 0
-    skip_lines(100000)
+    # skip_lines(100000)
     d = read_next()
     while (d is not None):
         try:
@@ -132,7 +132,7 @@ def convert(passed):
         elif filetype == 'citation':
             return_value['citation_count'] = len(passed['citation'])
         elif filetype == 'reads':
-            return_value['read_count'] = sum(passed['reads'])
+            return_value['read_count'] = len(passed['readers'])
         else:
             # otherwise, copy value
             return_value[filetype] = passed[filetype]
