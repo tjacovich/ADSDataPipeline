@@ -28,14 +28,14 @@ def main():
         args.bibcodes.sort()
 
     if args.compute_metrics is True:
-        c = memory_cache.init()    
-        print 'cache created'
+        c = process.init_cache(root_dir=app.conf.get('INPUT_DATA_ROOT', './adsdata/tests/data1/config/'))
+        print('cache created: {}'.format(c))
 
     if args.bibcodes:
         process.process_bibcodes(args.bibcodes, compute_metrics=args.compute_metrics)
     elif args.interactive:
         while True:
-            i = raw_input('enter bibcode: ')
+            i = input('enter bibcode: ')
             process.process_bibcodes([i.strip()], compute_metrics=args.compute_metrics)
     elif args.test:
         process.test_process(False)

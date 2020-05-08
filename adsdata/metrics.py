@@ -3,7 +3,7 @@ from datetime import datetime
 from adsmsg import MetricsRecord
 from adsputils import load_config, setup_logging
 
-import memory_cache
+from adsdata import process
 
 # logger = setup_logging('ADSData', 'INFO')
 
@@ -17,7 +17,7 @@ def compute_metrics(d):
         author_num = max(len(d['author']), 1)
 
     # hack: eventually need lots of info for bibcode, not just author_num
-    cache = memory_cache.get()
+    cache = process.get_cache()
     refereed = cache['refereed']
     bibcode_to_references = cache['reference']
     bibcode_to_cites = cache['citation']
@@ -41,7 +41,7 @@ def compute_metrics(d):
             citation_normalized_references = 1.0 / float(max(5, len_citation_reference))
             total_normalized_citations += citation_normalized_references
             normalized_reference += citation_normalized_references
-            tmp_json = {"bibcode":  citation_bibcode.encode('utf-8'),
+            tmp_json = {"bibcode":  citation_bibcode,
                         "ref_norm": citation_normalized_references,
                         "auth_norm": 1.0 / author_num,
                         "pubyear": int(bibcode[:4]),

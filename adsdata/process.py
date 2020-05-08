@@ -3,12 +3,10 @@ import sys
 import traceback
 
 from adsmsg import NonBibRecord, MetricsRecord
-import tasks
-import metrics
-import reader
-import aggregator
+from adsdata import tasks, metrics, reader, aggregator
+from adsdata.memory_cache import Refereed, ReferenceNetwork, CitationNetwork
 
-from file_defs import data_files
+from adsdata.file_defs import data_files
 
 # read data for the current bibcode from all the files
 # generate a complete nonbib record
@@ -43,7 +41,7 @@ def process(compute_metrics=True):
     # keep reading one (logical) line from each file
     # generate nonbib and metrics record
     
-    open_all(root_dir=app.conf['INPUT_DATA_ROOT'])
+    open_all(root_dir=app.conf.get('INPUT_DATA_ROOT', './adsdata/tests/data1/config/'))
     count = 0
     # skip_lines(100000)
     d = read_next()
@@ -62,6 +60,7 @@ def process(compute_metrics=True):
             if compute_metrics:
                 met = metrics.compute_metrics(d)
                 met_proto = MetricsRecord(**met)
+                print('met = {}'.format(met))
             d = read_next()
             if app.conf.get('TEST_MAX_ROWS', -1) > 0:
                 if app.conf['TEST_MAX_ROWS'] >= count:
@@ -77,7 +76,7 @@ def process(compute_metrics=True):
 
 def process_bibcodes(bibcodes, compute_metrics=True):
     """this funciton is useful when debugging"""
-    open_all(root_dir=app.conf['INPUT_DATA_ROOT'])
+    open_all(root_dir=app.conf.get('INPUT_DATA_ROOT', './adsdata/tests/data1/config/'))
     for bibcode in bibcodes:
         nonbib = read_next_bibcode(bibcode)
         app.logger.info('bibcode: {}, nonbib: {}'.format(bibcode, nonbib))
@@ -103,7 +102,7 @@ def convert(passed):
     """
     return_value = {}
     return_value['data_links_rows'] = []
-    for filetype, value in passed.iteritems():
+    for filetype, value in passed.items():
         file_properties = data_files[filetype]
         if filetype == 'canonical':
             return_value['bibcode'] = passed['canonical']
@@ -189,3 +188,21 @@ def skip_lines(n):
             print('skipping canonical at {}'.format(c))
         c = c + 1
     app.logger.info('done skippline lines')
+
+
+cache = {}
+
+# def init_cache(root_dir=app.conf['INPUT_DATA_ROOT'])):
+def init_cache(root_dir='/proj/ads/abstract/'):
+    global cache
+    if cache:
+        # init has already been called
+        return cache
+    cache['reference'] = ReferenceNetwork(root_dir + data_files['reference']['path'])
+    cache['citation'] = CitationNetwork(root_dir + data_files['citation']['path'])
+    cache['refereed'] = Refereed(root_dir + data_files['reference']['path'])
+    return cache
+
+
+def get_cache():
+    return cache

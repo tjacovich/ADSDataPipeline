@@ -1,7 +1,7 @@
 
 import traceback
-import tasks
-from file_defs import data_files
+from adsdata import tasks
+from adsdata.file_defs import data_files
 
 app = tasks.app
 
@@ -18,7 +18,7 @@ class ADSClassicInputStream(object):
         self.read_count = 0   # used in logging
         self.config = {}
         self.dottab_file = self.filename.endswith('.tab')
-        self._iostream = open(filename, 'r')
+        self._iostream = open(filename, 'r', encoding='utf-8')
 
     def __enter__(self, *args, **kwargs):
         return self

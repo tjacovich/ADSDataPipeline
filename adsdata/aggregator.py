@@ -1,6 +1,7 @@
 
-from file_defs import data_files
-import reader
+from adsdata.file_defs import data_files
+from adsdata import reader
+
 
 class TestAggregator:
     """just read files, used in performace testing"""
