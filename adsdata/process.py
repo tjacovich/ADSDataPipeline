@@ -60,7 +60,8 @@ def process(compute_metrics=True):
             if compute_metrics:
                 met = metrics.compute_metrics(d)
                 met_proto = MetricsRecord(**met)
-                print('met = {}'.format(met))
+                if count % 100 == 0:
+                    app.logger.info('met = {}'.format(met))
             d = read_next()
             if app.conf.get('TEST_MAX_ROWS', -1) > 0:
                 if app.conf['TEST_MAX_ROWS'] >= count:

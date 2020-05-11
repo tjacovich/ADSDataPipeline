@@ -137,7 +137,6 @@ class StandardFileReader(ADSClassicInputStream):
         value = []
         value.append(current_line[20:].strip())
         current_line = self.getline()
-        print('current line is {}'.format(current_line))
         while data_files[self.filetype].get('multiline', False) and (current_line is not None) and (bibcode == current_line[:19]):
             value.append(current_line[20:].strip())
             current_line = self.getline()
