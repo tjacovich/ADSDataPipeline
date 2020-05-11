@@ -3,10 +3,10 @@ import sys
 import traceback
 
 from adsmsg import NonBibRecord, MetricsRecord
-import tasks
-import metrics
-import reader
-from file_defs import data_files
+from adsdata import tasks, metrics, reader, aggregator
+from adsdata.memory_cache import Refereed, ReferenceNetwork, CitationNetwork
+
+from adsdata.file_defs import data_files
 
 # read data for the current bibcode from all the files
 # generate a complete nonbib record
@@ -19,12 +19,31 @@ logger = app.logger
 nonbib_keys = data_files.keys()
 
 
-def process():
+def test_process(compute_metrics=True):
+    agg = aggregator.TestAggregator()
+    agg.open_all()
+    count = 0
+    s = agg.read_next()
+    while s:
+        try:
+            if count % 100 == 0:
+                app.logger.info('process, count = {}, line = {}'.format(count, s[:40]))
+            s = agg.read_next()
+            count = count + 1
+            if s is None:
+                break
+        except:
+            e = sys.exc_info()[0]
+            app.logger.error('Error! perhaps while processing line: {}, error: {}'.format(s[:40], str(e)))
+                 
+
+def process(compute_metrics=True):
     # keep reading one (logical) line from each file
     # generate nonbib and metrics record
     
-    open_all(root_dir=app.conf['INPUT_DATA_ROOT'])
+    open_all(root_dir=app.conf.get('INPUT_DATA_ROOT', './adsdata/tests/data1/config/'))
     count = 0
+    # skip_lines(100000)
     d = read_next()
     while (d is not None):
         try:
@@ -35,11 +54,18 @@ def process():
             if len(bibcode) == 0:
                 print('no bibcode, exiting main loop')
                 break
-            rec = convert(d)
-            nonbib = NonBibRecord(**rec)
-            met = metrics.compute_metrics(d)
-            met_proto = MetricsRecord(**met)
+            if not app.conf.get('TEST_NO_PROCESSING', False):
+                rec = convert(d)
+                nonbib = NonBibRecord(**rec)
+            if compute_metrics:
+                met = metrics.compute_metrics(d)
+                met_proto = MetricsRecord(**met)
+                if count % 100 == 0:
+                    app.logger.info('met = {}'.format(met))
             d = read_next()
+            if app.conf.get('TEST_MAX_ROWS', -1) > 0:
+                if app.conf['TEST_MAX_ROWS'] >= count:
+                    break  # useful during testing
             count += 1
         except AttributeError as e:
             app.logger.error('AttributeError while processing bibcode: {}, error: {}'.format(d['canonical'], str(e)))
@@ -49,9 +75,9 @@ def process():
             app.logger.error('Error! perhaps while processing bibcode: {}, error: {}'.format(d['canonical'], str(e)))
 
 
-def process_bibcodes(bibcodes):
+def process_bibcodes(bibcodes, compute_metrics=True):
     """this funciton is useful when debugging"""
-    open_all(root_dir=app.conf['INPUT_DATA_ROOT'])
+    open_all(root_dir=app.conf.get('INPUT_DATA_ROOT', './adsdata/tests/data1/config/'))
     for bibcode in bibcodes:
         nonbib = read_next_bibcode(bibcode)
         app.logger.info('bibcode: {}, nonbib: {}'.format(bibcode, nonbib))
@@ -59,10 +85,11 @@ def process_bibcodes(bibcodes):
         app.logger.info('bibcode: {}, nonbib converted: {}'.format(bibcode, converted))
         nonbib_proto = NonBibRecord(**converted)
         app.logger.info('bibcode: {}, nonbib protobuf: {}'.format(bibcode, nonbib_proto))
-        met = metrics.compute_metrics(nonbib)
-        app.logger.info('bibcode: {}, metrics: {}'.format(bibcode, met))
-        met_proto = MetricsRecord(**met)
-        app.logger.info('bibcode: {}, metrics protobuf: {}'.format(bibcode, met_proto))
+        if compute_metrics:
+            met = metrics.compute_metrics(nonbib)
+            app.logger.info('bibcode: {}, metrics: {}'.format(bibcode, met))
+            met_proto = MetricsRecord(**met)
+            app.logger.info('bibcode: {}, metrics protobuf: {}'.format(bibcode, met_proto))
 
 
 def convert(passed):
@@ -76,7 +103,7 @@ def convert(passed):
     """
     return_value = {}
     return_value['data_links_rows'] = []
-    for filetype, value in passed.iteritems():
+    for filetype, value in passed.items():
         file_properties = data_files[filetype]
         if filetype == 'canonical':
             return_value['bibcode'] = passed['canonical']
@@ -105,7 +132,7 @@ def convert(passed):
         elif filetype == 'citation':
             return_value['citation_count'] = len(passed['citation'])
         elif filetype == 'reads':
-            return_value['read_count'] = sum(passed['reads'])
+            return_value['read_count'] = len(passed['readers'])
         else:
             # otherwise, copy value
             return_value[filetype] = passed[filetype]
@@ -152,4 +179,31 @@ def open_all(root_dir='/proj/ads/abstracts'):
     for x in data_files:
         data_files[x]['file_descriptor'] = reader.StandardFileReader(x, root_dir + data_files[x]['path'])
 
+        
+def skip_lines(n):
+    c = 0
+    app.logger.info('starting to skip canonical lines')
+    while c < n:
+        data_files['canonical']['file_descriptor'].readline()
+        if c % 1000 == 0:
+            print('skipping canonical at {}'.format(c))
+        c = c + 1
+    app.logger.info('done skippline lines')
 
+
+cache = {}
+
+# def init_cache(root_dir=app.conf['INPUT_DATA_ROOT'])):
+def init_cache(root_dir='/proj/ads/abstract/'):
+    global cache
+    if cache:
+        # init has already been called
+        return cache
+    cache['reference'] = ReferenceNetwork(root_dir + data_files['reference']['path'])
+    cache['citation'] = CitationNetwork(root_dir + data_files['citation']['path'])
+    cache['refereed'] = Refereed(root_dir + data_files['reference']['path'])
+    return cache
+
+
+def get_cache():
+    return cache

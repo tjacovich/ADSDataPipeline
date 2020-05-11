@@ -1,27 +1,13 @@
 
 from collections import defaultdict
-from adsputils import setup_logging
 
-import tasks
+from adsdata import tasks
+from adsdata.file_defs import data_files
+
 # code for in-memory caches
 
-app = tasks.app
-logger = setup_logging('adsdata', 'INFO')
+logger = tasks.app.logger
 
-cache = {}
-
-def init():
-    global cache
-    if cache:
-        # init has already been called
-        return cache
-    cache['reference'] = ReferenceNetwork()
-    cache['citation'] = CitationNetwork()
-    cache['refereed'] = Refereed()
-    return cache
-
-def get():
-    return cache
 
 
 class BaseNetwork:
@@ -40,7 +26,7 @@ class BaseNetwork:
         global logger
         d = defaultdict(list)
         count = 0
-        with open(filename) as f:
+        with open(filename, 'r', encoding='utf-8') as f:
             for line in f:
                 # need more clean up on input
                 line = line.strip()
@@ -65,16 +51,16 @@ class BaseNetwork:
 
 class ReferenceNetwork(BaseNetwork):
 
-    def __init__(self):
+    def __init__(self, filename):
         """load file containing entire citation network into dict"""
-        BaseNetwork.__init__(self, app.conf['INPUT_DATA_ROOT'] + '/links/reference/all.links')
+        BaseNetwork.__init__(self, filename)
 
 
 class CitationNetwork(BaseNetwork):
     
-    def __init__(self):
+    def __init__(self, filename):
         """load file containing entire citation network into dict"""
-        BaseNetwork.__init__(self, app.conf['INPUT_DATA_ROOT'] + '/links/citation/all.links')
+        BaseNetwork.__init__(self, filename)
 
 
 class Refereed:
@@ -84,8 +70,8 @@ class Refereed:
     but, membership test seems to use the iterator.  
     It is important that membership test be O(1) rather than O(n).  
     """
-    def __init__(self):
-        self.network = self._load(app.conf['INPUT_DATA_ROOT'] + '/links/refereed/all.links')
+    def __init__(self, filename):
+        self.network = self._load(filename)
 
     def __iter__(self):
         return self.network.__iter__()
@@ -94,7 +80,7 @@ class Refereed:
         logger.info('starting to load refereed')
         d = []
         count = 0
-        with open(filename) as f:
+        with open(filename, 'r', encoding='utf-8') as f:
             for line in f:
                 # need more clean up on input
                 line = line.strip()

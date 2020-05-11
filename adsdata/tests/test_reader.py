@@ -1,8 +1,7 @@
 
 from mock import patch
-from mock import mock_open
-import StringIO
-import mock
+from io import StringIO
+
 import unittest
 
 from adsdata import reader
@@ -14,20 +13,20 @@ class TestReader(unittest.TestCase):
     tests use StringIO because it supports tell and seek (unlike simplier mocks) """
     
     def test_refereed(self):
-        with patch('__builtin__.open', return_value=StringIO.StringIO('AAAAAAAAAAAAAAAAAAA\nBBBBBBBBBBBBBBBBBBB\nDDDDDDDDDDDDDDDDDDD\nEEEEEEEEEEEEEEEEEEE')):
+        with patch('builtins.open', return_value=StringIO('AAAAAAAAAAAAAAAAAAA\nBBBBBBBBBBBBBBBBBBB\nDDDDDDDDDDDDDDDDDDD\nEEEEEEEEEEEEEEEEEEE')):
             f = reader.StandardFileReader('refereed', 'filename')
             self.assertEqual({'refereed': True}, f.read_value_for('AAAAAAAAAAAAAAAAAAA'))
             self.assertEqual({'refereed': True}, f.read_value_for('BBBBBBBBBBBBBBBBBBB'))
             self.assertEqual({'refereed': False}, f.read_value_for('CCCCCCCCCCCCCCCCCCC'))
             self.assertEqual({'refereed': True}, f.read_value_for('DDDDDDDDDDDDDDDDDDD'))
 
-        with patch('__builtin__.open', return_value=StringIO.StringIO('AAAAAAAAAAAAAAAAAAA\nBBBBBBBBBBBBBBBBBBB\nDDDDDDDDDDDDDDDDDDD\nEEEEEEEEEEEEEEEEEEE')):
+        with patch('builtins.open', return_value=StringIO('AAAAAAAAAAAAAAAAAAA\nBBBBBBBBBBBBBBBBBBB\nDDDDDDDDDDDDDDDDDDD\nEEEEEEEEEEEEEEEEEEE')):
             f = reader.StandardFileReader('refereed', 'filename')
             self.assertEqual({'refereed': True}, f.read_value_for('BBBBBBBBBBBBBBBBBBB'))
             self.assertEqual({'refereed': True}, f.read_value_for('DDDDDDDDDDDDDDDDDDD'))
             self.assertEqual({'refereed': True}, f.read_value_for('EEEEEEEEEEEEEEEEEEE'))
 
-        with patch('__builtin__.open', return_value=StringIO.StringIO('AAAAAAAAAAAAAAAAAAA\nBBBBBBBBBBBBBBBBBBB\nDDDDDDDDDDDDDDDDDDD\nEEEEEEEEEEEEEEEEEEE')):
+        with patch('builtins.open', return_value=StringIO('AAAAAAAAAAAAAAAAAAA\nBBBBBBBBBBBBBBBBBBB\nDDDDDDDDDDDDDDDDDDD\nEEEEEEEEEEEEEEEEEEE')):
             f = reader.StandardFileReader('refereed', 'filename')
             self.assertEqual({'refereed': False}, f.read_value_for('CCCCCCCCCCCCCCCCCCC'))
             self.assertEqual({'refereed': True}, f.read_value_for('EEEEEEEEEEEEEEEEEEE'))
@@ -35,7 +34,7 @@ class TestReader(unittest.TestCase):
 
     def test_standard(self):
         # test that we can read values for bibcodes
-        with patch('__builtin__.open', return_value=StringIO.StringIO("""AAAAAAAAAAAAAAAAAAA\tA
+        with patch('builtins.open', return_value=StringIO("""AAAAAAAAAAAAAAAAAAA\tA
 BBBBBBBBBBBBBBBBBBB\tB
 DDDDDDDDDDDDDDDDDDD\tD
 EEEEEEEEEEEEEEEEEEE\tE""")):
@@ -48,7 +47,7 @@ EEEEEEEEEEEEEEEEEEE\tE""")):
             self.assertEqual({'reads': []}, f.read_value_for('FFFFFFFFFFFFFFFFFFF'))
 
         # test we can skip bibcodes that are in the file
-        with patch('__builtin__.open', return_value=StringIO.StringIO("""AAAAAAAAAAAAAAAAAAA\tA
+        with patch('builtins.open', return_value=StringIO("""AAAAAAAAAAAAAAAAAAA\tA
 BBBBBBBBBBBBBBBBBBB\tB
 DDDDDDDDDDDDDDDDDDD\tD
 EEEEEEEEEEEEEEEEEEE\tE""")):
@@ -58,7 +57,7 @@ EEEEEEEEEEEEEEEEEEE\tE""")):
             self.assertEqual({'reads': ['E']}, f.read_value_for('EEEEEEEEEEEEEEEEEEE'))
 
         # test that we receive no value when we read a bibcode that isn't present
-        with patch('__builtin__.open', return_value=StringIO.StringIO("""AAAAAAAAAAAAAAAAAAA\tA
+        with patch('builtins.open', return_value=StringIO("""AAAAAAAAAAAAAAAAAAA\tA
 BBBBBBBBBBBBBBBBBBB\tB
 DDDDDDDDDDDDDDDDDDD\tD
 EEEEEEEEEEEEEEEEEEE\tE""")):
@@ -67,33 +66,34 @@ EEEEEEEEEEEEEEEEEEE\tE""")):
             self.assertEqual({'reads': ['E']}, f.read_value_for('EEEEEEEEEEEEEEEEEEE'))
             self.assertEqual({'reads': []}, f.read_value_for('FFFFFFFFFFFFFFFFFFF'))
 
+    def test_repeated_bibcode(self):
         # test that repeated bibcodes are properly rolled up
-        with patch('__builtin__.open', return_value=StringIO.StringIO("""AAAAAAAAAAAAAAAAAAA\tA
+        with patch('builtins.open', return_value=StringIO("""AAAAAAAAAAAAAAAAAAA\tA
 AAAAAAAAAAAAAAAAAAA\tAA
 AAAAAAAAAAAAAAAAAAA\tAAA
 BBBBBBBBBBBBBBBBBBB\tB
 DDDDDDDDDDDDDDDDDDD\tD
 DDDDDDDDDDDDDDDDDDD\tDD
 EEEEEEEEEEEEEEEEEEE\tE""")):
-            f = reader.StandardFileReader('reads', 'filename')
-            self.assertEqual({'reads': ['A', 'AA', 'AAA']}, f.read_value_for('AAAAAAAAAAAAAAAAAAA'))
-            self.assertEqual({'reads': ['B']}, f.read_value_for('BBBBBBBBBBBBBBBBBBB'))
-            self.assertEqual({'reads': []}, f.read_value_for('CCCCCCCCCCCCCCCCCCC'))
-            self.assertEqual({'reads': ['D', 'DD']}, f.read_value_for('DDDDDDDDDDDDDDDDDDD'))
-            self.assertEqual({'reads': ['E']}, f.read_value_for('EEEEEEEEEEEEEEEEEEE'))
-            self.assertEqual({'reads': []}, f.read_value_for('FFFFFFFFFFFFFFFFFFF'))
+            f = reader.StandardFileReader('citation', 'filename')
+            self.assertEqual({'citation': ['A', 'AA', 'AAA']}, f.read_value_for('AAAAAAAAAAAAAAAAAAA'))
+            self.assertEqual({'citation': ['B']}, f.read_value_for('BBBBBBBBBBBBBBBBBBB'))
+            self.assertEqual({'citation': []}, f.read_value_for('CCCCCCCCCCCCCCCCCCC'))
+            self.assertEqual({'citation': ['D', 'DD']}, f.read_value_for('DDDDDDDDDDDDDDDDDDD'))
+            self.assertEqual({'citation': ['E']}, f.read_value_for('EEEEEEEEEEEEEEEEEEE'))
+            self.assertEqual({'citation': []}, f.read_value_for('FFFFFFFFFFFFFFFFFFF'))
 
     def test_links(self):
         """read in data links files"""
         # facet_datasources/datasources.links
-        with patch('__builtin__.open', return_value=StringIO.StringIO('AAAAAAAAAAAAAAAAAAA\tARI\t1\thttp://dc.g-vo.org/arigfh/katkat/byhdw/qp/1202')):
+        with patch('builtins.open', return_value=StringIO('AAAAAAAAAAAAAAAAAAA\tARI\t1\thttp://dc.g-vo.org/arigfh/katkat/byhdw/qp/1202')):
             f = reader.StandardFileReader('data_link', 'filename')
             self.assertEqual({'data_link': {'link_type': 'DATA', 'link_sub_type': 'ARI', 'item_count': 1,
                                             'url': 'http://dc.g-vo.org/arigfh/katkat/byhdw/qp/1202', 'title': ''}},
                              f.read_value_for('AAAAAAAAAAAAAAAAAAA'))
                               
         # electr/all.links
-        with patch('__builtin__.open', return_value=StringIO.StringIO('AAAAAAAAAAAAAAAAAAA\thttps://doi.org/10.3931%2Fe-rara-477')):
+        with patch('builtins.open', return_value=StringIO('AAAAAAAAAAAAAAAAAAA\thttps://doi.org/10.3931%2Fe-rara-477')):
             f = reader.StandardFileReader('pub_html', 'filename')
             x = f.read_value_for('AAAAAAAAAAAAAAAAAAA')
             self.assertEqual({'pub_html': {'link_type': 'ESOURCE', 'link_sub_type': 'PUB_HTML',
@@ -101,7 +101,7 @@ EEEEEEEEEEEEEEEEEEE\tE""")):
             # f.read_value_for('AAAAAAAAAAAAAAAAAAA'))
 
         # eprint_html/all.links
-        with patch('__builtin__.open', return_value=StringIO.StringIO('AAAAAAAAAAAAAAAAAAA\thttps://arxiv.org/abs/0908.1823')):
+        with patch('builtins.open', return_value=StringIO('AAAAAAAAAAAAAAAAAAA\thttps://arxiv.org/abs/0908.1823')):
             f = reader.StandardFileReader('eprint_html', 'filename')
             x = f.read_value_for('AAAAAAAAAAAAAAAAAAA')
             self.assertEqual({'eprint_html': {'link_type': 'ESOURCE', 'link_sub_type': 'EPRINT_HTML',
@@ -110,16 +110,14 @@ EEEEEEEEEEEEEEEEEEE\tE""")):
     def test_list(self):
         # first line of config/links/reads/downloads.links
         download_line = '1057wjlf.book.....C\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1'
-        with patch('__builtin__.open', return_value=StringIO.StringIO(download_line)):
+        with patch('builtins.open', return_value=StringIO(download_line)):
             f = reader.StandardFileReader('download', 'filename')
             x = f.read_value_for('1057wjlf.book.....C')
-            print '!!', x
             self.assertEqual({'download': [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]}, x)
         citation_lines = '1890GSAB....1..411D\t2011ESRv..106..215H\n1890GSAB....1..411D\t2014SedG..311...60T\n1890GSAB....1..411D\t2015GSAB..127.1816C'
-        with patch('__builtin__.open', return_value=StringIO.StringIO(citation_lines)):
+        with patch('builtins.open', return_value=StringIO(citation_lines)):
             f = reader.StandardFileReader('citation', 'filename')
             x = f.read_value_for('1890GSAB....1..411D')
-            print '!!', x
             self.assertEqual({'citation': ['2011ESRv..106..215H', '2014SedG..311...60T', '2015GSAB..127.1816C']}, x)
 
     def test_downloads(self):
@@ -146,7 +144,7 @@ EEEEEEEEEEEEEEEEEEE\tE""")):
         self.assertEqual(2386, v['relevance']['norm_cites'])
 
     def test_associated(self):
-        with patch('__builtin__.open', return_value=StringIO.StringIO('1850AJ......1...72H\t1850AJ......1...57H\tMain Paper\n1850AJ......1...72H\t1850AJ......1...72H\tErratum')):
+        with patch('builtins.open', return_value=StringIO('1850AJ......1...72H\t1850AJ......1...57H\tMain Paper\n1850AJ......1...72H\t1850AJ......1...72H\tErratum')):
             f = reader.StandardFileReader('associated', 'filename')
             x = f.read_value_for('1850AJ......1...72H')
             self.assertEqual({'associated': {'link_type': 'ASSOCIATED', 'link_sub_type': 'NA',
@@ -155,13 +153,13 @@ EEEEEEEEEEEEEEEEEEE\tE""")):
                              x)
 
     def test_simbad(self):
-        with patch('__builtin__.open', return_value=StringIO.StringIO('1857AN.....45...89S\t1500441\tLP*')):
+        with patch('builtins.open', return_value=StringIO('1857AN.....45...89S\t1500441\tLP*')):
             f = reader.StandardFileReader('simbad_objects', 'filename')
             x = f.read_value_for('1857AN.....45...89S')
             self.assertEqual({'simbad_objects': ['1500441', 'LP*']}, x)
 
     def test_ned(self):
-        with patch('__builtin__.open', return_value=StringIO.StringIO('1885AN....112..285E\tMESSIER_031\tG\n1885AN....112..285E\tSN_1885A\tSN')):
+        with patch('builtins.open', return_value=StringIO('1885AN....112..285E\tMESSIER_031\tG\n1885AN....112..285E\tSN_1885A\tSN')):
             f = reader.StandardFileReader('ned_objects', 'filename')
             x = f.read_value_for('1885AN....112..285E')
             self.assertEqual({'ned_objects': ["MESSIER_031 G", "SN_1885A SN"]}, x)

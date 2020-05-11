@@ -1,13 +1,9 @@
-import mock
-from mock import patch
-from mock import mock_open
-import StringIO
+
 import unittest
 
-from adsmsg import NonBibRecord, NonBibRecordList, MetricsRecord, MetricsRecordList
+from adsmsg import NonBibRecord
 from adsdata import process
 from adsdata import reader
-from adsdata import memory_cache
 
 
 class TestMemoryCache(unittest.TestCase):
@@ -32,7 +28,7 @@ class TestMemoryCache(unittest.TestCase):
         self.assertEqual(len(d['author']), 1)
         self.assertEqual(d['author'], ['Chao, C'])
         self.assertFalse(d['citation'])
-        self.assertEqual(d['download'], [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1])
+        self.assertEqual(d['download'], [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1])
         self.assertFalse(d['grants'])
         self.assertFalse(d['ned_objects'])
         self.assertTrue(d['nonarticle'])
@@ -55,5 +51,5 @@ class TestMemoryCache(unittest.TestCase):
         self.assertEqual('2003ASPC..295..361M', process.convert({'canonical': '2003ASPC..295..361M'})['bibcode'])
 
     def test_convert(self):
-        memory_cache.init()
+        process.init_cache()
         process.process_bibcodes(['1950RPPh...13...24G'])

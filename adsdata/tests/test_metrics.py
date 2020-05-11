@@ -1,14 +1,10 @@
 
 from datetime import datetime
-import mock
 from mock import patch
 from mock import mock_open
-import StringIO
-import io
 import unittest
 
-from adsdata import metrics
-from adsdata import memory_cache
+from adsdata import process, metrics
 
 
 class TestMetrics(unittest.TestCase):
@@ -19,10 +15,10 @@ class TestMetrics(unittest.TestCase):
              'citations':  ['1998PPGeo..22..553B'], 'id': 11, 'reference': ["1997BoLMe..85..475M"]}
         m = mock_open(read_data='')
         m.return_value.__iter__ = lambda self: iter(self.readline, '')
-        with patch('__builtin__.open', m):
-            memory_cache.init()
+        with patch('builtins.open', m):
+            process.init_cache()
             
-            memory_cache.cache['citation']['1998PPGeo..22..553A'] = ['1998PPGeo..22..553B']
+            process.get_cache()['citation']['1998PPGeo..22..553A'] = ['1998PPGeo..22..553B']
             met = metrics.compute_metrics(d)
             self.assertEqual(met['bibcode'], d['canonical'])
             self.assertEqual(met['citations'], d['citations'])
@@ -35,11 +31,11 @@ class TestMetrics(unittest.TestCase):
              'citations':  ['1998PPGeo..22..553A'], 'id': 11, 'reference': ["1997BoLMe..85..475M"]}
         m = mock_open(read_data='')
         m.return_value.__iter__ = lambda self: iter(self.readline, '')
-        with patch('__builtin__.open', m):
-            memory_cache.init()
+        with patch('builtins.open', m):
+            process.init_cache()
 
-            memory_cache.get()['citation']['1998PPGeo..22..553A'].append('1998PPGeo..22..553B')
-            memory_cache.get()['reference']['1998PPGeo..22..553A'].append('1998PPGeo..22..553B')
+            process.get_cache()['citation']['1998PPGeo..22..553A'].append('1998PPGeo..22..553B')
+            process.get_cache()['reference']['1998PPGeo..22..553A'].append('1998PPGeo..22..553B')
             met = metrics.compute_metrics(d)
             self.assertEqual(met['citation_num'], len(d['citations']))
             self.assertEqual(met['reference_num'], len(d['reference']))
@@ -57,18 +53,18 @@ class TestMetrics(unittest.TestCase):
              'reference': ["1994BoLMe..71..393V", "1994GPC.....9...53M", "1994GPC.....9...53X"]}
         m = mock_open(read_data='')
         m.return_value.__iter__ = lambda self: iter(self.readline, '')
-        with patch('__builtin__.open', m):
-            memory_cache.init()
+        with patch('builtins.open', m):
+            process.init_cache()
             # init cache
             for bib in d['citations']:
-                memory_cache.get()['citation']['1997BoLMe..85..475M'].append(bib)
+                process.get_cache()['citation']['1997BoLMe..85..475M'].append(bib)
             for bib in d['reference']:
-                memory_cache.get()['reference']['1997BoLMe..85..475M'].append(bib)
+                process.get_cache()['reference']['1997BoLMe..85..475M'].append(bib)
             refereed = ['1997BoLMe..85..475M', "1999P&SS...47..951S", "2000BoLMe..97..385O",
                         "2001MAP....78..115K", "2002BoLMe.103...49H", "2006QJRMS.132..779R",
                         "2006QJRMS.132...61E", "2008Sci...320.1622D", "2016BoLMe.159..469G"]
             for bib in refereed:
-                memory_cache.get()['refereed'].network.append(bib)
+                process.get_cache()['refereed'].network.append(bib)
             # 1999P&SS...47..951S
             PSSreferences = ["1973JAtS...30...66B", "1973JAtS...30..749L", "1976JAtS...33..923B",
                              "1977JGR....82.4121B", "1977JGR....82.4249K", "1977JGR....82.4559H",
@@ -87,7 +83,7 @@ class TestMetrics(unittest.TestCase):
                              "1997AdSpR..19.1241S", "1997AdSpR..19.1289M", "1997BoLMe..85..475M",
                              "1997JGR...102.4463W", "1997Sci...278.1758S", "1998Sci...279.1686S"]
             for bib in PSSreferences:
-                memory_cache.get()['reference']['1999P&SS...47..951S'].append(bib)
+                process.get_cache()['reference']['1999P&SS...47..951S'].append(bib)
                 
             met = metrics.compute_metrics(d)
             self.assertEqual(len(met['citations']), len(d['citations']), 'citations check')

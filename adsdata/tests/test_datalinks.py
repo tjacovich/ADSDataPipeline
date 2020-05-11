@@ -1,7 +1,4 @@
-from mock import patch
-from mock import mock_open
-import StringIO
-import mock
+
 import unittest
 
 from adsdata import reader
