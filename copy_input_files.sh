@@ -45,7 +45,7 @@ if [ -d ./logs/input ]; then
 fi
 
 # create local copies of files
-echo hey $FILES_INFO
+echo $FILES_INFO
 for FILE_INFO in ${FILES_INFO[@]} ; do
     FILE=${FILE_INFO%%:*}
     mkdir -p $(dirname "$OUTPUT_BASE$FILE")
@@ -66,5 +66,6 @@ done
 
 # ingest code expects latest files in directory named current
 echo INFO: `date` linking $PWD/logs/input/current to $PWD/$OUTPUT_BASE
-rm -fv ./logs/input/current
+rm -fv ./logs/input/previous
+mv ./logs/input/current ./logs/input/previous
 ln -fsv $PWD/$OUTPUT_BASE $PWD/logs/input/current

@@ -3,7 +3,7 @@ import sys
 import traceback
 
 from adsmsg import NonBibRecord, MetricsRecord
-from adsdata import tasks, metrics, reader, aggregator
+from adsdata import diffs, metrics, tasks, reader, aggregator
 from adsdata.memory_cache import Refereed, ReferenceNetwork, CitationNetwork
 
 from adsdata.file_defs import data_files
@@ -15,7 +15,7 @@ from adsdata.file_defs import data_files
 # send it to master
 
 app = tasks.app
-logger = app.logger
+logger = tasks.app.logger
 nonbib_keys = data_files.keys()
 
 
@@ -27,14 +27,14 @@ def test_process(compute_metrics=True):
     while s:
         try:
             if count % 100 == 0:
-                app.logger.info('process, count = {}, line = {}'.format(count, s[:40]))
+                logger.info('process, count = {}, line = {}'.format(count, s[:40]))
             s = agg.read_next()
             count = count + 1
             if s is None:
                 break
         except:
             e = sys.exc_info()[0]
-            app.logger.error('Error! perhaps while processing line: {}, error: {}'.format(s[:40], str(e)))
+            logger.error('Error! perhaps while processing line: {}, error: {}'.format(s[:40], str(e)))
                  
 
 def process(compute_metrics=True):
@@ -50,7 +50,7 @@ def process(compute_metrics=True):
             # process it
             bibcode = d['canonical']
             if count % 100 == 0:
-                app.logger.info('processing, count = {}, current bibcode = {}'.format(count, bibcode))
+                logger.info('processing, count = {}, current bibcode = {}'.format(count, bibcode))
             if len(bibcode) == 0:
                 print('no bibcode, exiting main loop')
                 break
@@ -61,18 +61,18 @@ def process(compute_metrics=True):
                 met = metrics.compute_metrics(d)
                 met_proto = MetricsRecord(**met)
                 if count % 100 == 0:
-                    app.logger.info('met = {}'.format(met))
+                    logger.info('met = {}'.format(met))
             d = read_next()
             if app.conf.get('TEST_MAX_ROWS', -1) > 0:
                 if app.conf['TEST_MAX_ROWS'] >= count:
                     break  # useful during testing
             count += 1
         except AttributeError as e:
-            app.logger.error('AttributeError while processing bibcode: {}, error: {}'.format(d['canonical'], str(e)))
-            app.logger.error(traceback.format_exc())
+            logger.error('AttributeError while processing bibcode: {}, error: {}'.format(d['canonical'], str(e)))
+            logger.error(traceback.format_exc())
         except:
             e = sys.exc_info()[0]
-            app.logger.error('Error! perhaps while processing bibcode: {}, error: {}'.format(d['canonical'], str(e)))
+            logger.error('Error! perhaps while processing bibcode: {}, error: {}'.format(d['canonical'], str(e)))
 
 
 def process_bibcodes(bibcodes, compute_metrics=True):
@@ -80,16 +80,16 @@ def process_bibcodes(bibcodes, compute_metrics=True):
     open_all(root_dir=app.conf.get('INPUT_DATA_ROOT', './adsdata/tests/data1/config/'))
     for bibcode in bibcodes:
         nonbib = read_next_bibcode(bibcode)
-        app.logger.info('bibcode: {}, nonbib: {}'.format(bibcode, nonbib))
+        logger.info('bibcode: {}, nonbib: {}'.format(bibcode, nonbib))
         converted = convert(nonbib)
-        app.logger.info('bibcode: {}, nonbib converted: {}'.format(bibcode, converted))
+        logger.info('bibcode: {}, nonbib converted: {}'.format(bibcode, converted))
         nonbib_proto = NonBibRecord(**converted)
-        app.logger.info('bibcode: {}, nonbib protobuf: {}'.format(bibcode, nonbib_proto))
+        logger.info('bibcode: {}, nonbib protobuf: {}'.format(bibcode, nonbib_proto))
         if compute_metrics:
             met = metrics.compute_metrics(nonbib)
-            app.logger.info('bibcode: {}, metrics: {}'.format(bibcode, met))
+            logger.info('bibcode: {}, metrics: {}'.format(bibcode, met))
             met_proto = MetricsRecord(**met)
-            app.logger.info('bibcode: {}, metrics protobuf: {}'.format(bibcode, met_proto))
+            logger.info('bibcode: {}, metrics protobuf: {}'.format(bibcode, met_proto))
 
 
 def convert(passed):
@@ -182,13 +182,13 @@ def open_all(root_dir='/proj/ads/abstracts'):
         
 def skip_lines(n):
     c = 0
-    app.logger.info('starting to skip canonical lines')
+    logger.info('starting to skip canonical lines')
     while c < n:
         data_files['canonical']['file_descriptor'].readline()
         if c % 1000 == 0:
             print('skipping canonical at {}'.format(c))
         c = c + 1
-    app.logger.info('done skippline lines')
+    logger.info('done skippline lines')
 
 
 cache = {}
@@ -207,3 +207,9 @@ def init_cache(root_dir='/proj/ads/abstract/'):
 
 def get_cache():
     return cache
+
+
+def compute_diffs():
+    diffs.sort_input_files()
+    diffs.compute_changed_bibcodes()
+    diffs.merge_changed_bibcodes()

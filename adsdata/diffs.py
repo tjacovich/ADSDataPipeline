@@ -28,7 +28,7 @@ def compute_changed_bibcodes(root_dir='logs/input/'):
         c = root_dir + '/current/' + data_files[x]['path']
         p = root_dir + '/previous/' + data_files[x]['path']
         changed_bibs = root_dir + '/current/' + data_files[x]['path'] + '.changedbibs'
-        command = "comm -3 {} {} | sed $'s/^[ \t]*//g' | cut -f 1 | uniq > {}".format(c, p, changed_bibs)
+        command = "comm -3 {} {} | sed $'s/^[ \t]*//g' | sed '/^$/d' | cut -f 1 | uniq > {}".format(c, p, changed_bibs)
         execute(command)
 
 
@@ -36,9 +36,9 @@ def merge_changed_bibcodes(root_dir='logs/input/'):
     """merge small change bibcode files into a single file"""
     o = root_dir + '/current/' + 'changedBibcodes.txt'
     for x in data_files:
-        f = root_dir + '/data1/config/' + data_files[x]['path'] + '.changedbibs'
+        f = root_dir + '/current/' + data_files[x]['path'] + '.changedbibs'
         command = 'cat {} >> {}'.format(f, o)
         execute(command)
-    command = 'sort -o {} {}'.format(o, o)
+    command = 'sort --unique -o {} {}'.format(o, o)
     execute(command)
 
