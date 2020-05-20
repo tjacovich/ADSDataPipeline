@@ -103,6 +103,7 @@ def convert(passed):
     """
     return_value = {}
     return_value['data_links_rows'] = []
+    return_value['property'] = set()
     for filetype, value in passed.items():
         file_properties = data_files[filetype]
         if filetype == 'canonical':
@@ -113,30 +114,44 @@ def convert(passed):
                 # here with a real datalinks value, they all get merged into a single field
                 d = {}
                 d['link_type'] = value['link_type']
-                d['link_sub_type'] = value['link_sub_type']
-                d['url'] = value['url']
-                d['title'] = value.get('title', '')
-                if 'item_count' in value:
-                    if isinstance(value['item_count'], str):
-                        item_count = 0
+                if value['link_sub_type'] != 'NA':
+                    d['link_sub_type'] = value['link_sub_type']
+                    if type(value['url']) is str:
+                        d['url'] = [value['url']]
                     else:
-                        item_count = value['item_count']
-                else:
-                    item_count = 0
-                    d['item_count'] = item_count
-                    return_value['data_links_rows'].append(d)
-            else:
-                # here with an empty data links value
-                # consume key, don't copy to return_value
-                pass
-        elif filetype == 'citation':
-            return_value['citation_count'] = len(passed['citation'])
-        elif filetype == 'reads':
-            return_value['read_count'] = len(passed['readers'])
+                        d['url'] = value['url']
+                    if 'title' in value:
+                        d['title'] = value.get('title', '')
+                #if 'item_count' in value:
+                #    if isinstance(value['item_count'], str):
+                #        item_count = 0
+                #    else:
+                #        item_count = value['item_count']
+                #else:
+                #    item_count = 0
+                #    d['item_count'] = item_count
+                return_value['data_links_rows'].append(d)
+            if value != data_files[filetype]['default_value'] or value is True:
+                return_value['property'].add(data_files[filetype]['extra_values']['link_type'])
+                return_value['property'].update(data_files[filetype]['extra_values'].get('PROPERTY', []))
+        elif filetype == 'relevance':
+            for k in passed[filetype]:
+                # simply dict value to top level
+                return_value[k] = passed[filetype][k]
+        # elif filetype == 'citation':  # from relevance
+        #     return_value['citation_count'] = len(passed['citation'])
+        # elif filetype == 'reads':
+        #     return_value['read_count'] = len(passed['readers'])
+        elif filetype == 'refereed' and passed[filetype]:
+            return_value['property'].add('REFEREED')
         else:
             # otherwise, copy value
             return_value[filetype] = passed[filetype]
 
+    if 'REFEREED' not in return_value['property']:
+        return_value['property'].add('NOT REFEREED')
+    return_value['property'] = sorted(return_value['property'])
+        
     # finally, delted the keys not in the nonbib protobuf
     not_needed = ['author', 'canonical', 'citation', 'download', 'nonarticle', 'ocrabstract', 'private', 'pub_openaccess',
                   'reads', 'refereed', 'relevance']
@@ -210,6 +225,8 @@ def get_cache():
 
 
 def compute_diffs():
+    logger.info('compute diffs starting')
     diffs.sort_input_files()
     diffs.compute_changed_bibcodes()
     diffs.merge_changed_bibcodes()
+    logger.info('compute diffs completed')

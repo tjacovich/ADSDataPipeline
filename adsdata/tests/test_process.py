@@ -50,6 +50,10 @@ class TestMemoryCache(unittest.TestCase):
     def zztest_convert(self):
         self.assertEqual('2003ASPC..295..361M', process.convert({'canonical': '2003ASPC..295..361M'})['bibcode'])
 
-    def test_convert(self):
-        process.init_cache()
-        process.process_bibcodes(['1950RPPh...13...24G'])
+    def test_nonbib_record(self):
+        process.open_all(root_dir='./adsdata/tests/data1/config/')
+        d = process.read_next_bibcode('2003ASPC..295..361M')
+        n = process.convert(d)
+        self.maxDiff = None
+        self.assertEqual(n,  {"read_count": 4, "bibcode": "2003ASPC..295..361M", "data_links_rows": [{"url": ["http://articles.adsabs.harvard.edu/pdf/2003ASPC..295..361M"], "link_type": "ESOURCE", "link_sub_type": "ADS_PDF"}, {"url": ["http://articles.adsabs.harvard.edu/full/2003ASPC..295..361M"], "link_type": "ESOURCE", "link_sub_type": "ADS_SCAN"}, {"url": [""], "link_type": "TOC", "link_sub_type": "NA"}], "esource": ["ADS_PDF", "ADS_SCAN"], "property": ["ADS_OPENACCESS", "ARTICLE", "ESOURCE", "NOT REFEREED", "OPENACCESS", "TOC"], "boost": 0.15, "readers": [], "reference": [], "simbad_objects": [], "grants": [], "ned_objects": [], 'citation_count': 0, 'norm_cites': 0})
+
