@@ -9,7 +9,6 @@ from adsdata.file_defs import data_files
 logger = tasks.app.logger
 
 
-
 class BaseNetwork:
 
     def __init__(self, filename):

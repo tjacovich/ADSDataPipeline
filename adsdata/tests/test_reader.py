@@ -97,7 +97,8 @@ EEEEEEEEEEEEEEEEEEE\tE""")):
             f = reader.StandardFileReader('pub_html', 'filename')
             x = f.read_value_for('AAAAAAAAAAAAAAAAAAA')
             self.assertEqual({'pub_html': {'link_type': 'ESOURCE', 'link_sub_type': 'PUB_HTML',
-                                           'url': 'https://doi.org/10.3931%2Fe-rara-477'}}, x)
+                                           'url': 'https://doi.org/10.3931%2Fe-rara-477',
+                                           'PROPERTY': ['ADS_OPENACCESS', 'ARTICLE', 'OPENACCESS']}}, x)
             # f.read_value_for('AAAAAAAAAAAAAAAAAAA'))
 
         # eprint_html/all.links
@@ -142,6 +143,16 @@ EEEEEEEEEEEEEEEEEEE\tE""")):
         self.assertEqual(2, v['relevance']['citation_count'])
         self.assertEqual(0, v['relevance']['read_count'])
         self.assertEqual(2386, v['relevance']['norm_cites'])
+
+        v = r.read_value_for('2003ASPC..295..361M')
+        self.assertTrue('relevance' in v)
+        # self.assertEqual(4, len(v['relevance'].keys()))
+        self.assertAlmostEqual(.15, v['relevance']['boost']) 
+        self.assertEqual(0, v['relevance']['citation_count'])
+        self.assertEqual(4, v['relevance']['read_count'])
+        self.assertEqual(0, v['relevance']['norm_cites'])
+
+
 
     def test_associated(self):
         with patch('builtins.open', return_value=StringIO('1850AJ......1...72H\t1850AJ......1...57H\tMain Paper\n1850AJ......1...72H\t1850AJ......1...72H\tErratum')):

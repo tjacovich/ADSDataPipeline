@@ -2,9 +2,13 @@
 from subprocess import PIPE, Popen
 
 from adsdata.file_defs import data_files
+from adsdata import tasks
+
+logger = tasks.app.logger
 
 
 def execute(command, **kwargs):
+    logger.debug('in diffs, executing shell command {}'.format(command))
     print('command = {}'.format(command))
     p = Popen(command, shell=True, stdout=PIPE, stderr=PIPE, **kwargs)
     out, err = p.communicate()
@@ -17,18 +21,22 @@ def sort_input_files(root_dir='logs/input/'):
     for x in data_files:
         f = root_dir + '/current/' + data_files[x]['path']
         command = 'sort -o {} {}'.format(f, f)
+        logger.info('in diffs, sorting {}'.format(f))
         execute(command)
 
 
 def compute_changed_bibcodes(root_dir='logs/input/'):
     """generates a list of changed bibcoces by comparing input files in directory named current to directory named previous
 
+    we use comm to compare the old and new files, then strip changes down to just the canonical bibcodes
     for every input file we create a list of changed bibcodes, then we merge these changed bibcoes files"""
     for x in data_files:
         c = root_dir + '/current/' + data_files[x]['path']
         p = root_dir + '/previous/' + data_files[x]['path']
         changed_bibs = root_dir + '/current/' + data_files[x]['path'] + '.changedbibs'
-        command = "comm -3 {} {} | sed $'s/^[ \t]*//g' | cut -f 1 | uniq > {}".format(c, p, changed_bibs)
+        #          find changes  | remove comm leading tab|remove blank|only bib| sort bibcodes | filter out non-canonical
+        command = "comm -3 {} {} | sed $'s/^[ \t]*//g' | sed '/^$/d' | cut -f 1 | sort --unique | comm -1 -2 - {}  > {}".format(c, p, changed_bibs, root_dir + '/current/' + data_files['canonical']['path'])
+        logger.info('in diffs, computing changes to {}'.format(c))
         execute(command)
 
 
@@ -36,9 +44,11 @@ def merge_changed_bibcodes(root_dir='logs/input/'):
     """merge small change bibcode files into a single file"""
     o = root_dir + '/current/' + 'changedBibcodes.txt'
     for x in data_files:
-        f = root_dir + '/data1/config/' + data_files[x]['path'] + '.changedbibs'
+        f = root_dir + '/current/' + data_files[x]['path'] + '.changedbibs'
         command = 'cat {} >> {}'.format(f, o)
+        logger.info('in diffs, concatenating changes from {}'.format(f))
         execute(command)
-    command = 'sort -o {} {}'.format(o, o)
+    command = 'sort --unique -o {} {}'.format(o, o)
+    logger.info('in diffs, sorting changed bibcodes {}'.format(o))
     execute(command)
 
