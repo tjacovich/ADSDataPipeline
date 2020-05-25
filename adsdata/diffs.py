@@ -34,8 +34,8 @@ def compute_changed_bibcodes(root_dir='logs/input/'):
         c = root_dir + '/current/' + data_files[x]['path']
         p = root_dir + '/previous/' + data_files[x]['path']
         changed_bibs = root_dir + '/current/' + data_files[x]['path'] + '.changedbibs'
-        #          find changes  | remove comm leading tab|remove blank|only bib| sort bibcodes | filter out non-canonical
-        command = "comm -3 {} {} | sed $'s/^[ \t]*//g' | sed '/^$/d' | cut -f 1 | sort --unique | comm -1 -2 - {}  > {}".format(c, p, changed_bibs, root_dir + '/current/' + data_files['canonical']['path'])
+        #          find changes  | remove comm leading tab, blanks|only bib  | dedup| filter out non-canonical
+        command = "comm -3 {} {} | sed $'s/^[ \t]*//g' -e '/^$/d' | cut -f 1 | uniq | comm -1 -2 - {}  > {}".format(c, p, changed_bibs, root_dir + '/current/' + data_files['canonical']['path'])
         logger.info('in diffs, computing changes to {}'.format(c))
         execute(command)
 

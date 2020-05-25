@@ -25,8 +25,8 @@ data_files['simbad_objects'] = {'path': 'links/simbad/simbad_objects.tab', 'defa
                                 'string_to_number': False, 'multiline': True}
 
 data_files['pub_html'] = {'path': 'links/electr/all.links', 'default_value': {},
-                          'extra_values': {'link_type': 'ESOURCE', 'link_sub_type': 'PUB_HTML', 'PROPERTY': ['ADS_OPENACCESS', 'ARTICLE', 'OPENACCESS']},
-                          'subparts': ['url']}
+                          'extra_values': {'link_type': 'ESOURCE', 'link_sub_type': 'PUB_HTML', 'property': ['ADS_OPENACCESS', 'ARTICLE', 'OPENACCESS']},
+                          'subparts': [['url']]}
 data_files['eprint_html'] = {'path': 'links/eprint_html/all.links', 'default_value': {},
                              'extra_values': {'link_type': 'ESOURCE', 'link_sub_type': 'EPRINT_HTML'},
                              'subparts': ['url']}
@@ -34,8 +34,8 @@ data_files['pub_pdf'] = {'path': 'links/pub_pdf/all.links', 'default_value': {},
                          'extra_values': {'link_type': 'ESOURCE', 'link_sub_type': 'PUB_PDF'},
                          'subparts': ['url']}
 data_files['ads_pdf'] = {'path': 'links/ads_pdf/all.links', 'default_value': {},
-                         'extra_values': {'link_type': 'ESOURCE', 'link_sub_type': 'ADS_PDF', 'PROPERTY': ['ADS_OPENACCESS', 'ARTICLE', 'OPENACCESS']},
-                         'subparts': ['url']}
+                         'extra_values': {'link_type': 'ESOURCE', 'link_sub_type': 'ADS_PDF', 'property': ['ADS_OPENACCESS', 'ARTICLE', 'OPENACCESS']},
+                         'subparts': [['url']]}
 data_files['eprint_pdf'] = {'path': 'links/eprint_pdf/all.links', 'default_value': {},
                             'extra_values': {'link_type': 'ESOURCE', 'link_sub_type': 'EPRINT_PDF'},
                             'subparts': ['url']}
@@ -46,8 +46,8 @@ data_files['author_pdf'] = {'path': 'links/author_pdf/all.links', 'default_value
                             'extra_values': {'link_type': 'ESOURCE', 'link_sub_type': 'AUTHOR_PDF'},
                             'subparts': ['url']}
 data_files['ads_scan'] = {'path': 'links/ads_scan/all.links', 'default_value': {},
-                          'extra_values': {'link_type': 'ESOURCE', 'link_sub_type': 'ADS_SCAN', 'PROPERTY': ['ADS_OPENACCESS', 'ARTICLE', 'OPENACCESS']},
-                          'subparts': ['url']}
+                          'extra_values': {'link_type': 'ESOURCE', 'link_sub_type': 'ADS_SCAN', 'property': ['ADS_OPENACCESS', 'ARTICLE', 'OPENACCESS']},
+                          'subparts': [['url']]}
 data_files['associated'] = {'path': 'links/associated/all.links', 'default_value': {},
                             'extra_values': {'link_type': 'ASSOCIATED', 'link_sub_type': 'NA'},
                             'subparts': ['url', 'title'], 'multiline': True}
@@ -59,12 +59,12 @@ data_files['librarycatalog'] = {'path': 'links/library/all.links', 'default_valu
                                 'subparts': ['url', 'title'], 'multiline': True}
 data_files['inspire'] = {'path': 'links/spires/all.links', 'default_value': {},
                          'extra_values': {'link_type': 'INSPIRE', 'link_sub_type': 'NA'},
-                         'subparts': ['url', 'title'], 'multiline': True}
-data_files['toc'] = {'path': 'links/toc/all.links', 'default_value': True,
+                         'subparts': [['url']], 'multiline': True}
+data_files['toc'] = {'path': 'links/toc/all.links', 'default_value': False,
                      'extra_values': {'link_type': 'TOC', 'link_sub_type': 'NA'}}
                     #  'subparts': ['url']}
 data_files['data_link'] = {'path': 'links/facet_datasources/datasources.links', 'default_value': {},
-                           'extra_values': {'link_type': 'DATA'},
-                           'subparts': ['link_sub_type', 'item_count', 'url', 'title']}
+                           'extra_values': {'link_type': 'DATA', 'property': ['DATA']},
+                           'subparts': ['link_sub_type', 'item_count', ['url'], ['title']]}
 # data_files['ejournal_link'] = {'path': 'electr/all.links'}
 

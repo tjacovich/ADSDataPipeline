@@ -88,17 +88,19 @@ EEEEEEEEEEEEEEEEEEE\tE""")):
         # facet_datasources/datasources.links
         with patch('builtins.open', return_value=StringIO('AAAAAAAAAAAAAAAAAAA\tARI\t1\thttp://dc.g-vo.org/arigfh/katkat/byhdw/qp/1202')):
             f = reader.StandardFileReader('data_link', 'filename')
-            self.assertEqual({'data_link': {'link_type': 'DATA', 'link_sub_type': 'ARI', 'item_count': 1,
-                                            'url': 'http://dc.g-vo.org/arigfh/katkat/byhdw/qp/1202', 'title': ''}},
-                             f.read_value_for('AAAAAAAAAAAAAAAAAAA'))
+            v = f.read_value_for('AAAAAAAAAAAAAAAAAAA')
+            a = {'data_link': {'link_type': 'DATA', 'link_sub_type': 'ARI', 'item_count': 1, 'property': ['DATA'],
+                               'url': ['http://dc.g-vo.org/arigfh/katkat/byhdw/qp/1202'], 'title': ['']}}
+            self.assertEqual(a, v)
+
                               
         # electr/all.links
         with patch('builtins.open', return_value=StringIO('AAAAAAAAAAAAAAAAAAA\thttps://doi.org/10.3931%2Fe-rara-477')):
             f = reader.StandardFileReader('pub_html', 'filename')
             x = f.read_value_for('AAAAAAAAAAAAAAAAAAA')
             self.assertEqual({'pub_html': {'link_type': 'ESOURCE', 'link_sub_type': 'PUB_HTML',
-                                           'url': 'https://doi.org/10.3931%2Fe-rara-477',
-                                           'PROPERTY': ['ADS_OPENACCESS', 'ARTICLE', 'OPENACCESS']}}, x)
+                                           'url': ['https://doi.org/10.3931%2Fe-rara-477'],
+                                           'property': ['ADS_OPENACCESS', 'ARTICLE', 'OPENACCESS']}}, x)
             # f.read_value_for('AAAAAAAAAAAAAAAAAAA'))
 
         # eprint_html/all.links
@@ -152,7 +154,13 @@ EEEEEEEEEEEEEEEEEEE\tE""")):
         self.assertEqual(4, v['relevance']['read_count'])
         self.assertEqual(0, v['relevance']['norm_cites'])
 
-
+    def test_toc(self):
+        r = reader.StandardFileReader('toc', './adsdata/tests/data1/config/links/toc/all.links')
+        v = r.read_value_for('2003ASPC..295..361M')
+        self.assertTrue('toc' in v)
+        self.assertTrue(v['toc'])
+        v = r.read_value_for('2004ASPC..295..361M')
+        self.assertFalse(v['toc'])
 
     def test_associated(self):
         with patch('builtins.open', return_value=StringIO('1850AJ......1...72H\t1850AJ......1...57H\tMain Paper\n1850AJ......1...72H\t1850AJ......1...72H\tErratum')):

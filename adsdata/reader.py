@@ -128,7 +128,7 @@ class StandardFileReader(ADSClassicInputStream):
             self.pushline(current_line)
             return self.process_value(self.default_value)
 
-        if self.default_value is True or self.default_value is False:
+        if isinstance(self.default_value, bool):
             return self.process_value(True)  # boolean files hold singleton values
 
         # at this point, we have the first line with the bibcode in it
@@ -149,20 +149,17 @@ class StandardFileReader(ADSClassicInputStream):
         return self.process_value(value)
         
     def process_value(self, value):
-        """convert file value to something more useful
+        """convert file string line to something more useful
         
-        passed value is either default or string from file, convert to dict
+        return a dict with filetype as key and value converted
         """
+
         if isinstance(value, str) and '\x00' in value:
             # there should not be nulls in strings
             app.logger.error('in columnFileIngest.process_value with null value in string: {}', value)
             value = value.replace('\x00', '')
 
         return_value = value
-        # if return_value == ['']:
-        #     # here when the file did not have a value (e.g., refereed, etc.)
-        #    return_value = self.default_value 
-
         if isinstance(value, bool):
             return_value = value
         elif (len(value) == 1 and '\t' in value[0]):
@@ -192,7 +189,7 @@ class StandardFileReader(ADSClassicInputStream):
             #   since they also have subparts, these arrays will then put in dict with the cooresponding key
             x = []
             for r in value:
-                parts = r.split('\t')
+                parts = r.split(' ', 1)
                 for i in range(len(parts)):
                     if i >= len(x):
                         x.append([])
@@ -208,14 +205,21 @@ class StandardFileReader(ADSClassicInputStream):
             d = {}
             for i in range(len(data_files[self.filetype]['subparts'])):
                 k = data_files[self.filetype]['subparts'][i]
-                v = ''  # default value when file only contains first n values (e.g, 'title' value often not in line)
-                if i < len(return_value):
-                    v = return_value[i]
+                if type(k) is list:
+                    # here if values should be in a list
+                    k = k[0]
+                    v = ''
+                    if i < len(return_value):
+                        v = return_value[i]
+                    v = [v]
+                else:
+                    v = ''  # default value when file only contains first n values (e.g, 'title' value often not in line)
+                    if i < len(return_value):
+                        v = return_value[i]
                 d[k] = v
             return_value = d
-        if 'extra_values' in data_files[self.filetype] and return_value != data_files[self.filetype]['default_value']:
-            d.update(data_files[self.filetype]['extra_values'])
-            return_value = d
+        if 'extra_values' in data_files[self.filetype] and return_value != data_files[self.filetype]['default_value'] and type(return_value) is dict:
+            return_value.update(data_files[self.filetype]['extra_values'])
         return {self.filetype: return_value}
 
 

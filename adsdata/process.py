@@ -104,36 +104,32 @@ def convert(passed):
     return_value = {}
     return_value['data_links_rows'] = []
     return_value['property'] = set()
+    return_value['esource'] = set()
     for filetype, value in passed.items():
         file_properties = data_files[filetype]
         if filetype == 'canonical':
             return_value['bibcode'] = passed['canonical']
         elif ('extra_values' in file_properties and
-              'link_type' in file_properties['extra_values']):
-            if value != data_files[filetype]['default_value']:
-                # here with a real datalinks value, they all get merged into a single field
-                d = {}
-                d['link_type'] = value['link_type']
-                if value['link_sub_type'] != 'NA':
-                    d['link_sub_type'] = value['link_sub_type']
-                    if type(value['url']) is str:
-                        d['url'] = [value['url']]
-                    else:
-                        d['url'] = value['url']
-                    if 'title' in value:
-                        d['title'] = value.get('title', '')
-                #if 'item_count' in value:
-                #    if isinstance(value['item_count'], str):
-                #        item_count = 0
-                #    else:
-                #        item_count = value['item_count']
-                #else:
-                #    item_count = 0
-                #    d['item_count'] = item_count
-                return_value['data_links_rows'].append(d)
-            if value != data_files[filetype]['default_value'] or value is True:
-                return_value['property'].add(data_files[filetype]['extra_values']['link_type'])
-                return_value['property'].update(data_files[filetype]['extra_values'].get('PROPERTY', []))
+              'link_type' in file_properties['extra_values'] and
+              value != file_properties['default_value']):
+            # here with a real datalinks value, they all get merged into a single field
+            d = {}
+            d['link_type'] = file_properties['extra_values']['link_type']
+            d['link_sub_type'] = file_properties['extra_values']['link_sub_type']
+            if type(value) is bool:
+                d['url'] = ['']
+            else:
+                if type(value['url']) is str:
+                    d['url'] = [value['url']]
+                else:
+                    d['url'] = value['url']
+                if 'title' in value:
+                    d['title'] = value['title']
+            return_value['data_links_rows'].append(d)
+            if file_properties['extra_values']['link_type'] == 'ESOURCE':
+                return_value['esource'].add(file_properties['extra_values']['link_sub_type'])
+            return_value['property'].add(file_properties['extra_values']['link_type'])
+            return_value['property'].update(file_properties['extra_values'].get('property', []))
         elif filetype == 'relevance':
             for k in passed[filetype]:
                 # simply dict value to top level
@@ -144,13 +140,14 @@ def convert(passed):
         #     return_value['read_count'] = len(passed['readers'])
         elif filetype == 'refereed' and passed[filetype]:
             return_value['property'].add('REFEREED')
-        else:
+        elif value != file_properties['default_value'] or file_properties.get('copy_default', False):
             # otherwise, copy value
             return_value[filetype] = passed[filetype]
 
     if 'REFEREED' not in return_value['property']:
         return_value['property'].add('NOT REFEREED')
     return_value['property'] = sorted(return_value['property'])
+    return_value['esource'] = sorted(return_value['esource'])
         
     # finally, delted the keys not in the nonbib protobuf
     not_needed = ['author', 'canonical', 'citation', 'download', 'nonarticle', 'ocrabstract', 'private', 'pub_openaccess',
