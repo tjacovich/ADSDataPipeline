@@ -163,13 +163,13 @@ EEEEEEEEEEEEEEEEEEE\tE""")):
         self.assertFalse(v['toc'])
 
     def test_associated(self):
-        with patch('builtins.open', return_value=StringIO('1850AJ......1...72H\t1850AJ......1...57H\tMain Paper\n1850AJ......1...72H\t1850AJ......1...72H\tErratum')):
+        with patch('builtins.open', return_value=StringIO('1850AJ......1...72H\t1850AJ......1...57H Main Paper\n1850AJ......1...72H\t1850AJ......1...72H Erratum')):
             f = reader.StandardFileReader('associated', 'filename')
             x = f.read_value_for('1850AJ......1...72H')
-            self.assertEqual({'associated': {'link_type': 'ASSOCIATED', 'link_sub_type': 'NA',
-                                             'url': ['1850AJ......1...57H', '1850AJ......1...72H'],
-                                             'title': ['Main Paper', 'Erratum']}},
-                             x)
+            a = {'associated': {'link_type': 'ASSOCIATED', 'link_sub_type': 'NA',
+                                'url': ['1850AJ......1...57H', '1850AJ......1...72H'],
+                                'title': ['Main Paper', 'Erratum']}}
+            self.assertEqual(a, x)
 
     def test_simbad(self):
         with patch('builtins.open', return_value=StringIO('1857AN.....45...89S\t1500441\tLP*')):
