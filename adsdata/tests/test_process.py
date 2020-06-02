@@ -55,7 +55,11 @@ class TestMemoryCache(unittest.TestCase):
         d = process.read_next_bibcode('2003ASPC..295..361M')
         n = process.convert(d)
         self.maxDiff = None
-        a = {"read_count": 4, "bibcode": "2003ASPC..295..361M", "data_links_rows": [{"url": ["http://articles.adsabs.harvard.edu/pdf/2003ASPC..295..361M"], "link_type": "ESOURCE", "link_sub_type": "ADS_PDF"}, {"url": ["http://articles.adsabs.harvard.edu/full/2003ASPC..295..361M"], "link_type": "ESOURCE", "link_sub_type": "ADS_SCAN"}, {"url": [""], "link_type": "TOC", "link_sub_type": "NA"}], "esource": ["ADS_PDF", "ADS_SCAN"], "property": ["ADS_OPENACCESS", "ARTICLE", "ESOURCE", "NOT REFEREED", "OPENACCESS", "TOC"], "boost": 0.15, 'citation_count': 0, 'norm_cites': 0, 'citation_count_norm': 0.0, 'data': [], 'total_link_counts': 0}
+        a = {"read_count": 4, "bibcode": "2003ASPC..295..361M",
+             "data_links_rows": [{"url": ["http://articles.adsabs.harvard.edu/pdf/2003ASPC..295..361M"], "link_type": "ESOURCE", "link_sub_type": "ADS_PDF", 'title': [''], 'item_count': 0},
+                                 {"url": ["http://articles.adsabs.harvard.edu/full/2003ASPC..295..361M"], "link_type": "ESOURCE", "link_sub_type": "ADS_SCAN", 'title': [''], 'item_count': 0},
+                                 {"url": [""], "link_type": "TOC", "link_sub_type": "NA", 'title': [''], 'item_count': 0}],
+             "esource": ["ADS_PDF", "ADS_SCAN"], "property": ["ADS_OPENACCESS", "ARTICLE", "ESOURCE", "NOT REFEREED", "OPENACCESS", "TOC"], "boost": 0.15, 'citation_count': 0, 'norm_cites': 0, 'citation_count_norm': 0.0, 'data': [], 'total_link_counts': 0}
         self.assertEqual(a, n)
 
         d = process.read_next_bibcode('2004MNRAS.354L..31M')
@@ -63,13 +67,14 @@ class TestMemoryCache(unittest.TestCase):
         a = {"bibcode": "2004MNRAS.354L..31M",
              "simbad_objects": ["3253618 G"],
              "read_count": 20,
-             "data_links_rows": [{"url": ["http://dx.doi.org/10.1111/j.1365-2966.2004.08374.x"], "link_type": "ESOURCE", "link_sub_type": "PUB_HTML"},
-                                 {"url": ["https://arxiv.org/abs/astro-ph/0405472"], "link_type": "ESOURCE", "link_sub_type": "EPRINT_HTML"},
-                                 {"url": ["https://academic.oup.com/mnras/pdf-lookup/doi/10.1111/j.1365-2966.2004.08374.x"], "link_type": "ESOURCE", "link_sub_type": "PUB_PDF"},                                                                 {"url": ["http://articles.adsabs.harvard.edu/pdf/2004MNRAS.354L..31M"], "link_type": "ESOURCE", "link_sub_type": "ADS_PDF"},
-                                 {"url": ["https://arxiv.org/pdf/astro-ph/0405472"], "link_type": "ESOURCE", "link_sub_type": "EPRINT_PDF"},
-                                 {"url": ["http://articles.adsabs.harvard.edu/full/2004MNRAS.354L..31M"], "link_type": "ESOURCE", "link_sub_type": "ADS_SCAN"},
-                                 {"url": ["2004MNRAS.354L..31M", "2005yCat..73549031M"], "title": ["Source Paper", "Catalog Description"], "link_type": "ASSOCIATED", "link_sub_type": "NA"},
-                                 {"url": ["http://inspirehep.net/search?p=find+j+MNRAA,354,L31"], "link_type": "INSPIRE", "link_sub_type": "NA"},
+             "data_links_rows": [{"url": ["http://dx.doi.org/10.1111/j.1365-2966.2004.08374.x"], "link_type": "ESOURCE", "link_sub_type": "PUB_HTML", 'title': [''], 'item_count': 0},
+                                 {"url": ["https://arxiv.org/abs/astro-ph/0405472"], "link_type": "ESOURCE", "link_sub_type": "EPRINT_HTML", 'title': [''], 'item_count': 0},
+                                 {"url": ["https://academic.oup.com/mnras/pdf-lookup/doi/10.1111/j.1365-2966.2004.08374.x"], "link_type": "ESOURCE", "link_sub_type": "PUB_PDF", 'title': [''], 'item_count': 0},
+                                 {"url": ["http://articles.adsabs.harvard.edu/pdf/2004MNRAS.354L..31M"], "link_type": "ESOURCE", "link_sub_type": "ADS_PDF", 'title': [''], 'item_count': 0},
+                                 {"url": ["https://arxiv.org/pdf/astro-ph/0405472"], "link_type": "ESOURCE", "link_sub_type": "EPRINT_PDF", 'title': [''], 'item_count': 0},
+                                 {"url": ["http://articles.adsabs.harvard.edu/full/2004MNRAS.354L..31M"], "link_type": "ESOURCE", "link_sub_type": "ADS_SCAN", 'title': [''], 'item_count': 0},
+                                 {"url": ["2004MNRAS.354L..31M", "2005yCat..73549031M"], "title": ["Source Paper", "Catalog Description"], "link_type": "ASSOCIATED", "link_sub_type": "NA", 'item_count': 0},
+                                 {"url": ["http://inspirehep.net/search?p=find+j+MNRAA,354,L31"], "link_type": "INSPIRE", "link_sub_type": "NA", 'title': [''], 'item_count': 0},
                                  {"url": ["http://$VIZIER$/viz-bin/VizieR?-source=J/MNRAS/354/L31"], "title": [""], "item_count": 1, "link_type": "DATA", "link_sub_type": "CDS"},
                                  {"url": ["https://$NED$/cgi-bin/objsearch?search_type=Search&refcode=2004MNRAS.354L..31M"], "title": ["NED Objects (1953)"], "item_count": 1953, "link_type": "DATA", "link_sub_type": "NED"},
                                  {"url": ["http://$SIMBAD$/simbo.pl?bibcode=2004MNRAS.354L..31M"], "title": ["SIMBAD Objects (1)"], "item_count": 1, "link_type": "DATA", "link_sub_type": "SIMBAD"},

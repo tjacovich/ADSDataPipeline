@@ -147,7 +147,7 @@ def convert(passed):
     add_citation_count_norm_field(return_value, passed)
     
     # finally, delted the keys not in the nonbib protobuf
-    not_needed = ['author', 'canonical', 'citation', 'download', 'nonarticle', 'ocrabstract', 'private', 'pub_openaccess',
+    not_needed = ['author', 'canonical', 'citation', 'download', 'item_count', 'nonarticle', 'ocrabstract', 'private', 'pub_openaccess',
                   'reads', 'refereed', 'relevance']
     for n in not_needed:
         return_value.pop(n, None)
@@ -202,15 +202,16 @@ def convert_data_link(filetype, value):
         d['link_sub_type'] = file_properties['extra_values']['link_sub_type'] + link_sub_type_suffix
     if type(value) is bool:
         d['url'] = ['']
+        d['title'] = ['']
+        d['item_count'] = 0
     else:
-        if type(value['url']) is str:
-            d['url'] = [value['url']]
-        else:
-            d['url'] = value['url']
-        if 'title' in value:
-            d['title'] = value['title']
-        if 'item_count' in value:
-            d['item_count'] = value['item_count']
+        d['url'] = value.get('url', [''])
+        if type(d['url']) is str:
+            d['url'] = [d['url']]
+        d['title'] = value.get('title', [''])
+        if type(d['title']) is str:
+            d['title'] = [d['title']]
+        d['item_count'] = value.get('item_count', 0)
     return d
 
 
