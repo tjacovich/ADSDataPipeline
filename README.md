@@ -50,14 +50,25 @@ list of similar values (e.g., the number of reads per year).  We read
 lists of similar data into an array.  In other files, the multiple
 values in a single line contains very different values (e.g.,
 relevance holds 4 values: boost, citation_count, read_count and
-norm_cites).  We read sets of very different values into a dict.  The
-file properties dict holds the (ordered) list of keys.  There are
+norm_cites).
+We read sets of very different values into a dict (for example, the
+relevance file contains boost, citation count, read count and norm
+cites).  The file properties for releveance defines a 'subparts' list
+which holdss the ordered list of keys.
+This works when all the values in each row stored as a scalar.  This
+isn't always the case.  Some data links values are always stored in
+arrays even when there is a single value (for example, url and
+title).  In this case, the key in the file description is enclosed in
+a list.  
+
+There are
 cases where we want to associate some data with all bibcodes in a
 file.  For example, all the data links info read from the file
 spires/all.links must have a link_type of 'INSPIRE' and a
 link_sub_type of NA.  To accomidate these constants each file property
 dict can include 'extra_values' that are merged with the data for
-every bibcode as it is read.
+every bibcode as it is read.  This 'extra_values' field can also hold
+additional values for the 'property' list.
 
 # Converting Nonbib Data To Protobuf
 The nonbib protobuf sent to master contains only a subset and a

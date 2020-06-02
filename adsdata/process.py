@@ -97,7 +97,7 @@ def convert(passed):
 
     data links values are read from separate files so they are in separate dicts
         they must be merged into one field for the protobuf
-    a copule fields are summarized
+    a couple fields are summarized
     some other fields are just copied
     some fields are deleted
     """
@@ -109,23 +109,20 @@ def convert(passed):
         file_properties = data_files[filetype]
         if filetype == 'canonical':
             return_value['bibcode'] = passed['canonical']
-        elif ('extra_values' in file_properties and
-              'link_type' in file_properties['extra_values'] and
-              value != file_properties['default_value']):
-            # here with a real datalinks value, they all get merged into a single field
-            d = {}
-            d['link_type'] = file_properties['extra_values']['link_type']
-            d['link_sub_type'] = file_properties['extra_values']['link_sub_type']
-            if type(value) is bool:
-                d['url'] = ['']
+        elif ('extra_values' in file_properties and 'link_type' in file_properties['extra_values'] and value != file_properties['default_value']):
+            # here with one or more real datalinks value(s)
+            # add each data links dict to existing list of dicts
+            # tweak some values (e.g., sub_link_type) in original dict
+            if type(value) is bool or type(value) is dict:
+                d = convert_data_link(filetype, value)
+                return_value['data_links_rows'].append(d)
+            elif type(value) is list:
+                for v in value:
+                    d = convert_data_link(filetype, v)
+                    return_value['data_links_rows'].append(d)
             else:
-                if type(value['url']) is str:
-                    d['url'] = [value['url']]
-                else:
-                    d['url'] = value['url']
-                if 'title' in value:
-                    d['title'] = value['title']
-            return_value['data_links_rows'].append(d)
+                print('!!! error in process.convert with {} {} {}'.format(filetype, type(value), value))
+            
             if file_properties['extra_values']['link_type'] == 'ESOURCE':
                 return_value['esource'].add(file_properties['extra_values']['link_sub_type'])
             return_value['property'].add(file_properties['extra_values']['link_type'])
@@ -134,27 +131,87 @@ def convert(passed):
             for k in passed[filetype]:
                 # simply dict value to top level
                 return_value[k] = passed[filetype][k]
-        # elif filetype == 'citation':  # from relevance
-        #     return_value['citation_count'] = len(passed['citation'])
-        # elif filetype == 'reads':
-        #     return_value['read_count'] = len(passed['readers'])
         elif filetype == 'refereed' and passed[filetype]:
             return_value['property'].add('REFEREED')
         elif value != file_properties['default_value'] or file_properties.get('copy_default', False):
             # otherwise, copy value
             return_value[filetype] = passed[filetype]
 
-    if 'REFEREED' not in return_value['property']:
-        return_value['property'].add('NOT REFEREED')
+    if passed.get('pub_openaccess', False):
+        return_value['property'].add('PUB_OPENACCESS')
+    add_refereed_property(return_value)
+    add_article_property(return_value, passed.get('nonarticle', False))
     return_value['property'] = sorted(return_value['property'])
     return_value['esource'] = sorted(return_value['esource'])
-        
+    add_data_summary(return_value)
+    add_citation_count_norm_field(return_value, passed)
+    
     # finally, delted the keys not in the nonbib protobuf
     not_needed = ['author', 'canonical', 'citation', 'download', 'nonarticle', 'ocrabstract', 'private', 'pub_openaccess',
                   'reads', 'refereed', 'relevance']
     for n in not_needed:
         return_value.pop(n, None)
     return return_value
+
+
+def add_citation_count_norm_field(return_value, original):
+    author_count = len(original.get('author', ()))
+    return_value['citation_count_norm'] = return_value.get('citation_count', 0) / float(max(author_count, 1))
+
+
+def add_refereed_property(return_value):
+    if'REFEREED' not in return_value['property']:
+        return_value['property'].add('NOT REFEREED')
+
+
+def add_article_property(return_value, nonarticle):
+    if nonarticle:
+        return_value['property'].add('NONARTICLE')
+    else:
+        return_value['property'].add('ARTICLE')
+
+
+def add_data_summary(return_value):
+    """iterate over all data links to create data field
+
+    "data": ["CDS:1", "NED:1953", "SIMBAD:1", "Vizier:1"]"""
+    data_value = []
+    total_link_counts = 0
+    for r in return_value.get('data_links_rows', []):
+        if r['link_type'] == 'DATA':
+            v = r['link_sub_type'] + ':' + str(r.get('item_count', 0))
+            data_value.append(v)
+            total_link_counts += int(r.get('item_count', 0))
+    return_value['data'] = sorted(data_value)
+    return_value['total_link_counts'] = total_link_counts
+
+
+def convert_data_link(filetype, value):
+    """convert one data link row"""
+    file_properties = data_files[filetype]
+    d = {}
+    d['link_type'] = file_properties['extra_values']['link_type']
+    link_sub_type_suffix = ''
+    if value is dict and 'subparts' in value and 'item_count' in value['subparts']:
+        link_sub_type_suffix = ' ' + str(value['subparts']['item_count'])
+    if value is True:
+        d['link_sub_type'] = file_properties['extra_values']['link_sub_type'] + link_sub_type_suffix
+    elif 'link_sub_type' in value:
+        d['link_sub_type'] = value['link_sub_type'] + link_sub_type_suffix
+    elif 'link_sub_type' in file_properties['extra_values']:
+        d['link_sub_type'] = file_properties['extra_values']['link_sub_type'] + link_sub_type_suffix
+    if type(value) is bool:
+        d['url'] = ['']
+    else:
+        if type(value['url']) is str:
+            d['url'] = [value['url']]
+        else:
+            d['url'] = value['url']
+        if 'title' in value:
+            d['title'] = value['title']
+        if 'item_count' in value:
+            d['item_count'] = value['item_count']
+    return d
 
 
 def read_next():
