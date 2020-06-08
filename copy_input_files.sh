@@ -40,8 +40,8 @@ FILES_INFO=(
 
 # zip/delete old input files
 if [ -d ./logs/input ]; then
-    find ./logs/input/ -name "input.20*-*-*_*-*-*" -type d -mtime +1 -exec tar cvzf '{}'.tar.gz '{}' \; -exec rm -r '{}' \;
-    find ./logs/input/ -name "input.20*-*-*_*-*-*" -mtime +3 -exec rm -rf '{}' \;
+    find ./logs/input/ -name "input.20*-*-*_*-*-*" -type d -mtime +5 -exec tar cvzf '{}'.tar.gz '{}' \; -exec rm -r '{}' \;
+    find ./logs/input/ -name "input.20*-*-*_*-*-*" -mtime +10 -exec rm -rf '{}' \;
 fi
 
 # create local copies of files
