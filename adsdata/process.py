@@ -78,18 +78,26 @@ def process(compute_metrics=True):
 def process_bibcodes(bibcodes, compute_metrics=True):
     """this funciton is useful when debugging"""
     open_all(root_dir=app.conf.get('INPUT_DATA_ROOT', './adsdata/tests/data1/config/'))
+    nonbib_protos = []
+    metrics_protos = []
     for bibcode in bibcodes:
         nonbib = read_next_bibcode(bibcode)
         logger.info('bibcode: {}, nonbib: {}'.format(bibcode, nonbib))
         converted = convert(nonbib)
         logger.info('bibcode: {}, nonbib converted: {}'.format(bibcode, converted))
         nonbib_proto = NonBibRecord(**converted)
+        nonbib_protos.append(nonbib_proto)
         logger.info('bibcode: {}, nonbib protobuf: {}'.format(bibcode, nonbib_proto))
         if compute_metrics:
             met = metrics.compute_metrics(nonbib)
             logger.info('bibcode: {}, metrics: {}'.format(bibcode, met))
-            met_proto = MetricsRecord(**met)
-            logger.info('bibcode: {}, metrics protobuf: {}'.format(bibcode, met_proto))
+            metrics_proto = MetricsRecord(**met)
+            metrics_protos.append(metrics_proto)
+            logger.info('bibcode: {}, metrics protobuf: {}'.format(bibcode, metrics_proto))
+    if len(nonbib_protos):
+        tasks.task_output_nonbib.delay(nonbib_protos)
+    if len(metrics_protos):
+        tasks.task_output_metrics.delay(metrics_protos)
 
 
 def convert(passed):

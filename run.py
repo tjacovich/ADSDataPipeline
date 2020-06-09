@@ -1,10 +1,9 @@
 
 #!/usr/bin/env python
 
-import adsputils
 import argparse
 
-from adsdata import memory_cache, process, tasks
+from adsdata import process, tasks
 
 app = tasks.app
 
@@ -15,6 +14,8 @@ def main():
                         help='A list of bibcodes separated by spaces')
     parser.add_argument('-d', '--diffs', dest='diffs', action='store_true',
                         help='compute changed bibcodes')
+    parser.add_argument('-f', '--filename', dest='filename', action='store',
+                        help='file of sorted bibcodes to process')
     parser.add_argument('-i', '--interactive', dest='interactive', action='store_true',
                         help='after cache init user can enter bibcodes')
     parser.add_argument('--no-metrics', dest='compute_metrics', action='store_false',
@@ -36,6 +37,16 @@ def main():
         process.process_bibcodes(args.bibcodes, compute_metrics=args.compute_metrics)
     elif args.diffs:
         process.compute_diffs()
+    elif args.filename:
+        bibcodes = []
+        with open(args.filename, 'r') as f:
+            for line in f:
+                bibcodes.append(line.strip())
+                if len(bibcodes) % 100 == 0:
+                    process.process_bibcodes(bibcodes, compute_metrics=args.compute_metrics)
+                    bibcodes = []
+        if len(bibcodes) > 0:
+            process.process_bibcodes(bibcodes, compute_metrics=args.compute_metrics)
     elif args.interactive:
         while True:
             i = input('enter bibcode: ')
