@@ -1,4 +1,3 @@
 adsputils==1.2.7
-future==0.18.2
 librabbitmq==1.6.1
-requests==2.13.0
+
