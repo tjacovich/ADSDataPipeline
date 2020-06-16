@@ -2,7 +2,7 @@
 import sys
 import traceback
 
-from adsmsg import NonBibRecord, MetricsRecord
+from adsmsg import NonBibRecord, NonBibRecordList, MetricsRecord, MetricsRecordList
 from adsdata import diffs, metrics, tasks, reader, aggregator
 from adsdata.memory_cache import Refereed, ReferenceNetwork, CitationNetwork
 
@@ -78,26 +78,24 @@ def process(compute_metrics=True):
 def process_bibcodes(bibcodes, compute_metrics=True):
     """this funciton is useful when debugging"""
     open_all(root_dir=app.conf.get('INPUT_DATA_ROOT', './adsdata/tests/data1/config/'))
-    nonbib_protos = []
-    metrics_protos = []
+    nonbib_protos = NonBibRecordList()
+    metrics_protos = MetricsRecordList()
     for bibcode in bibcodes:
         nonbib = read_next_bibcode(bibcode)
         logger.info('bibcode: {}, nonbib: {}'.format(bibcode, nonbib))
         converted = convert(nonbib)
         logger.info('bibcode: {}, nonbib converted: {}'.format(bibcode, converted))
         nonbib_proto = NonBibRecord(**converted)
-        nonbib_protos.append(nonbib_proto)
+        nonbib_protos.nonbib_records.extend([nonbib_proto])
         logger.info('bibcode: {}, nonbib protobuf: {}'.format(bibcode, nonbib_proto))
         if compute_metrics:
             met = metrics.compute_metrics(nonbib)
             logger.info('bibcode: {}, metrics: {}'.format(bibcode, met))
             metrics_proto = MetricsRecord(**met)
-            metrics_protos.append(metrics_proto)
+            metrics_protos.metrics_records.extend([metrics_proto])
             logger.info('bibcode: {}, metrics protobuf: {}'.format(bibcode, metrics_proto))
-    if len(nonbib_protos):
-        tasks.task_output_nonbib.delay(nonbib_protos)
-    if len(metrics_protos):
-        tasks.task_output_metrics.delay(metrics_protos)
+    tasks.task_output_nonbib.delay(nonbib_protos)
+    tasks.task_output_metrics.delay(metrics_protos)
 
 
 def convert(passed):
@@ -228,7 +226,7 @@ def read_next():
     global data_files
     d = {}
     for x in data_files:
-        if x is 'canonical':
+        if x == 'canonical':
             d['canonical'] = data_files['canonical']['file_descriptor'].readline()
             if d['canonical'] is None:
                 return None
@@ -244,7 +242,7 @@ def read_next_bibcode(bibcode):
     d = {}
     d['canonical'] = bibcode
     for x in data_files:
-        if x is not 'canonical':
+        if x != 'canonical':
             d.update(data_files[x]['file_descriptor'].read_value_for(bibcode))
     return d
 
