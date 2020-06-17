@@ -20,6 +20,8 @@ def main():
                         help='after cache init user can enter bibcodes')
     parser.add_argument('--no-metrics', dest='compute_metrics', action='store_false',
                         help='after cache init user can enter bibcodes')
+    parser.add_argument('--queue', dest='queue', action='store_true',
+                        help='queue bibcodes to workers, always computes metrics')
     parser.add_argument('--test', dest='test', action='store_true',
                         help='use test aggegator')
 
@@ -34,23 +36,39 @@ def main():
         print('cache created: {}'.format(c))
 
     if args.bibcodes:
-        process.process_bibcodes(args.bibcodes, compute_metrics=args.compute_metrics)
+        if args.queue:
+            tasks.task_process_bibcodes.delay(args.bibcodes)
+        else:
+            process.process_bibcodes(args.bibcodes, compute_metrics=args.compute_metrics)
     elif args.diffs:
         process.compute_diffs()
     elif args.filename:
+        count = 0
         bibcodes = []
         with open(args.filename, 'r') as f:
             for line in f:
+                if count % 10000 == 0:
+                    print('count = {}'.format(count))
                 bibcodes.append(line.strip())
                 if len(bibcodes) % 100 == 0:
-                    process.process_bibcodes(bibcodes, compute_metrics=args.compute_metrics)
+                    if args.queue:
+                        tasks.task_process_bibcodes.delay(bibcodes)
+                    else:
+                        process.process_bibcodes(bibcodes, compute_metrics=args.compute_metrics)
                     bibcodes = []
         if len(bibcodes) > 0:
-            process.process_bibcodes(bibcodes, compute_metrics=args.compute_metrics)
+            if args.queue:
+                tasks.task_process_bibcodes.delay(bibcodes)
+            else:
+                process.process_bibcodes(bibcodes, compute_metrics=args.compute_metrics)
+        print('complted, count = {}'.format(count))
     elif args.interactive:
         while True:
             i = input('enter bibcode: ')
-            process.process_bibcodes([i.strip()], compute_metrics=args.compute_metrics)
+            if args.queue:
+                tasks.task_process_bibcodes.delay([i.strip()])
+            else:
+                process.process_bibcodes([i.strip()], compute_metrics=args.compute_metrics)
     elif args.test:
         process.test_process(False)
     else:

@@ -77,6 +77,7 @@ def process(compute_metrics=True):
 
 def process_bibcodes(bibcodes, compute_metrics=True):
     """this funciton is useful when debugging"""
+    init_cache(root_dir=app.conf.get('INPUT_DATA_ROOT', './adsdata/tests/data1/config/'))
     open_all(root_dir=app.conf.get('INPUT_DATA_ROOT', './adsdata/tests/data1/config/'))
     nonbib_protos = NonBibRecordList()
     metrics_protos = MetricsRecordList()
@@ -86,13 +87,13 @@ def process_bibcodes(bibcodes, compute_metrics=True):
         converted = convert(nonbib)
         logger.info('bibcode: {}, nonbib converted: {}'.format(bibcode, converted))
         nonbib_proto = NonBibRecord(**converted)
-        nonbib_protos.nonbib_records.extend([nonbib_proto])
+        nonbib_protos.nonbib_records.extend([nonbib_proto._data])
         logger.info('bibcode: {}, nonbib protobuf: {}'.format(bibcode, nonbib_proto))
         if compute_metrics:
             met = metrics.compute_metrics(nonbib)
             logger.info('bibcode: {}, metrics: {}'.format(bibcode, met))
             metrics_proto = MetricsRecord(**met)
-            metrics_protos.metrics_records.extend([metrics_proto])
+            metrics_protos.metrics_records.extend([metrics_proto._data])
             logger.info('bibcode: {}, metrics protobuf: {}'.format(bibcode, metrics_proto))
     tasks.task_output_nonbib.delay(nonbib_protos)
     tasks.task_output_metrics.delay(metrics_protos)
@@ -252,10 +253,20 @@ def open_all(root_dir='/proj/ads/abstracts'):
 
     we store these descriptors in the file properties object"""
 
+    if 'file_descriptor' in data_files['canonical']:
+        # files have already been open (likely running from a worker)
+        return
     for x in data_files:
         data_files[x]['file_descriptor'] = reader.StandardFileReader(x, root_dir + data_files[x]['path'])
 
-        
+
+def close_all():
+    for x in data_files:
+        if 'file_descriptor' in data_files[x]:
+            data_files[x]['file_descriptor'].close()
+            data_files[x].pop('file_descriptor')
+
+
 def skip_lines(n):
     c = 0
     logger.info('starting to skip canonical lines')
@@ -275,9 +286,11 @@ def init_cache(root_dir='/proj/ads/abstract/'):
     if cache:
         # init has already been called
         return cache
+    logger.info('initing cache')
     cache['reference'] = ReferenceNetwork(root_dir + data_files['reference']['path'])
     cache['citation'] = CitationNetwork(root_dir + data_files['citation']['path'])
     cache['refereed'] = Refereed(root_dir + data_files['reference']['path'])
+    logger.info('completed initing cache')
     return cache
 
 

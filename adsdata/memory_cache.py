@@ -2,7 +2,6 @@
 from collections import defaultdict
 
 from adsdata import tasks
-from adsdata.file_defs import data_files
 
 # code for in-memory caches
 
