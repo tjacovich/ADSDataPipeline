@@ -78,7 +78,6 @@ def process(compute_metrics=True):
 def process_bibcodes(bibcodes, compute_metrics=True):
     """this funciton is useful when debugging"""
     init_cache(root_dir=app.conf.get('INPUT_DATA_ROOT', './adsdata/tests/data1/config/'))
-    open_all(root_dir=app.conf.get('INPUT_DATA_ROOT', './adsdata/tests/data1/config/'))
     nonbib_protos = NonBibRecordList()
     metrics_protos = MetricsRecordList()
     for bibcode in bibcodes:
@@ -226,7 +225,7 @@ def read_next():
     """read all the info for the next bibcode into a dict"""
     global data_files
     d = {}
-    for x in data_files:
+    for x in data_files.keys():
         if x == 'canonical':
             d['canonical'] = data_files['canonical']['file_descriptor'].readline()
             if d['canonical'] is None:
@@ -242,9 +241,10 @@ def read_next_bibcode(bibcode):
     """read all the info for the passed bibcode into a dict"""
     d = {}
     d['canonical'] = bibcode
-    for x in data_files:
+    for x in data_files.keys():
         if x != 'canonical':
-            d.update(data_files[x]['file_descriptor'].read_value_for(bibcode))
+            v = data_files[x]['file_descriptor'].read_value_for(bibcode)
+            d.update(v)
     return d
 
 
@@ -252,16 +252,12 @@ def open_all(root_dir='/proj/ads/abstracts'):
     """simply open file descriptors to all the input files
 
     we store these descriptors in the file properties object"""
-
-    if 'file_descriptor' in data_files['canonical']:
-        # files have already been open (likely running from a worker)
-        return
-    for x in data_files:
+    for x in data_files.keys():
         data_files[x]['file_descriptor'] = reader.StandardFileReader(x, root_dir + data_files[x]['path'])
 
 
 def close_all():
-    for x in data_files:
+    for x in data_files.keys():
         if 'file_descriptor' in data_files[x]:
             data_files[x]['file_descriptor'].close()
             data_files[x].pop('file_descriptor')

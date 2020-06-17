@@ -43,7 +43,6 @@ class TestMemoryCache(unittest.TestCase):
         self.assertEqual(d['relevance'], {'norm_cites': 0, 'read_count': 25, 'boost': 0.32, 'citation_count': 0})
 
     def test_protobuf(self):
-        process.close_all()
         process.open_all('./adsdata/tests/data1/config/')
         d = process.read_next()
         c = process.convert(d)
@@ -54,7 +53,7 @@ class TestMemoryCache(unittest.TestCase):
         self.assertEqual('2003ASPC..295..361M', process.convert({'canonical': '2003ASPC..295..361M'})['bibcode'])
 
     def test_nonbib_record(self):
-        process.close_all()
+        process.close_all
         process.open_all(root_dir='./adsdata/tests/data1/config/')
         d = process.read_next_bibcode('2003ASPC..295..361M')
         n = process.convert(d)

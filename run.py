@@ -31,9 +31,12 @@ def main():
         args.bibcodes = args.bibcodes.split(' ')
         args.bibcodes.sort()
 
-    if args.compute_metrics is True:
+    if args.compute_metrics is True and args.queue is False:
         c = process.init_cache(root_dir=app.conf.get('INPUT_DATA_ROOT', './adsdata/tests/data1/config/'))
         print('cache created: {}'.format(c))
+
+    if args.queue is False:
+        process.open_all()
 
     if args.bibcodes:
         if args.queue:
