@@ -81,19 +81,28 @@ def process_bibcodes(bibcodes, compute_metrics=True):
     nonbib_protos = NonBibRecordList()
     metrics_protos = MetricsRecordList()
     for bibcode in bibcodes:
-        nonbib = read_next_bibcode(bibcode)
-        logger.info('bibcode: {}, nonbib: {}'.format(bibcode, nonbib))
-        converted = convert(nonbib)
-        logger.info('bibcode: {}, nonbib converted: {}'.format(bibcode, converted))
-        nonbib_proto = NonBibRecord(**converted)
-        nonbib_protos.nonbib_records.extend([nonbib_proto._data])
-        logger.info('bibcode: {}, nonbib protobuf: {}'.format(bibcode, nonbib_proto))
-        if compute_metrics:
-            met = metrics.compute_metrics(nonbib)
-            logger.info('bibcode: {}, metrics: {}'.format(bibcode, met))
-            metrics_proto = MetricsRecord(**met)
-            metrics_protos.metrics_records.extend([metrics_proto._data])
-            logger.info('bibcode: {}, metrics protobuf: {}'.format(bibcode, metrics_proto))
+        try:
+            nonbib = read_next_bibcode(bibcode)
+            logger.info('bibcode: {}, nonbib: {}'.format(bibcode, nonbib))
+            converted = convert(nonbib)
+            logger.info('bibcode: {}, nonbib converted: {}'.format(bibcode, converted))
+            try:
+                nonbib_proto = NonBibRecord(**converted)
+                nonbib_protos.nonbib_records.extend([nonbib_proto._data])
+                # logger.info('bibcode: {}, nonbib protobuf: {}'.format(bibcode, nonbib_proto))
+            except KeyError as e:
+                logger.error('serious error in process.process_bibcodes converting nonbib record to protobuf, bibcode: {}, error: {},\n unconverted record: {}, \n converted record: {}'.format(bibcode, e, nonbib, converted))
+            if compute_metrics:
+                met = metrics.compute_metrics(nonbib)
+                logger.info('bibcode: {}, metrics: {}'.format(bibcode, met))
+                try:
+                    metrics_proto = MetricsRecord(**met)
+                    metrics_protos.metrics_records.extend([metrics_proto._data])
+                    # logger.info('bibcode: {}, metrics protobuf: {}'.format(bibcode, metrics_proto))
+                except KeyError as e:
+                    logger.error('serious error in process.process_bibcodes converting metrics record to protobuf, bibcode: {}, error: {},\n nonbib: {} \n metrics: {}: {}'.format(bibcode, e, nonbib, met))
+        except Exception as e:
+            logger.error('serious error in process.process_bibcodes for bibcode {}, error {}'.format(bibcode, e))
     tasks.task_output_nonbib.delay(nonbib_protos)
     tasks.task_output_metrics.delay(metrics_protos)
 
