@@ -235,7 +235,11 @@ class StandardFileReader(ADSClassicInputStream):
         elif current != data_files[self.filetype]['default_value'] and type(current) is list:
             # here with array of dicts, put extra_values in each dict
             for x in current:
-                x.update(data_files[self.filetype]['extra_values'])
+                v = data_files[self.filetype]['extra_values']
+                if type(v) is dict:
+                    x.update(data_files[self.filetype]['extra_values'])
+                else:
+                    app.logger.error('serious error in reader.add_extra_values, non dict value, bibcode = {}, data type = {}, value = {}, current = {}'.format(current.get('canonical', 'not available'), x, v, current))
 
     def convert_subparts(self, current):
         d = {}

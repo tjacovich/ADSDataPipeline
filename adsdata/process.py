@@ -237,7 +237,7 @@ def read_next():
             if type(v) is dict:
                 d.update(v)
             else:
-                logger.error('serious error, non dict returned from value from read_value_for, bibcode = {}, data type = {}, value = {}'.format(d['canonical'], x, v))
+                logger.error('serious error in process.read_next, non dict returned from read_value_for, bibcode = {}, data type = {}, value = {}'.format(d['canonical'], x, v))
     return d
 
 
