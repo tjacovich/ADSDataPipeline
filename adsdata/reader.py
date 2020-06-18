@@ -239,7 +239,7 @@ class StandardFileReader(ADSClassicInputStream):
                 if type(v) is dict and type(x) is dict:
                     x.update(v)
                 else:
-                    app.logger.error('serious error in reader.add_extra_values, non dict value, bibcode = {}, x = {}, value = {}, current = {}'.format(current.get('canonical', 'not available'), x, v, current))
+                    app.logger.error('serious error in reader.add_extra_values, non dict value, value = {}, current = {}'.format(x, v, current))
 
     def convert_subparts(self, current):
         d = {}

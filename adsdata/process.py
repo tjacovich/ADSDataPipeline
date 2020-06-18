@@ -210,7 +210,7 @@ def convert_data_link(filetype, value):
         d['url'] = ['']
         d['title'] = ['']
         d['item_count'] = 0
-    else:
+    elif type(value) is dict:
         d['url'] = value.get('url', [''])
         if type(d['url']) is str:
             d['url'] = [d['url']]
@@ -218,6 +218,9 @@ def convert_data_link(filetype, value):
         if type(d['title']) is str:
             d['title'] = [d['title']]
         d['item_count'] = value.get('item_count', 0)
+    else:
+        logger.error('serious error in process.convert_data_link: unexpected type for value, filetype = {}, value = {}, type of value = {}'.format(filetype, value, type(value)))
+            
     return d
 
 
