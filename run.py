@@ -2,6 +2,7 @@
 #!/usr/bin/env python
 
 import argparse
+import datetime
 
 from adsdata import process, tasks
 
@@ -36,7 +37,7 @@ def main():
         print('cache created: {}'.format(c))
 
     if args.queue is False:
-        process.open_all()
+        process.open_all(root_dir=app.conf.get('INPUT_DATA_ROOT', './adsdata/tests/data1/config/'))
 
     if args.bibcodes:
         if args.queue:
@@ -51,7 +52,8 @@ def main():
         with open(args.filename, 'r') as f:
             for line in f:
                 if count % 10000 == 0:
-                    print('count = {}'.format(count))
+                    print('{}: count = {}'.format(datetime.datetime.now(), count))
+                count = count + 1
                 bibcodes.append(line.strip())
                 if len(bibcodes) % 100 == 0:
                     if args.queue:
@@ -64,7 +66,7 @@ def main():
                 tasks.task_process_bibcodes.delay(bibcodes)
             else:
                 process.process_bibcodes(bibcodes, compute_metrics=args.compute_metrics)
-        print('complted, count = {}'.format(count))
+        print('{}: completed, count = {}'.format(datetime.datetime.now(), count))
     elif args.interactive:
         while True:
             i = input('enter bibcode: ')

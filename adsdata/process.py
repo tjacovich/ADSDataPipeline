@@ -233,7 +233,11 @@ def read_next():
             else:
                 d['canonical'] = d['canonical'].strip()
         else:
-            d.update(data_files[x]['file_descriptor'].read_value_for(d['canonical']))
+            v = data_files[x]['file_descriptor'].read_value_for(d['canonical'])
+            if type(v) is dict:
+                d.update(v)
+            else:
+                logger.error('serious error, non dict returned from value from read_value_for, bibcode = {}, data type = {}, value = {}'.format(d['canonical'], x, v))
     return d
 
 
