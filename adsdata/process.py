@@ -77,7 +77,7 @@ def process(compute_metrics=True):
 
 def process_bibcodes(bibcodes, compute_metrics=True):
     """this funciton is useful when debugging"""
-    init_cache(root_dir=app.conf.get('INPUT_DATA_ROOT', './adsdata/tests/data1/config/'))
+    # init_cache(root_dir=app.conf.get('INPUT_DATA_ROOT', './adsdata/tests/data1/config/'))
     nonbib_protos = NonBibRecordList()
     metrics_protos = MetricsRecordList()
     for bibcode in bibcodes:
