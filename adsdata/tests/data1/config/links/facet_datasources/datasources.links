@@ -198,3 +198,7 @@
 1872AMOW.1869..293S	ARI	1	http://dc.g-vo.org/arigfh/katkat/byhdw/qp/1354	
 1872AN.....80...93V	ARI	1	http://dc.g-vo.org/arigfh/katkat/byhdw/qp/569	
 1872GMitG...3..116B	ARI	1	http://dc.g-vo.org/arigfh/katkat/byhdw/qp/788	
+2004MNRAS.354L..31M	CDS	1	http://$VIZIER$/viz-bin/VizieR?-source=J/MNRAS/354/L31
+2004MNRAS.354L..31M	NED	1953	https://$NED$/cgi-bin/objsearch?search_type=Search&refcode=2004MNRAS.354L..31M	NED Objects (1953)
+2004MNRAS.354L..31M	SIMBAD	1	http://$SIMBAD$/simbo.pl?bibcode=2004MNRAS.354L..31M	SIMBAD Objects (1)
+2004MNRAS.354L..31M	Vizier	1	http://$VIZIER$/viz-bin/VizieR?-source=J/MNRAS/354/L31

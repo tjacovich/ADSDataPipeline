@@ -8,8 +8,7 @@ logger = tasks.app.logger
 
 
 def execute(command, **kwargs):
-    logger.debug('in diffs, executing shell command {}'.format(command))
-    print('command = {}'.format(command))
+    logger.info('in diffs, executing shell command {}'.format(command))
     p = Popen(command, shell=True, stdout=PIPE, stderr=PIPE, **kwargs)
     out, err = p.communicate()
     return (p.returncode, out, err)
@@ -34,8 +33,8 @@ def compute_changed_bibcodes(root_dir='logs/input/'):
         c = root_dir + '/current/' + data_files[x]['path']
         p = root_dir + '/previous/' + data_files[x]['path']
         changed_bibs = root_dir + '/current/' + data_files[x]['path'] + '.changedbibs'
-        #          find changes  | remove comm leading tab|remove blank|only bib| sort bibcodes | filter out non-canonical
-        command = "comm -3 {} {} | sed $'s/^[ \t]*//g' | sed '/^$/d' | cut -f 1 | sort --unique | comm -1 -2 - {}  > {}".format(c, p, changed_bibs, root_dir + '/current/' + data_files['canonical']['path'])
+        #          find changes  | remove comm leading tab, blanks line|only bib| dedup| filter out non-canonical  | current, previous, output file, today's canonical bibcodes
+        command = "comm -3 {} {} | sed 's/^[ \\t]*//g' | sed '/^$/d' | cut -f 1 | uniq | comm -1 -2 - {}  > {}".format(c, p, root_dir + '/current/' + data_files['canonical']['path'], changed_bibs)
         logger.info('in diffs, computing changes to {}'.format(c))
         execute(command)
 
