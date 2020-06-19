@@ -14,24 +14,26 @@ files directly, it does not use the reader.py code.
 # Nonbib Processing
 Conceptually, the code reads one line from each of the ~30 input
 files.  This yields all the nonbib data for the next bibcode.  First, it is
-transformed into a nonbib probobuf and sent to master.  Second, this
-nonbib data and the memory caches are used to generate a metrics
-protobuf that is sent to master.
+transformed into a nonbib probobuf and sent to master.  
 
 Some implementation details complicate this picture.  Every bibcode
 does not appear in every file so one can't just read the next line
 from every file and naively merge.  Also, in some files the data for a
 bibcode is spread acroos multiple lines (requiring merging of data).
 
+# Metrics Processing
+If we have read in cache, as we read the nonbib data one line at a
+time we can compute the metrics record.  
+
 # Describing And Reading Files  
 About 30 files need to be consumed.  As noted above, due to the
 properties the files encode and slight variations in file formats,
 having code to read all the various files can be compliated.  This
 code deals with the complications in a single reader class, 
-StandardFileReader in adsdata/reader.py.  It supports a small
-"description language" where the idiosyncrasies and properties of each
-file can be explicitly declared.  The goal is for the reader to
-generate "ready to use" data that needs little further massaging.
+StandardFileReader in adsdata/reader.py.  The goal is for the reader to
+generate "ready to use" data that needs little further massaging.  It
+supports a small "description language" where the idiosyncrasies and
+properties of each file can be explicitly declared.  
 This is true if you read a file holding scalar data (e.g., refereed),
 an array of data (e.g., downloads) or a hashtable of data (e.g.,
 relevance or eprint_html).   
@@ -76,8 +78,8 @@ summary of the data read in.  There is code in process.py that
 converts the full nonbib dict to a nonbib protobuf.  
 
 # Status/To Do
-There is no code to submit protobufs to rabbitmq.  
-Clean up ADSClassicInputStream, it might have stuff that is not long
-used.  
-Test on adsvm04 with full data  
+Fix issue with some vizier catalog bibcodes
+Remove empty title from nonbib data links array
+Validate metrics
+Do we want compute probufs in workers?
 
