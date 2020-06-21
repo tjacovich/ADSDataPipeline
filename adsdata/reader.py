@@ -186,7 +186,7 @@ class StandardFileReader(ADSClassicInputStream):
             if len(return_value) == 1:
                 return_value = return_value[0]
                     
-        elif (len(value) > 1) and 'interleave' in data_files[self.filetype]:
+        elif 'interleave' in data_files[self.filetype] and value != data_files[self.filetype]['default_value']:
             # here on multi-line dict (e.g., associations)
             # interleave data on successive lines e.g., merge first element in each array, second element, etc.
             #   since they also have subparts, these arrays will then put in dict with the cooresponding key

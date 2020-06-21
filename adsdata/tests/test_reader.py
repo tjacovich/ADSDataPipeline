@@ -186,6 +186,15 @@ EEEEEEEEEEEEEEEEEEE\tE""")):
                                 'title': ['Main Paper', 'Erratum']}}
             self.assertEqual(a, v)
 
+        # a few bibcodes only have one entry in associated
+        with patch('builtins.open', return_value=StringIO('1993yCat.3135....0C\t1993yCat.3135....0C Catalog Description')):
+            f = reader.StandardFileReader('associated', 'filename')
+            v = f.read_value_for('1993yCat.3135....0C')
+            a = {'associated': {'link_type': 'ASSOCIATED', 'link_sub_type': 'NA',
+                                'url': ['1993yCat.3135....0C'],
+                                'title': ['Catalog Description']}}
+            self.assertEqual(a, v)
+
     def test_simbad(self):
         self.maxDiff = None
         with patch('builtins.open', return_value=StringIO('1857AN.....45...89S\t1500441\tLP*')):
