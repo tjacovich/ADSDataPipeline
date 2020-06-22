@@ -36,7 +36,7 @@ def compute_metrics(d):
 
     if citation_num:
         for citation_bibcode in citations:
-            citation_refereed = citation_bibcode in refereed
+            citation_refereed = citation_bibcode in refereed.network
             len_citation_reference = len(bibcode_to_references.get(citation_bibcode))
             citation_normalized_references = 1.0 / float(max(5, len_citation_reference))
             total_normalized_citations += citation_normalized_references
@@ -71,7 +71,7 @@ def compute_metrics(d):
     downloads = d['download']
     ret = {'bibcode': bibcode, 'an_citations': an_citations, 'an_refereed_citations': an_refereed_citations,
            'author_num': author_num, 'citation_num': citation_num, 'citations': citations,
-           'downloads': downloads, 'modtime': modtime, 'reads': reads, 'refereed': bibcode in refereed,
+           'downloads': downloads, 'modtime': modtime, 'reads': reads, 'refereed': d.get('refereed', False),   # bibcode in refereed.network,
            'refereed_citations': refereed_citations, 'refereed_citation_num': refereed_citation_num,
            'reference_num': reference_num,
            'rn_citations': rn_citations, 'rn_citations_hist': rn_citations_hist,

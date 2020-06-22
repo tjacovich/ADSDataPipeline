@@ -1,6 +1,6 @@
 
 from datetime import datetime
-from mock import patch
+from mock import patch, Mock
 from mock import mock_open
 import unittest
 
@@ -64,7 +64,7 @@ class TestMetrics(unittest.TestCase):
                         "2001MAP....78..115K", "2002BoLMe.103...49H", "2006QJRMS.132..779R",
                         "2006QJRMS.132...61E", "2008Sci...320.1622D", "2016BoLMe.159..469G"]
             for bib in refereed:
-                process.get_cache()['refereed'].network.append(bib)
+                process.get_cache()['refereed'].network.add(bib)
             # 1999P&SS...47..951S
             PSSreferences = ["1973JAtS...30...66B", "1973JAtS...30..749L", "1976JAtS...33..923B",
                              "1977JGR....82.4121B", "1977JGR....82.4249K", "1977JGR....82.4559H",

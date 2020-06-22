@@ -71,8 +71,8 @@ class Refereed:
     def __init__(self, filename):
         self.network = self._load(filename)
 
-    def __iter__(self):
-        return self.network.__iter__()
+    # def __iter__(self):
+    #    return self.network.__iter__()
 
     def _load(self, filename):
         logger.info('starting to load refereed')
@@ -87,4 +87,4 @@ class Refereed:
                 if count % 1000000 == 0:
                     logger.info('reading refereed, count = {}'.format(count))
         logger.info('completed refereed')    
-        return d
+        return set(d)
