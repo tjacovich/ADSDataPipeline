@@ -78,14 +78,17 @@ def process(compute_metrics=True):
 def process_bibcodes(bibcodes, compute_metrics=True):
     """this funciton is useful when debugging"""
     # init_cache(root_dir=app.conf.get('INPUT_DATA_ROOT', './adsdata/tests/data1/config/'))
+    count = 0
     nonbib_protos = NonBibRecordList()
     metrics_protos = MetricsRecordList()
     for bibcode in bibcodes:
         try:
             nonbib = read_next_bibcode(bibcode)
-            logger.info('bibcode: {}, nonbib: {}'.format(bibcode, nonbib))
+            if count % 100 == 0:
+                logger.info('bibcode: {}, nonbib: {}'.format(bibcode, nonbib))
             converted = convert(nonbib)
-            logger.info('bibcode: {}, nonbib converted: {}'.format(bibcode, converted))
+            if count % 100 == 0:
+                logger.info('bibcode: {}, nonbib converted: {}'.format(bibcode, converted))
             try:
                 nonbib_proto = NonBibRecord(**converted)
                 nonbib_protos.nonbib_records.extend([nonbib_proto._data])
@@ -94,7 +97,9 @@ def process_bibcodes(bibcodes, compute_metrics=True):
                 logger.error('serious error in process.process_bibcodes converting nonbib record to protobuf, bibcode: {}, error: {},\n unconverted record: {}, \n converted record: {}'.format(bibcode, e, nonbib, converted))
             if compute_metrics:
                 met = metrics.compute_metrics(nonbib)
-                logger.info('bibcode: {}, metrics: {}'.format(bibcode, met))
+                if count % 100 == 0:
+                    logger.info('bibcode: {}, metrics: {}'.format(bibcode, met))
+                count += 1
                 try:
                     metrics_proto = MetricsRecord(**met)
                     metrics_protos.metrics_records.extend([metrics_proto._data])
