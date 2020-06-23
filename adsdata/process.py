@@ -301,7 +301,7 @@ def init_cache(root_dir='/proj/ads/abstract/'):
     logger.info('initing cache')
     cache['reference'] = ReferenceNetwork(root_dir + data_files['reference']['path'])
     cache['citation'] = CitationNetwork(root_dir + data_files['citation']['path'])
-    cache['refereed'] = Refereed(root_dir + data_files['reference']['path'])
+    cache['refereed'] = Refereed(root_dir + data_files['refereed']['path'])
     logger.info('completed initing cache')
     return cache
 
