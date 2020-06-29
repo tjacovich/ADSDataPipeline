@@ -49,7 +49,7 @@ def compute_metrics(d):
             citations_json_records.append(tmp_json)
             if (citation_refereed):
                 refereed_citations.append(citation_bibcode)
-            citations_histogram[citation_bibcode[:4]] += total_normalized_citations    
+            citations_histogram[citation_bibcode[:4]] += citation_normalized_references  # total_normalized_citations
 
     refereed_citation_num = len(refereed_citations)
     

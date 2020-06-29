@@ -11,6 +11,7 @@ class TestMemoryCache(unittest.TestCase):
             ref = memory_cache.Refereed('foo.txt')
             self.assertTrue('asdf' in ref.network)
             self.assertFalse('asdfasdf' in ref.network)
+            self.assertTrue(type(ref.network) is set)
 
     def test_reference(self):
         with patch('builtins.open',
