@@ -107,8 +107,7 @@ EEEEEEEEEEEEEEEEEEE\tE""")):
             f = reader.StandardFileReader('pub_html', 'filename')
             x = f.read_value_for('AAAAAAAAAAAAAAAAAAA')
             self.assertEqual({'pub_html': {'link_type': 'ESOURCE', 'link_sub_type': 'PUB_HTML',
-                                           'url': ['https://doi.org/10.3931%2Fe-rara-477'],
-                                           'property': ['ADS_OPENACCESS', 'OPENACCESS']}}, x)
+                                           'url': ['https://doi.org/10.3931%2Fe-rara-477']}}, x)
 
         # eprint_html/all.links
         with patch('builtins.open', return_value=StringIO('AAAAAAAAAAAAAAAAAAA\thttps://arxiv.org/abs/0908.1823')):
@@ -212,6 +211,24 @@ EEEEEEEEEEEEEEEEEEE\tE""")):
             f = reader.StandardFileReader('ned_objects', 'filename')
             v = f.read_value_for('1885AN....112..285E')
             self.assertEqual({'ned_objects': ["MESSIER_031 G", "SN_1885A SN"]}, v)
+
+    def test_presentation(self):
+        self.maxDiff = None
+        with patch('builtins.open', return_value=StringIO('1997kbls.confE..10C\thttp://online.kitp.ucsb.edu/online/bblunch/carroll/')):
+            f = reader.StandardFileReader('presentation', 'filename')
+            v = f.read_value_for('1997kbls.confE..10C')
+            a = {'presentation': {'link_type': 'PRESENTATION', 'link_sub_type': 'NA',
+                                  'url': ['http://online.kitp.ucsb.edu/online/bblunch/carroll/']}}
+            self.assertEqual(a, v)
+
+    def test_librarycatalog(self):
+        self.maxDiff = None
+        with patch('builtins.open', return_value=StringIO('1810hdla.book.....V\thttp://www.worldcat.org/oclc/02869597')):
+            f = reader.StandardFileReader('librarycatalog', 'filename')
+            v = f.read_value_for('1810hdla.book.....V')
+            a = {'librarycatalog': {'link_type': 'LIBRARYCATALOG', 'link_sub_type': 'NA',
+                                    'url': ['http://www.worldcat.org/oclc/02869597']}}
+            self.assertEqual(a, v)
 
     def test_isfloat(self):
         self.maxDiff = None

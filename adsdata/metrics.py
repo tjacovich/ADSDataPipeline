@@ -1,11 +1,7 @@
 from collections import defaultdict
 from datetime import datetime
-from adsmsg import MetricsRecord
-from adsputils import load_config, setup_logging
 
 from adsdata import process
-
-# logger = setup_logging('ADSData', 'INFO')
 
 
 def compute_metrics(d):
@@ -29,7 +25,6 @@ def compute_metrics(d):
     citation_num = 0
     if citations:
         citation_num = len(citations)
-    normalized_reference = 0.0
     refereed_citations = []
     reference_num = len(bibcode_to_references.get(bibcode))
     total_normalized_citations = 0.0
@@ -40,7 +35,6 @@ def compute_metrics(d):
             len_citation_reference = len(bibcode_to_references.get(citation_bibcode))
             citation_normalized_references = 1.0 / float(max(5, len_citation_reference))
             total_normalized_citations += citation_normalized_references
-            normalized_reference += citation_normalized_references
             tmp_json = {"bibcode":  citation_bibcode,
                         "ref_norm": citation_normalized_references,
                         "auth_norm": 1.0 / author_num,
@@ -49,7 +43,7 @@ def compute_metrics(d):
             citations_json_records.append(tmp_json)
             if (citation_refereed):
                 refereed_citations.append(citation_bibcode)
-            citations_histogram[citation_bibcode[:4]] += citation_normalized_references  # total_normalized_citations
+            citations_histogram[citation_bibcode[:4]] += citation_normalized_references
 
     refereed_citation_num = len(refereed_citations)
     
@@ -60,9 +54,9 @@ def compute_metrics(d):
     an_refereed_citations = float(refereed_citation_num) / float(resource_age)
 
     # normalized info
-    rn_citations = normalized_reference 
+    rn_citations = total_normalized_citations
     rn_citations_hist = dict(citations_histogram)
-    #logger.info('bibcode: {}, len(citations): {}, citation_normalized_references {}, refereed_citation_num {}, total_normalized_citations {}, citations_histogram {}, an_citations {}, an_refereed_citations {}'.format(bibcode, 
+    # logger.info('bibcode: {}, len(citations): {}, citation_normalized_references {}, refereed_citation_num {}, total_normalized_citations {}, citations_histogram {}, an_citations {}, an_refereed_citations {}'.format(bibcode, 
     #            len(citations), citation_normalized_references, refereed_citation_num, total_normalized_citations,citations_histogram, an_citations, an_refereed_citations))
     # logger.info('refereed_citation_num {}, rn_citations {}'.format(refereed_citation_num, rn_citations))
 
