@@ -19,7 +19,6 @@ def compute_metrics(d):
     bibcode_to_cites = cache['citation']
 
     citations = bibcode_to_cites.get(bibcode)
-    citations_histogram = defaultdict(float)
     citations_json_records = []
     citation_normalized_references = 0.0
     citation_num = 0
@@ -43,7 +42,6 @@ def compute_metrics(d):
             citations_json_records.append(tmp_json)
             if (citation_refereed):
                 refereed_citations.append(citation_bibcode)
-            citations_histogram[citation_bibcode[:4]] += citation_normalized_references
 
     refereed_citation_num = len(refereed_citations)
     
@@ -55,11 +53,6 @@ def compute_metrics(d):
 
     # normalized info
     rn_citations = total_normalized_citations
-    rn_citations_hist = dict(citations_histogram)
-    # logger.info('bibcode: {}, len(citations): {}, citation_normalized_references {}, refereed_citation_num {}, total_normalized_citations {}, citations_histogram {}, an_citations {}, an_refereed_citations {}'.format(bibcode, 
-    #            len(citations), citation_normalized_references, refereed_citation_num, total_normalized_citations,citations_histogram, an_citations, an_refereed_citations))
-    # logger.info('refereed_citation_num {}, rn_citations {}'.format(refereed_citation_num, rn_citations))
-
     modtime = datetime.now()
     reads = d['reads']
     downloads = d['download']
@@ -68,7 +61,6 @@ def compute_metrics(d):
            'downloads': downloads, 'modtime': modtime, 'reads': reads, 'refereed': d.get('refereed', False),   # bibcode in refereed.network,
            'refereed_citations': refereed_citations, 'refereed_citation_num': refereed_citation_num,
            'reference_num': reference_num,
-           'rn_citations': rn_citations, 'rn_citations_hist': rn_citations_hist,
-           'rn_citation_data': citations_json_records}
+           'rn_citations': rn_citations, 'rn_citation_data': citations_json_records}
 
     return ret

@@ -77,7 +77,7 @@ def main():
     elif args.test:
         process.test_process(False)
     else:
-        process.process(compute_metrics=args.compute_metrics)
+        print('you must provide a list of bibcodes to process')
     
 
 if __name__ == '__main__':

@@ -37,44 +37,6 @@ def test_process(compute_metrics=True):
             logger.error('Error! perhaps while processing line: {}, error: {}'.format(s[:40], str(e)))
                  
 
-def process(compute_metrics=True):
-    # keep reading one (logical) line from each file
-    # generate nonbib and metrics record
-    
-    open_all(root_dir=app.conf.get('INPUT_DATA_ROOT', './adsdata/tests/data1/config/'))
-    count = 0
-    # skip_lines(100000)
-    d = read_next()
-    while (d is not None):
-        try:
-            # process it
-            bibcode = d['canonical']
-            if count % 100 == 0:
-                logger.info('processing, count = {}, current bibcode = {}'.format(count, bibcode))
-            if len(bibcode) == 0:
-                print('no bibcode, exiting main loop')
-                break
-            if not app.conf.get('TEST_NO_PROCESSING', False):
-                rec = convert(d)
-                nonbib = NonBibRecord(**rec)
-            if compute_metrics:
-                met = metrics.compute_metrics(d)
-                met_proto = MetricsRecord(**met)
-                if count % 100 == 0:
-                    logger.info('met = {}'.format(met))
-            d = read_next()
-            if app.conf.get('TEST_MAX_ROWS', -1) > 0:
-                if app.conf['TEST_MAX_ROWS'] >= count:
-                    break  # useful during testing
-            count += 1
-        except AttributeError as e:
-            logger.error('AttributeError while processing bibcode: {}, error: {}'.format(d['canonical'], str(e)))
-            logger.error(traceback.format_exc())
-        except:
-            e = sys.exc_info()[0]
-            logger.error('Error! perhaps while processing bibcode: {}, error: {}'.format(d['canonical'], str(e)))
-
-
 def process_bibcodes(bibcodes, compute_metrics=True):
     """this funciton is useful when debugging"""
     # init_cache(root_dir=app.conf.get('INPUT_DATA_ROOT', './adsdata/tests/data1/config/'))
@@ -222,7 +184,7 @@ def convert_data_link(filetype, value):
         d['link_sub_type'] = file_properties['extra_values']['link_sub_type'] + link_sub_type_suffix
     if type(value) is bool:
         d['url'] = ['']
-        d['title'] = ['']
+        # d['title'] = ['']
         d['item_count'] = 0
     elif type(value) is dict:
         d['url'] = value.get('url', [''])
@@ -231,6 +193,8 @@ def convert_data_link(filetype, value):
         d['title'] = value.get('title', [''])
         if type(d['title']) is str:
             d['title'] = [d['title']]
+        if d['title'] == ['']:
+            d.pop('title')  # to match old pipeline
         d['item_count'] = value.get('item_count', 0)
     else:
         logger.error('serious error in process.convert_data_link: unexpected type for value, filetype = {}, value = {}, type of value = {}'.format(filetype, value, type(value)))
@@ -296,6 +260,7 @@ def skip_lines(n):
 
 
 cache = {}
+
 
 # def init_cache(root_dir=app.conf['INPUT_DATA_ROOT'])):
 def init_cache(root_dir='/proj/ads/abstract/'):
