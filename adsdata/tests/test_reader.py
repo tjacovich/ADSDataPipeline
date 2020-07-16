@@ -134,18 +134,18 @@ EEEEEEEEEEEEEEEEEEE\tE""")):
 
     def test_downloads(self):
         self.maxDiff = None
-        bibcodes = ['1057wjlf.book.....C', '1886Natur..34Q.131.', '1905PhRvI..21..247N', '1908PhRvI..27..367N']
+        bibcodes = ['1057wjlf.book.....C', '1886Natur..34Q.131.', '1905PhRvI..21..247N', '1908PhRvI..27..367N', '2003ASPC..295..361M']
         downloads = [[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
                      [],
                      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 0, 1, 0, 0, 0, 0],
                      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
+                     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 1, 0, 0, 1, 0, 0, 0, 0, 0]]
 
         r = reader.StandardFileReader('download', './adsdata/tests/data1/config/links/reads/downloads.links')
-        for i in range(0, len(bibcodes) - 1):
+        for i in range(0, len(bibcodes)):
             x = r.read_value_for(bibcodes[i])
             a = {'download': downloads[i]}
-            self.assertEqual(a, x)
+            self.assertEqual(a, x, 'for bibcode ' + bibcodes[i])
 
     def test_relevance(self):
         self.maxDiff = None
