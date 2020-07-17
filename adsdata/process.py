@@ -128,7 +128,7 @@ def convert(passed):
     add_data_summary(return_value)
     add_citation_count_norm_field(return_value, passed)
     
-    # finally, delted the keys not in the nonbib protobuf
+    # finally, delete the keys not in the nonbib protobuf
     not_needed = ['author', 'canonical', 'citation', 'download', 'item_count', 'nonarticle', 'ocrabstract', 'private', 'pub_openaccess',
                   'reads', 'refereed', 'relevance']
     for n in not_needed:
@@ -184,7 +184,7 @@ def convert_data_link(filetype, value):
         d['link_sub_type'] = file_properties['extra_values']['link_sub_type'] + link_sub_type_suffix
     if type(value) is bool:
         d['url'] = ['']
-        # d['title'] = ['']
+        d['title'] = ['']
         d['item_count'] = 0
     elif type(value) is dict:
         d['url'] = value.get('url', [''])
@@ -193,8 +193,8 @@ def convert_data_link(filetype, value):
         d['title'] = value.get('title', [''])
         if type(d['title']) is str:
             d['title'] = [d['title']]
-        if d['title'] == ['']:
-            d.pop('title')  # to match old pipeline
+        # if d['title'] == ['']:
+        #    d.pop('title')  # to match old pipeline
         d['item_count'] = value.get('item_count', 0)
     else:
         logger.error('serious error in process.convert_data_link: unexpected type for value, filetype = {}, value = {}, type of value = {}'.format(filetype, value, type(value)))
