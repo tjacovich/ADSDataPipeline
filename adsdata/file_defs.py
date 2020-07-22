@@ -32,7 +32,7 @@ data_files['eprint_html'] = {'path': 'links/eprint_html/all.links', 'default_val
                              'extra_values': {'link_type': 'ESOURCE', 'link_sub_type': 'EPRINT_HTML', 'property': ['EPRINT_OPENACCESS', 'OPENACCESS']},
                              'subparts': ['url']}
 data_files['pub_pdf'] = {'path': 'links/pub_pdf/all.links', 'default_value': {},
-                         'extra_values': {'link_type': 'ESOURCE', 'link_sub_type': 'PUB_PDF', 'property': ['OPENACCESS']},
+                         'extra_values': {'link_type': 'ESOURCE', 'link_sub_type': 'PUB_PDF'},
                          'subparts': ['url']}
 data_files['ads_pdf'] = {'path': 'links/ads_pdf/all.links', 'default_value': {},
                          'extra_values': {'link_type': 'ESOURCE', 'link_sub_type': 'ADS_PDF', 'property': ['ADS_OPENACCESS', 'OPENACCESS']},
