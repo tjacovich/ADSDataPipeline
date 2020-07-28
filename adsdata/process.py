@@ -37,6 +37,7 @@ def process_bibcodes(bibcodes, compute_metrics=True):
                 # logger.info('bibcode: {}, nonbib protobuf: {}'.format(bibcode, nonbib_proto))
             except KeyError as e:
                 logger.error('serious error in process.process_bibcodes converting nonbib record to protobuf, bibcode: {}, error: {},\n unconverted record: {}, \n converted record: {}'.format(bibcode, e, nonbib, converted))
+                logger.exception('nonbib stacktrace')
             if compute_metrics:
                 met = metrics.compute_metrics(nonbib)
                 if count % 100 == 0:
@@ -48,8 +49,10 @@ def process_bibcodes(bibcodes, compute_metrics=True):
                     # logger.info('bibcode: {}, metrics protobuf: {}'.format(bibcode, metrics_proto))
                 except KeyError as e:
                     logger.error('serious error in process.process_bibcodes converting metrics record to protobuf, bibcode: {}, error: {},\n nonbib: {} \n metrics: {}: {}'.format(bibcode, e, nonbib, met))
+                    logger.exception('metrics stacktrace')
         except Exception as e:
             logger.error('serious error in process.process_bibcodes for bibcode {}, error {}'.format(bibcode, e))
+            logger.exception('general stacktrace')
     tasks.task_output_nonbib.delay(nonbib_protos)
     tasks.task_output_metrics.delay(metrics_protos)
 

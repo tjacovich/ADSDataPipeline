@@ -58,7 +58,7 @@ def compute_metrics(d):
     downloads = d['download']
     ret = {'bibcode': bibcode, 'an_citations': an_citations, 'an_refereed_citations': an_refereed_citations,
            'author_num': author_num, 'citation_num': citation_num, 'citations': citations,
-           'downloads': downloads, 'modtime': modtime, 'reads': reads, 'refereed': d.get('refereed', False),   # bibcode in refereed.network,
+           'downloads': downloads, 'modtime': modtime, 'reads': reads, 'refereed': d.get('refereed', {}).get('refereed', False),
            'refereed_citations': refereed_citations, 'refereed_citation_num': refereed_citation_num,
            'reference_num': reference_num,
            'rn_citations': rn_citations, 'rn_citation_data': citations_json_records}
