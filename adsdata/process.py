@@ -1,9 +1,7 @@
 
-import sys
-import traceback
 
 from adsmsg import NonBibRecord, NonBibRecordList, MetricsRecord, MetricsRecordList
-from adsdata import diffs, metrics, tasks, reader, aggregator
+from adsdata import diffs, metrics, tasks, reader
 from adsdata.memory_cache import Refereed, ReferenceNetwork, CitationNetwork
 
 from adsdata.file_defs import data_files
@@ -18,24 +16,6 @@ app = tasks.app
 logger = tasks.app.logger
 nonbib_keys = data_files.keys()
 
-
-def test_process(compute_metrics=True):
-    agg = aggregator.TestAggregator()
-    agg.open_all()
-    count = 0
-    s = agg.read_next()
-    while s:
-        try:
-            if count % 100 == 0:
-                logger.info('process, count = {}, line = {}'.format(count, s[:40]))
-            s = agg.read_next()
-            count = count + 1
-            if s is None:
-                break
-        except:
-            e = sys.exc_info()[0]
-            logger.error('Error! perhaps while processing line: {}, error: {}'.format(s[:40], str(e)))
-                 
 
 def process_bibcodes(bibcodes, compute_metrics=True):
     """this funciton is useful when debugging"""
@@ -91,7 +71,12 @@ def convert(passed):
         file_properties = data_files[filetype]
         if filetype == 'canonical':
             return_value['bibcode'] = passed['canonical']
-        elif ('extra_values' in file_properties and 'link_type' in file_properties['extra_values'] and value != file_properties['default_value']):
+        if (value is dict and dict and 'property' in value[filetype]):
+            return_value['property'].update(value[filetype]['property'])
+        if (type(file_properties['default_value']) is bool):
+            return_value[filetype] = value[filetype]
+            value = value[filetype]
+        if ('extra_values' in file_properties and 'link_type' in file_properties['extra_values'] and value != file_properties['default_value']):
             # here with one or more real datalinks value(s)
             # add each data links dict to existing list of dicts
             # tweak some values (e.g., sub_link_type) in original dict
@@ -103,26 +88,26 @@ def convert(passed):
                     d = convert_data_link(filetype, v)
                     return_value['data_links_rows'].append(d)
             else:
-                print('!!! error in process.convert with {} {} {}'.format(filetype, type(value), value))
+                logger.error('serious error in process.convert with {} {} {}'.format(filetype, type(value), value))
             
             if file_properties['extra_values']['link_type'] == 'ESOURCE':
                 return_value['esource'].add(file_properties['extra_values']['link_sub_type'])
             return_value['property'].add(file_properties['extra_values']['link_type'])
             return_value['property'].update(file_properties['extra_values'].get('property', []))
-        elif filetype == 'relevance':
-            for k in passed[filetype]:
-                # simply dict value to top level
-                return_value[k] = passed[filetype][k]
-        elif filetype == 'refereed' and passed[filetype]:
-            return_value['property'].add('REFEREED')
+        elif ('extra_values' in file_properties and value != file_properties['default_value']):
+            if 'property' in file_properties['extra_values']:
+                return_value['property'].update(file_properties['extra_values']['property'])
+
         elif value != file_properties['default_value'] or file_properties.get('copy_default', False):
             # otherwise, copy value
             return_value[filetype] = passed[filetype]
+        if filetype == 'relevance':
+            for k in passed[filetype]:
+                # simply add all dict value to top level
+                return_value[k] = passed[filetype][k]
 
-    if passed.get('pub_openaccess', False):
-        return_value['property'].add('PUB_OPENACCESS')
     add_refereed_property(return_value)
-    add_article_property(return_value, passed.get('nonarticle', False))
+    add_article_property(return_value, passed)  
     return_value['property'] = sorted(return_value['property'])
     return_value['esource'] = sorted(return_value['esource'])
     add_data_summary(return_value)
@@ -130,7 +115,7 @@ def convert(passed):
     
     # finally, delete the keys not in the nonbib protobuf
     not_needed = ['author', 'canonical', 'citation', 'download', 'item_count', 'nonarticle', 'ocrabstract', 'private', 'pub_openaccess',
-                  'reads', 'refereed', 'relevance']
+                  'reads', 'refereed', 'relevance', 'toc']
     for n in not_needed:
         return_value.pop(n, None)
     return return_value
@@ -146,8 +131,11 @@ def add_refereed_property(return_value):
         return_value['property'].add('NOT REFEREED')
 
 
-def add_article_property(return_value, nonarticle):
-    if nonarticle:
+def add_article_property(return_value, d):
+    x = d.get('nonarticle', False)
+    if type(x) is dict:
+        x = x['nonarticle']
+    if x:
         return_value['property'].add('NONARTICLE')
     else:
         return_value['property'].add('ARTICLE')

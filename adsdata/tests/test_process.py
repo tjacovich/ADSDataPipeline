@@ -34,12 +34,12 @@ class TestMemoryCache(unittest.TestCase):
         self.assertFalse(d['grants'])
         self.assertFalse(d['ned_objects'])
         self.assertTrue(d['nonarticle'])
-        self.assertFalse(d['ocrabstract'])
-        self.assertFalse(d['private'])
-        self.assertFalse(d['pub_openaccess'])
+        self.assertEqual(d['ocrabstract'], {'ocrabstract': False})
+        self.assertEqual(d['private'], {'private': False})
+        self.assertEqual(d['pub_openaccess'], {'pub_openaccess': False})
         self.assertEqual(d['readers'], ['4fc45951aa', '557ebfd055', '57fcb9018a'])
         self.assertEqual(d['reads'], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 21, 6])
-        self.assertFalse(d['refereed'])
+        self.assertEqual(d['refereed'], {'refereed': False})
         self.assertEqual(d['relevance'], {'norm_cites': 0, 'read_count': 25, 'boost': 0.32, 'citation_count': 0})
 
     def test_protobuf(self):
@@ -48,9 +48,6 @@ class TestMemoryCache(unittest.TestCase):
         c = process.convert(d)
         nonbib = NonBibRecord(**c)
         print('nonbib = {}'.format(nonbib))
-
-    def zztest_convert(self):
-        self.assertEqual('2003ASPC..295..361M', process.convert({'canonical': '2003ASPC..295..361M'})['bibcode'])
 
     def test_nonbib_record(self):
         process.close_all

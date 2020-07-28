@@ -15,10 +15,11 @@ data_files['nonarticle'] = {'path': 'links/nonarticle/all.links', 'default_value
 data_files['ocrabstract'] = {'path': 'links/ocr/all.links', 'default_value': False,
                              'extra_values': {'property': ['OCRABSTRACT']}}
 data_files['private'] = {'path': 'links/private/all.links', 'default_value': False}
-data_files['pub_openaccess'] = {'path': 'links/openaccess/pub.dat', 'default_value': False}
+data_files['pub_openaccess'] = {'path': 'links/openaccess/pub.dat', 'default_value': False,
+                                'extra_values': {'property': ['PUB_OPENACCESS', 'OPENACCESS']}}
 data_files['readers'] = {'path': 'links/alsoread_bib/all.links', 'default_value': [], 'multiline': True}
 data_files['reads'] = {'path': 'links/reads/all.links', 'default_value': []}
-data_files['refereed'] = {'path': 'links/refereed/all.links', 'default_value': False}
+data_files['refereed'] = {'path': 'links/refereed/all.links', 'default_value': False, 'extra_values': {'property': ['REFEREED']}}
 data_files['reference'] = {'path': 'links/reference/all.links', 'default_value': [], 'multiline': True}
 data_files['relevance'] = {'path': 'links/relevance/docmetrics.tab', 'default_value': {},
                            'subparts': ['boost', 'citation_count', 'read_count', 'norm_cites']}

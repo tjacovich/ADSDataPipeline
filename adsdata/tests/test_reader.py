@@ -15,22 +15,22 @@ class TestReader(unittest.TestCase):
     def test_refereed(self):
         with patch('builtins.open', return_value=StringIO('AAAAAAAAAAAAAAAAAAA\nBBBBBBBBBBBBBBBBBBB\nDDDDDDDDDDDDDDDDDDD\nEEEEEEEEEEEEEEEEEEE')):
             f = reader.StandardFileReader('refereed', 'filename')
-            self.assertEqual({'refereed': True}, f.read_value_for('AAAAAAAAAAAAAAAAAAA'))
-            self.assertEqual({'refereed': True}, f.read_value_for('BBBBBBBBBBBBBBBBBBB'))
-            self.assertEqual({'refereed': False}, f.read_value_for('CCCCCCCCCCCCCCCCCCC'))
-            self.assertEqual({'refereed': True}, f.read_value_for('DDDDDDDDDDDDDDDDDDD'))
+            self.assertEqual({'refereed': {'refereed': True, 'property': ['REFEREED']}}, f.read_value_for('AAAAAAAAAAAAAAAAAAA'))
+            self.assertEqual({'refereed': {'refereed': True, 'property': ['REFEREED']}}, f.read_value_for('BBBBBBBBBBBBBBBBBBB'))
+            self.assertEqual({'refereed': {'refereed': False}}, f.read_value_for('CCCCCCCCCCCCCCCCCCC'))
+            self.assertEqual({'refereed': {'refereed': True, 'property': ['REFEREED']}}, f.read_value_for('DDDDDDDDDDDDDDDDDDD'))
 
         with patch('builtins.open', return_value=StringIO('AAAAAAAAAAAAAAAAAAA\nBBBBBBBBBBBBBBBBBBB\nDDDDDDDDDDDDDDDDDDD\nEEEEEEEEEEEEEEEEEEE')):
             f = reader.StandardFileReader('refereed', 'filename')
-            self.assertEqual({'refereed': True}, f.read_value_for('BBBBBBBBBBBBBBBBBBB'))
-            self.assertEqual({'refereed': True}, f.read_value_for('DDDDDDDDDDDDDDDDDDD'))
-            self.assertEqual({'refereed': True}, f.read_value_for('EEEEEEEEEEEEEEEEEEE'))
+            self.assertEqual({'refereed': {'refereed': True, 'property': ['REFEREED']}}, f.read_value_for('BBBBBBBBBBBBBBBBBBB'))
+            self.assertEqual({'refereed': {'refereed': True, 'property': ['REFEREED']}}, f.read_value_for('DDDDDDDDDDDDDDDDDDD'))
+            self.assertEqual({'refereed': {'refereed': True, 'property': ['REFEREED']}}, f.read_value_for('EEEEEEEEEEEEEEEEEEE'))
 
         with patch('builtins.open', return_value=StringIO('AAAAAAAAAAAAAAAAAAA\nBBBBBBBBBBBBBBBBBBB\nDDDDDDDDDDDDDDDDDDD\nEEEEEEEEEEEEEEEEEEE')):
             f = reader.StandardFileReader('refereed', 'filename')
-            self.assertEqual({'refereed': False}, f.read_value_for('CCCCCCCCCCCCCCCCCCC'))
-            self.assertEqual({'refereed': True}, f.read_value_for('EEEEEEEEEEEEEEEEEEE'))
-            self.assertEqual({'refereed': False}, f.read_value_for('FFFFFFFFFFFFFFFFFFF'))
+            self.assertEqual({'refereed': {'refereed': False}}, f.read_value_for('CCCCCCCCCCCCCCCCCCC'))
+            self.assertEqual({'refereed': {'refereed': True, 'property': ['REFEREED']}}, f.read_value_for('EEEEEEEEEEEEEEEEEEE'))
+            self.assertEqual({'refereed': {'refereed': False}}, f.read_value_for('FFFFFFFFFFFFFFFFFFF'))
 
     def test_standard(self):
         # test that we can read values for bibcodes
@@ -166,14 +166,22 @@ EEEEEEEEEEEEEEEEEEE\tE""")):
         self.assertEqual(4, v['relevance']['read_count'])
         self.assertEqual(0, v['relevance']['norm_cites'])
 
+    def test_refereed_from_file(self):
+        self.maxDiff = None
+        r = reader.StandardFileReader('refereed', './adsdata/tests/data1/config/links/refereed/all.links')
+        v = r.read_value_for('2004MNRAS.354L..31M')
+        a = {'refereed': {'refereed': True, 'property': ['REFEREED']}}
+        self.assertEqual(a, v)
+    
     def test_toc(self):
         self.maxDiff = None
         r = reader.StandardFileReader('toc', './adsdata/tests/data1/config/links/toc/all.links')
         v = r.read_value_for('2003ASPC..295..361M')
-        self.assertTrue('toc' in v)
-        self.assertTrue(v['toc'])
+        a = {'toc': {'toc': True, 'link_type': 'TOC', 'link_sub_type': 'NA'}}
+        self.assertEqual(a, v)
         v = r.read_value_for('2004ASPC..295..361M')
-        self.assertFalse(v['toc'])
+        a = {'toc': {'toc': False}}
+        self.assertEqual(a, v)
 
     def test_associated(self):
         self.maxDiff = None
@@ -230,6 +238,14 @@ EEEEEEEEEEEEEEEEEEE\tE""")):
                                     'url': ['http://www.worldcat.org/oclc/02869597']}}
             self.assertEqual(a, v)
 
+    def test_ocrabstract(self):
+        self.maxDiff = None
+        with patch('builtins.open', return_value=StringIO('1886Natur..34Q.131.\n1954PhRv...96..730K\n')):
+            f = reader.StandardFileReader('ocrabstract', 'filename')
+            v = f.read_value_for('1954PhRv...96..730K')
+            a = {'ocrabstract': {'property': ['OCRABSTRACT'], 'ocrabstract': True}}
+            self.assertEqual(a, v)
+        
     def test_isfloat(self):
         self.maxDiff = None
         self.assertTrue(reader.isFloat('1.2'))

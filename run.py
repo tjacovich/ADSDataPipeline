@@ -23,8 +23,6 @@ def main():
                         help='after cache init user can enter bibcodes')
     parser.add_argument('--queue', dest='queue', action='store_true',
                         help='queue bibcodes to workers, always computes metrics')
-    parser.add_argument('--test', dest='test', action='store_true',
-                        help='use test aggegator')
 
     args = parser.parse_args()
 
@@ -74,8 +72,6 @@ def main():
                 tasks.task_process_bibcodes.delay([i.strip()])
             else:
                 process.process_bibcodes([i.strip()], compute_metrics=args.compute_metrics)
-    elif args.test:
-        process.test_process(False)
     else:
         print('you must provide a list of bibcodes to process')
     
