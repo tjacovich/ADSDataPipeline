@@ -183,6 +183,16 @@ EEEEEEEEEEEEEEEEEEE\tE""")):
         a = {'toc': {'toc': False}}
         self.assertEqual(a, v)
 
+    def test_private(self):
+        self.maxDiff = None
+        r = reader.StandardFileReader('private', './adsdata/tests/data1/config/links/private/all.links')
+        v = r.read_value_for('1920NW......8..958S')
+        a = {'private': {'private': True, 'property': ['PRIVATE']}}
+        self.assertEqual(a, v)
+        v = r.read_value_for('2003ASPC..295..361M')
+        a = {'private': {'private': False}}
+        self.assertEqual(a, v)
+
     def test_associated(self):
         self.maxDiff = None
         with patch('builtins.open', return_value=StringIO('1850AJ......1...72H\t1850AJ......1...57H Main Paper\n1850AJ......1...72H\t1850AJ......1...72H Erratum')):

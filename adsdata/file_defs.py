@@ -14,7 +14,8 @@ data_files['ned_objects'] = {'path': 'links/ned/ned_objects.tab', 'default_value
 data_files['nonarticle'] = {'path': 'links/nonarticle/all.links', 'default_value': False, 'multiline': True}
 data_files['ocrabstract'] = {'path': 'links/ocr/all.links', 'default_value': False,
                              'extra_values': {'property': ['OCRABSTRACT']}}
-data_files['private'] = {'path': 'links/private/all.links', 'default_value': False}
+data_files['private'] = {'path': 'links/private/all.links', 'default_value': False,
+                         'extra_values': {'property': ['PRIVATE']}}
 data_files['pub_openaccess'] = {'path': 'links/openaccess/pub.dat', 'default_value': False,
                                 'extra_values': {'property': ['PUB_OPENACCESS', 'OPENACCESS']}}
 data_files['readers'] = {'path': 'links/alsoread_bib/all.links', 'default_value': [], 'multiline': True}
