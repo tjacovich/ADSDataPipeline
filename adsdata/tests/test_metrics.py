@@ -1,6 +1,6 @@
 
 from datetime import datetime
-from mock import patch
+from mock import patch, Mock
 from mock import mock_open
 import unittest
 
@@ -10,7 +10,7 @@ from adsdata import process, metrics
 class TestMetrics(unittest.TestCase):
 
     def test_trivial_fields(self):
-        d = {'canonical': "1998PPGeo..22..553A", 'refereed': False, 'author': ["Arnfield, A. L."],
+        d = {'canonical': "1998PPGeo..22..553A", 'refereed': {'refereed': False}, 'author': ["Arnfield, A. L."],
              'reads': [1, 2, 3, 4], 'download': [0, 1, 2, 3],
              'citations':  ['1998PPGeo..22..553B'], 'id': 11, 'reference': ["1997BoLMe..85..475M"]}
         m = mock_open(read_data='')
@@ -26,7 +26,7 @@ class TestMetrics(unittest.TestCase):
             self.assertEqual(met['downloads'], d['download'])
 
     def test_num_fields(self):
-        d = {'canonical': "1998PPGeo..22..553A", 'refereed': False, 'author': ["Arnfield, A. L."],
+        d = {'canonical': "1998PPGeo..22..553A", 'refereed': {'refereed': False}, 'author': ["Arnfield, A. L."],
              'reads': [1, 2, 3, 4], 'download': [0, 1, 2, 3],
              'citations':  ['1998PPGeo..22..553A'], 'id': 11, 'reference': ["1997BoLMe..85..475M"]}
         m = mock_open(read_data='')
@@ -43,7 +43,7 @@ class TestMetrics(unittest.TestCase):
             self.assertEqual(met['refereed_citation_num'], 0)
 
     def test_with_citations(self):
-        d = {'canonical': "1997BoLMe..85..475M", 'refereed': True,
+        d = {'canonical': "1997BoLMe..85..475M", 'refereed': {'refereed': True},
              'author': ["Meesters, A. G. C. A.", "Bink, N. J.",  "Henneken, E. A. C.",
                         "Vugts, H. F.", "Cannemeijer, F."],
              'download': [], 'reads': [],
@@ -64,7 +64,7 @@ class TestMetrics(unittest.TestCase):
                         "2001MAP....78..115K", "2002BoLMe.103...49H", "2006QJRMS.132..779R",
                         "2006QJRMS.132...61E", "2008Sci...320.1622D", "2016BoLMe.159..469G"]
             for bib in refereed:
-                process.get_cache()['refereed'].network.append(bib)
+                process.get_cache()['refereed'].network.add(bib)
             # 1999P&SS...47..951S
             PSSreferences = ["1973JAtS...30...66B", "1973JAtS...30..749L", "1976JAtS...33..923B",
                              "1977JGR....82.4121B", "1977JGR....82.4249K", "1977JGR....82.4559H",

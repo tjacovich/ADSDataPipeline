@@ -1,9 +1,7 @@
 
-import sys
-import traceback
 
 from adsmsg import NonBibRecord, NonBibRecordList, MetricsRecord, MetricsRecordList
-from adsdata import diffs, metrics, tasks, reader, aggregator
+from adsdata import diffs, metrics, tasks, reader
 from adsdata.memory_cache import Refereed, ReferenceNetwork, CitationNetwork
 
 from adsdata.file_defs import data_files
@@ -19,90 +17,42 @@ logger = tasks.app.logger
 nonbib_keys = data_files.keys()
 
 
-def test_process(compute_metrics=True):
-    agg = aggregator.TestAggregator()
-    agg.open_all()
-    count = 0
-    s = agg.read_next()
-    while s:
-        try:
-            if count % 100 == 0:
-                logger.info('process, count = {}, line = {}'.format(count, s[:40]))
-            s = agg.read_next()
-            count = count + 1
-            if s is None:
-                break
-        except:
-            e = sys.exc_info()[0]
-            logger.error('Error! perhaps while processing line: {}, error: {}'.format(s[:40], str(e)))
-                 
-
-def process(compute_metrics=True):
-    # keep reading one (logical) line from each file
-    # generate nonbib and metrics record
-    
-    open_all(root_dir=app.conf.get('INPUT_DATA_ROOT', './adsdata/tests/data1/config/'))
-    count = 0
-    # skip_lines(100000)
-    d = read_next()
-    while (d is not None):
-        try:
-            # process it
-            bibcode = d['canonical']
-            if count % 100 == 0:
-                logger.info('processing, count = {}, current bibcode = {}'.format(count, bibcode))
-            if len(bibcode) == 0:
-                print('no bibcode, exiting main loop')
-                break
-            if not app.conf.get('TEST_NO_PROCESSING', False):
-                rec = convert(d)
-                nonbib = NonBibRecord(**rec)
-            if compute_metrics:
-                met = metrics.compute_metrics(d)
-                met_proto = MetricsRecord(**met)
-                if count % 100 == 0:
-                    logger.info('met = {}'.format(met))
-            d = read_next()
-            if app.conf.get('TEST_MAX_ROWS', -1) > 0:
-                if app.conf['TEST_MAX_ROWS'] >= count:
-                    break  # useful during testing
-            count += 1
-        except AttributeError as e:
-            logger.error('AttributeError while processing bibcode: {}, error: {}'.format(d['canonical'], str(e)))
-            logger.error(traceback.format_exc())
-        except:
-            e = sys.exc_info()[0]
-            logger.error('Error! perhaps while processing bibcode: {}, error: {}'.format(d['canonical'], str(e)))
-
-
 def process_bibcodes(bibcodes, compute_metrics=True):
     """this funciton is useful when debugging"""
     # init_cache(root_dir=app.conf.get('INPUT_DATA_ROOT', './adsdata/tests/data1/config/'))
+    count = 0
     nonbib_protos = NonBibRecordList()
     metrics_protos = MetricsRecordList()
     for bibcode in bibcodes:
         try:
             nonbib = read_next_bibcode(bibcode)
-            logger.info('bibcode: {}, nonbib: {}'.format(bibcode, nonbib))
+            if count % 100 == 0:
+                logger.info('bibcode: {}, nonbib: {}'.format(bibcode, nonbib))
             converted = convert(nonbib)
-            logger.info('bibcode: {}, nonbib converted: {}'.format(bibcode, converted))
+            if count % 100 == 0:
+                logger.info('bibcode: {}, nonbib converted: {}'.format(bibcode, converted))
             try:
                 nonbib_proto = NonBibRecord(**converted)
                 nonbib_protos.nonbib_records.extend([nonbib_proto._data])
                 # logger.info('bibcode: {}, nonbib protobuf: {}'.format(bibcode, nonbib_proto))
             except KeyError as e:
                 logger.error('serious error in process.process_bibcodes converting nonbib record to protobuf, bibcode: {}, error: {},\n unconverted record: {}, \n converted record: {}'.format(bibcode, e, nonbib, converted))
+                logger.exception('nonbib stacktrace')
             if compute_metrics:
                 met = metrics.compute_metrics(nonbib)
-                logger.info('bibcode: {}, metrics: {}'.format(bibcode, met))
+                if count % 100 == 0:
+                    logger.info('bibcode: {}, metrics: {}'.format(bibcode, met))
+                count += 1
                 try:
                     metrics_proto = MetricsRecord(**met)
                     metrics_protos.metrics_records.extend([metrics_proto._data])
                     # logger.info('bibcode: {}, metrics protobuf: {}'.format(bibcode, metrics_proto))
                 except KeyError as e:
                     logger.error('serious error in process.process_bibcodes converting metrics record to protobuf, bibcode: {}, error: {},\n nonbib: {} \n metrics: {}: {}'.format(bibcode, e, nonbib, met))
+                    logger.exception('metrics stacktrace')
         except Exception as e:
             logger.error('serious error in process.process_bibcodes for bibcode {}, error {}'.format(bibcode, e))
+            logger.exception('general stacktrace')
     tasks.task_output_nonbib.delay(nonbib_protos)
     tasks.task_output_metrics.delay(metrics_protos)
 
@@ -124,7 +74,12 @@ def convert(passed):
         file_properties = data_files[filetype]
         if filetype == 'canonical':
             return_value['bibcode'] = passed['canonical']
-        elif ('extra_values' in file_properties and 'link_type' in file_properties['extra_values'] and value != file_properties['default_value']):
+        if (value is dict and dict and 'property' in value[filetype]):
+            return_value['property'].update(value[filetype]['property'])
+        if (type(file_properties['default_value']) is bool):
+            return_value[filetype] = value[filetype]
+            value = value[filetype]
+        if ('extra_values' in file_properties and 'link_type' in file_properties['extra_values'] and value != file_properties['default_value']):
             # here with one or more real datalinks value(s)
             # add each data links dict to existing list of dicts
             # tweak some values (e.g., sub_link_type) in original dict
@@ -136,34 +91,34 @@ def convert(passed):
                     d = convert_data_link(filetype, v)
                     return_value['data_links_rows'].append(d)
             else:
-                print('!!! error in process.convert with {} {} {}'.format(filetype, type(value), value))
+                logger.error('serious error in process.convert with {} {} {}'.format(filetype, type(value), value))
             
             if file_properties['extra_values']['link_type'] == 'ESOURCE':
                 return_value['esource'].add(file_properties['extra_values']['link_sub_type'])
             return_value['property'].add(file_properties['extra_values']['link_type'])
             return_value['property'].update(file_properties['extra_values'].get('property', []))
-        elif filetype == 'relevance':
-            for k in passed[filetype]:
-                # simply dict value to top level
-                return_value[k] = passed[filetype][k]
-        elif filetype == 'refereed' and passed[filetype]:
-            return_value['property'].add('REFEREED')
+        elif ('extra_values' in file_properties and value != file_properties['default_value']):
+            if 'property' in file_properties['extra_values']:
+                return_value['property'].update(file_properties['extra_values']['property'])
+
         elif value != file_properties['default_value'] or file_properties.get('copy_default', False):
             # otherwise, copy value
             return_value[filetype] = passed[filetype]
+        if filetype == 'relevance':
+            for k in passed[filetype]:
+                # simply add all dict value to top level
+                return_value[k] = passed[filetype][k]
 
-    if passed.get('pub_openaccess', False):
-        return_value['property'].add('PUB_OPENACCESS')
     add_refereed_property(return_value)
-    add_article_property(return_value, passed.get('nonarticle', False))
+    add_article_property(return_value, passed)  
     return_value['property'] = sorted(return_value['property'])
     return_value['esource'] = sorted(return_value['esource'])
     add_data_summary(return_value)
     add_citation_count_norm_field(return_value, passed)
     
-    # finally, delted the keys not in the nonbib protobuf
+    # finally, delete the keys not in the nonbib protobuf
     not_needed = ['author', 'canonical', 'citation', 'download', 'item_count', 'nonarticle', 'ocrabstract', 'private', 'pub_openaccess',
-                  'reads', 'refereed', 'relevance']
+                  'reads', 'refereed', 'relevance', 'toc']
     for n in not_needed:
         return_value.pop(n, None)
     return return_value
@@ -179,8 +134,11 @@ def add_refereed_property(return_value):
         return_value['property'].add('NOT REFEREED')
 
 
-def add_article_property(return_value, nonarticle):
-    if nonarticle:
+def add_article_property(return_value, d):
+    x = d.get('nonarticle', False)
+    if type(x) is dict:
+        x = x['nonarticle']
+    if x:
         return_value['property'].add('NONARTICLE')
     else:
         return_value['property'].add('ARTICLE')
@@ -226,6 +184,8 @@ def convert_data_link(filetype, value):
         d['title'] = value.get('title', [''])
         if type(d['title']) is str:
             d['title'] = [d['title']]
+        # if d['title'] == ['']:
+        #    d.pop('title')  # to match old pipeline
         d['item_count'] = value.get('item_count', 0)
     else:
         logger.error('serious error in process.convert_data_link: unexpected type for value, filetype = {}, value = {}, type of value = {}'.format(filetype, value, type(value)))
@@ -292,6 +252,7 @@ def skip_lines(n):
 
 cache = {}
 
+
 # def init_cache(root_dir=app.conf['INPUT_DATA_ROOT'])):
 def init_cache(root_dir='/proj/ads/abstract/'):
     global cache
@@ -301,7 +262,7 @@ def init_cache(root_dir='/proj/ads/abstract/'):
     logger.info('initing cache')
     cache['reference'] = ReferenceNetwork(root_dir + data_files['reference']['path'])
     cache['citation'] = CitationNetwork(root_dir + data_files['citation']['path'])
-    cache['refereed'] = Refereed(root_dir + data_files['reference']['path'])
+    cache['refereed'] = Refereed(root_dir + data_files['refereed']['path'])
     logger.info('completed initing cache')
     return cache
 

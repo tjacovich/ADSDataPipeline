@@ -49,8 +49,10 @@ echo $FILES_INFO
 for FILE_INFO in ${FILES_INFO[@]} ; do
     FILE=${FILE_INFO%%:*}
     mkdir -p $(dirname "$OUTPUT_BASE$FILE")
-    echo INFO: `date` copying $INPUT_BASE$FILE to $OUTPUT_BASE$FILE
+    echo INFO: `date` copying and sorting $INPUT_BASE$FILE to $OUTPUT_BASE$FILE
     cp -v $INPUT_BASE$FILE $OUTPUT_BASE$FILE
+    sort -o $OUTPUT_BASE$FILE $OUTPUT_BASE$FILE
+
 done
 
 # validate local files

@@ -12,12 +12,15 @@ data_files['download'] = {'path': 'links/reads/downloads.links', 'default_value'
 data_files['grants'] = {'path': 'links/grants/all.links', 'default_value': [], 'string_to_number': False, 'multiline': True}
 data_files['ned_objects'] = {'path': 'links/ned/ned_objects.tab', 'default_value': [], 'string_to_number': False, 'multiline': True, 'tabs_to_spaces': True}
 data_files['nonarticle'] = {'path': 'links/nonarticle/all.links', 'default_value': False, 'multiline': True}
-data_files['ocrabstract'] = {'path': 'links/ocr/all.links', 'default_value': False}
-data_files['private'] = {'path': 'links/private/all.links', 'default_value': False}
-data_files['pub_openaccess'] = {'path': 'links/openaccess/pub.dat', 'default_value': False}
+data_files['ocrabstract'] = {'path': 'links/ocr/all.links', 'default_value': False,
+                             'extra_values': {'property': ['OCRABSTRACT']}}
+data_files['private'] = {'path': 'links/private/all.links', 'default_value': False,
+                         'extra_values': {'property': ['PRIVATE']}}
+data_files['pub_openaccess'] = {'path': 'links/openaccess/pub.dat', 'default_value': False,
+                                'extra_values': {'property': ['PUB_OPENACCESS', 'OPENACCESS']}}
 data_files['readers'] = {'path': 'links/alsoread_bib/all.links', 'default_value': [], 'multiline': True}
 data_files['reads'] = {'path': 'links/reads/all.links', 'default_value': []}
-data_files['refereed'] = {'path': 'links/refereed/all.links', 'default_value': False}
+data_files['refereed'] = {'path': 'links/refereed/all.links', 'default_value': False, 'extra_values': {'property': ['REFEREED']}}
 data_files['reference'] = {'path': 'links/reference/all.links', 'default_value': [], 'multiline': True}
 data_files['relevance'] = {'path': 'links/relevance/docmetrics.tab', 'default_value': {},
                            'subparts': ['boost', 'citation_count', 'read_count', 'norm_cites']}
@@ -25,13 +28,13 @@ data_files['simbad_objects'] = {'path': 'links/simbad/simbad_objects.tab', 'defa
                                 'string_to_number': False, 'multiline': True, 'tabs_to_spaces': True}
 
 data_files['pub_html'] = {'path': 'links/electr/all.links', 'default_value': {},
-                          'extra_values': {'link_type': 'ESOURCE', 'link_sub_type': 'PUB_HTML', 'property': ['ADS_OPENACCESS', 'OPENACCESS']},
+                          'extra_values': {'link_type': 'ESOURCE', 'link_sub_type': 'PUB_HTML'},
                           'subparts': [['url']]}
 data_files['eprint_html'] = {'path': 'links/eprint_html/all.links', 'default_value': {},
                              'extra_values': {'link_type': 'ESOURCE', 'link_sub_type': 'EPRINT_HTML', 'property': ['EPRINT_OPENACCESS', 'OPENACCESS']},
                              'subparts': ['url']}
 data_files['pub_pdf'] = {'path': 'links/pub_pdf/all.links', 'default_value': {},
-                         'extra_values': {'link_type': 'ESOURCE', 'link_sub_type': 'PUB_PDF', 'property': ['OPENACCESS']},
+                         'extra_values': {'link_type': 'ESOURCE', 'link_sub_type': 'PUB_PDF'},
                          'subparts': ['url']}
 data_files['ads_pdf'] = {'path': 'links/ads_pdf/all.links', 'default_value': {},
                          'extra_values': {'link_type': 'ESOURCE', 'link_sub_type': 'ADS_PDF', 'property': ['ADS_OPENACCESS', 'OPENACCESS']},
@@ -53,10 +56,10 @@ data_files['associated'] = {'path': 'links/associated/all.links', 'default_value
                             'subparts': ['url', 'title'], 'multiline': True, 'interleave': True}
 data_files['presentation'] = {'path': 'links/video/all.links', 'default_value': {},
                               'extra_values': {'link_type': 'PRESENTATION', 'link_sub_type': 'NA'},
-                              'subparts': ['url', 'title'], 'multiline': True}
+                              'subparts': [['url']], 'multiline': True}
 data_files['librarycatalog'] = {'path': 'links/library/all.links', 'default_value': {},
                                 'extra_values': {'link_type': 'LIBRARYCATALOG', 'link_sub_type': 'NA'},
-                                'subparts': ['url', 'title'], 'multiline': True}
+                                'subparts': [['url']], 'multiline': True}
 data_files['inspire'] = {'path': 'links/spires/all.links', 'default_value': {},
                          'extra_values': {'link_type': 'INSPIRE', 'link_sub_type': 'NA'},
                          'subparts': [['url']], 'multiline': True}
@@ -65,5 +68,5 @@ data_files['toc'] = {'path': 'links/toc/all.links', 'default_value': False,
 data_files['data_link'] = {'path': 'links/facet_datasources/datasources.links', 'default_value': {},
                            'extra_values': {'link_type': 'DATA', 'property': ['DATA']}, 'multiline': True,
                            'subparts': ['link_sub_type', 'item_count', ['url'], ['title']]}
-# data_files['ejournal_link'] = {'path': 'electr/all.links'}
+
 

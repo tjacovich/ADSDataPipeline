@@ -106,7 +106,7 @@ class StandardFileReader(ADSClassicInputStream):
         current_line = self.getline()
         if not current_line:
             # here if we are already at eof, bibcode isn't in file
-            # app.logger.info('at eof for {} and {}'.format(self.filetype, bibcode))
+            # print('at eof for {} for bibcode {}'.format(self.filetype, bibcode))
             return self.convert_value(self.default_value)
 
         # next, skip over lines in file until we:
@@ -117,6 +117,7 @@ class StandardFileReader(ADSClassicInputStream):
             current_line = self.getline().strip()
             skip_count = skip_count + 1
             if not current_line:
+                # print('bibcode not in file for {} for bibcode {}, read in {}'.format(self.filetype, bibcode, current_line))
                 return self.convert_value(self.default_value)
 
         # at this point, we have either read to the desired bibcode
@@ -124,9 +125,11 @@ class StandardFileReader(ADSClassicInputStream):
         if bibcode != current_line[:19]:
             # bibcode not in file
             self.pushline(current_line)
-            return self.convert_value(self.default_value)
+            # print('bibcode not in file for {}  for bibcode {}, read in {}'.format(self.filetype, bibcode, current_line))
+            return self.convert_value(data_files[self.filetype]['default_value'])
 
-        if isinstance(self.default_value, bool):
+        if isinstance(data_files[self.filetype]['default_value'], bool):
+            # print('boolean value for bibcode {}, read in {}'.format(self.filetype, bibcode, current_line))
             return self.convert_value(True)  # boolean files hold singleton values
 
         # at this point, we have the first line with the bibcode in it
@@ -144,6 +147,7 @@ class StandardFileReader(ADSClassicInputStream):
         # app.logger.info('file adjust going from {} to {} for {}'.format(self._iostream.tell(), current_location, self.filetype))
         self.pushline(current_line)
         # finally, convert raw input into something useful
+        # print('at end of function for {} for bibcode {}, read in {}'.format(self.filetype, bibcode, value))
         return self.convert_value(value)
         
     def convert_value(self, value):
@@ -159,7 +163,10 @@ class StandardFileReader(ADSClassicInputStream):
 
         return_value = value
         if isinstance(value, bool):
-            return_value = value
+            d = {self.filetype: return_value}
+            if 'extra_values' in data_files[self.filetype] and value != data_files[self.filetype]['default_value']:
+                d.update(data_files[self.filetype]['extra_values'])
+            return {self.filetype: d}
         elif (len(value) > 0 and '\t' in value[0] and not data_files[self.filetype].get('tabs_to_spaces', False)):
             # tab separator in string means we need to convert elements to array
             z = []
@@ -186,7 +193,7 @@ class StandardFileReader(ADSClassicInputStream):
             if len(return_value) == 1:
                 return_value = return_value[0]
                     
-        elif (len(value) > 1) and 'interleave' in data_files[self.filetype]:
+        elif 'interleave' in data_files[self.filetype] and value != data_files[self.filetype]['default_value']:
             # here on multi-line dict (e.g., associations)
             # interleave data on successive lines e.g., merge first element in each array, second element, etc.
             #   since they also have subparts, these arrays will then put in dict with the cooresponding key
