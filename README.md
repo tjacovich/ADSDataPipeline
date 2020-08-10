@@ -1,6 +1,6 @@
 
-### Reads flat/classic files with (mostly) non-bibliographic data and sends
-    nonbib and metrics protobufs to master pipeline.
+### Reads flat/classic files with (mostly) non-bibliographic data and
+sends nonbib and metrics protobufs to master pipeline.
 
 # Overview
 There are ~30 input files.  Each row in every file begins with a
