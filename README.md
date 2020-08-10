@@ -1,5 +1,5 @@
 
-### Reads flat/classic files with (mostly) non-bibliographic data and
+Reads flat/classic files with (mostly) non-bibliographic data and
 sends nonbib and metrics protobufs to master pipeline.
 
 # Overview
