@@ -8,7 +8,7 @@ class TestReader(unittest.TestCase):
 
     def test_ads_pdf(self):
         self.maxDiff = None
-        r = reader.StandardFileReader('ads_pdf', './adsdata/tests/data1/config/links/ads_pdf/all.links')
+        r = reader.NonbibFileReader('ads_pdf', './adsdata/tests/data1/config/links/ads_pdf/all.links')
         v = r.read_value_for('2003ASPC..295..361M')
         a = {'ads_pdf': {"url": ["http://articles.adsabs.harvard.edu/pdf/2003ASPC..295..361M"],
                          "link_type": "ESOURCE",
@@ -18,7 +18,7 @@ class TestReader(unittest.TestCase):
 
     def test_ads_scan(self):
         self.maxDiff = None
-        r = reader.StandardFileReader('ads_scan', './adsdata/tests/data1/config/links/ads_scan/all.links')
+        r = reader.NonbibFileReader('ads_scan', './adsdata/tests/data1/config/links/ads_scan/all.links')
         v = r.read_value_for('2004MNRAS.354L..31M')
         a = {'ads_scan': {"url": ["http://articles.adsabs.harvard.edu/full/2004MNRAS.354L..31M"],
                           "link_type": "ESOURCE", "link_sub_type": "ADS_SCAN",
@@ -27,7 +27,7 @@ class TestReader(unittest.TestCase):
 
     def test_associated(self):
         self.maxDiff = None
-        r = reader.StandardFileReader('associated', './adsdata/tests/data1/config/links/associated/all.links')
+        r = reader.NonbibFileReader('associated', './adsdata/tests/data1/config/links/associated/all.links')
         v = r.read_value_for('2004MNRAS.354L..31M')
         a = {'associated': {"url": ["2004MNRAS.354L..31M", "2005yCat..73549031M"],
                             "title": ["Source Paper", "Catalog Description"],
@@ -36,7 +36,7 @@ class TestReader(unittest.TestCase):
 
     def test_pub_html(self):
         self.maxDiff = None
-        r = reader.StandardFileReader('pub_html', './adsdata/tests/data1/config/links/electr/all.links')
+        r = reader.NonbibFileReader('pub_html', './adsdata/tests/data1/config/links/electr/all.links')
         links_value = r.read_value_for('1498esap.book.....R')
         self.assertEqual({'pub_html': {'link_type': 'ESOURCE',
                                        'link_sub_type': 'PUB_HTML',
@@ -45,7 +45,7 @@ class TestReader(unittest.TestCase):
 
     def test_datasources(self):
         self.maxDiff = None
-        r = reader.StandardFileReader('data_link', './adsdata/tests/data1/config/links/facet_datasources/datasources.links')
+        r = reader.NonbibFileReader('data_link', './adsdata/tests/data1/config/links/facet_datasources/datasources.links')
         v = r.read_value_for('2004MNRAS.354L..31M')
         a = {'data_link': [{"url": ["http://$VIZIER$/viz-bin/VizieR?-source=J/MNRAS/354/L31"],
                             "title": [""], "item_count": 1,
@@ -64,7 +64,7 @@ class TestReader(unittest.TestCase):
     def test_inspire(self):
         self.maxDiff = None
         # what about property values?
-        r = reader.StandardFileReader('inspire', './adsdata/tests/data1/config/links/spires/all.links')
+        r = reader.NonbibFileReader('inspire', './adsdata/tests/data1/config/links/spires/all.links')
         v = r.read_value_for('2004MNRAS.354L..31M')
         a = {'inspire': {"url": ["http://inspirehep.net/search?p=find+j+MNRAA,354,L31"],
                          "link_type": "INSPIRE", "link_sub_type": "NA"}}

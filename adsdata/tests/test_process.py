@@ -17,15 +17,15 @@ class TestMemoryCache(unittest.TestCase):
             self.assertTrue('file_descriptor' in process.data_files[k])
 
         # spot check a few
-        self.assertTrue(isinstance(process.data_files['canonical']['file_descriptor'], reader.StandardFileReader))
-        self.assertTrue(isinstance(process.data_files['citation']['file_descriptor'], reader.StandardFileReader))
-        self.assertTrue(isinstance(process.data_files['refereed']['file_descriptor'], reader.StandardFileReader))
+        self.assertTrue(isinstance(process.data_files['canonical']['file_descriptor'], reader.NonbibFileReader))
+        self.assertTrue(isinstance(process.data_files['citation']['file_descriptor'], reader.NonbibFileReader))
+        self.assertTrue(isinstance(process.data_files['refereed']['file_descriptor'], reader.NonbibFileReader))
 
     def test_read(self):
         """can we read in all the data for a bibcode"""
         process.close_all()
         process.open_all('./adsdata/tests/data1/config/')
-        d = process.read_next()
+        d = process.read_next_bibcode('1057wjlf.book.....C')
         self.assertEqual(d['canonical'], '1057wjlf.book.....C')
         self.assertEqual(len(d['author']), 1)
         self.assertEqual(d['author'], ['Chao, C'])
@@ -43,6 +43,7 @@ class TestMemoryCache(unittest.TestCase):
         self.assertEqual(d['relevance'], {'norm_cites': 0, 'read_count': 25, 'boost': 0.32, 'citation_count': 0})
 
     def test_protobuf(self):
+        """make sure protobuf are created without an exception"""
         process.open_all('./adsdata/tests/data1/config/')
         d = process.read_next()
         c = process.convert(d)

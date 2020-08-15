@@ -2,7 +2,7 @@
 
 from adsmsg import NonBibRecord, NonBibRecordList, MetricsRecord, MetricsRecordList
 from adsdata import diffs, metrics, tasks, reader
-from adsdata.memory_cache import Refereed, ReferenceNetwork, CitationNetwork
+from adsdata.memory_cache import Refereed, Network
 
 from adsdata.file_defs import data_files
 
@@ -194,7 +194,7 @@ def convert_data_link(filetype, value):
 
 
 def read_next():
-    """read all the info for the next bibcode into a dict"""
+    """read all the info for the canonical next bibcode into a dict"""
     global data_files
     d = {}
     for x in data_files.keys():
@@ -229,7 +229,7 @@ def open_all(root_dir='/proj/ads/abstracts'):
 
     we store these descriptors in the file properties object"""
     for x in data_files.keys():
-        data_files[x]['file_descriptor'] = reader.StandardFileReader(x, root_dir + data_files[x]['path'])
+        data_files[x]['file_descriptor'] = reader.NonbibFileReader(x, root_dir + data_files[x]['path'])
 
 
 def close_all():
@@ -260,8 +260,8 @@ def init_cache(root_dir='/proj/ads/abstract/'):
         # init has already been called
         return cache
     logger.info('initing cache')
-    cache['reference'] = ReferenceNetwork(root_dir + data_files['reference']['path'])
-    cache['citation'] = CitationNetwork(root_dir + data_files['citation']['path'])
+    cache['reference'] = Network(root_dir + data_files['reference']['path'])
+    cache['citation'] = Network(root_dir + data_files['citation']['path'])
     cache['refereed'] = Refereed(root_dir + data_files['refereed']['path'])
     logger.info('completed initing cache')
     return cache
