@@ -1,23 +1,25 @@
 
-import traceback
 from adsdata import tasks
 from adsdata.file_defs import data_files
 
 app = tasks.app
 
 
-class ADSClassicInputStream(object):
-    """file like object used to read nonbib column data files
+class NonbibFileReader(object):
+    """reads nonbib column files
 
-    provides a useful wrapper around python file object
+    file reading/parsing is controlled by the file's properties dict in file_defs
+    every line must start with a bibcode
+    file must be sorted by bibcode
     """
 
+    bibcode_length = 19
+
     def __init__(self, filetype, filename):
-        self.filename = filename
         self.filetype = filetype
+        self.filename = filename
         self.read_count = 0   # used in logging
-        self.config = {}
-        self.dottab_file = self.filename.endswith('.tab')
+        self.buffer = None  # holds at most one line of text
         self._iostream = open(filename, 'r', encoding='utf-8')
 
     def __enter__(self, *args, **kwargs):
@@ -40,114 +42,87 @@ class ADSClassicInputStream(object):
         self._iostream.close()
         del self._iostream
 
-    def read(self, size=-1):
-        """called by iterators, use for column files where bibcodes are not repeated"""
-        self.read_count += 1
-        if self.read_count % 100000 == 0:
-            app.logger.debug('nonbib file ingest, count = {}'.format(self.read_count))
-            
-        line = self._iostream.readline()
-        #if len(line) == 0 or (self.config['MAX_ROWS'] > 0 and self.read_count > self.config['MAX_ROWS']):
-        #    app.logger.info('nonbib file ingest, processed {}, contained {} lines'.format(self.filename, self.read_count))
-        #    return ''
-        return self.process_line(line)
-    
-    def readline(self):
-        # consider changing to call read
-        self.read_count += 1
-        line = self._iostream.readline()
-        return self.process_line(line)
-    
-    def process_line(self, line):
-        return line
-
-
-class StandardFileReader(ADSClassicInputStream):
-    """reads nonbib column files
-
-    processing is based on the file's properties dict
-    requires file are sorted by bibcode
-    """
-
-    def __init__(self, filetype, filename):
-        super(StandardFileReader, self).__init__(filetype, filename)
-        self.filetype = filetype
-        self.buffer = None  # holds at most one line of text
-        self.default_value = False,
-        if 'default_value' in data_files[filetype]:
-            self.default_value = data_files[filetype]['default_value']
-
     def pushline(self, s):
+        """the buffer is used when we read a line that is behond the desired bibcode
+           and we need to unread it"""
         if self.buffer:
-            app.logger.error('in file {}, {}, pushline called when buffer is not None: {}'.format(self.filetype, self.filename, self.buffer))
+            app.logger.error('error in file {}, {}, pushline called when buffer was not empty.  File line number: read line: {}, buffer: {}'.format(self.filetype, self.filename, self.read_count, s, self.buffer))
         self.buffer = s
 
+    def readline(self):
+        """used to read file containing list of canonical bibcodes"""
+        self.read_count += 1
+        line = self._iostream.readline()
+        while len(line) > 0 and len(line) < self.bibcode_length:
+            app.logger.error('error, invalid short line in readline {} filename: {} at line {}, line length less then length of bibcode, line: {}'.format(self.filetype, self.filename, self.read_count, line))
+            self.read_count += 1
+            line = self._iostream.readline()
+        return line
+    
     def getline(self):
+        """returns the next valid line or empty string at eof"""
         if self.buffer:
             x = self.buffer
             self.buffer = None
             return x
-        else:
-            return self._iostream.readline()
+        elif self._iostream.closed:
+            return ''
+        
+        self.read_count += 1
+        x = self._iostream.readline()
+        while len(x) > 0 and len(x) < self.bibcode_length:
+            app.logger.error('error, invalid short line in file {} filename: {} at line {}, line length less then length of bibcode, line: {}'.format(self.filetype, self.filename, self.read_count, x))
+            self.read_count += 1
+            x = self._iostream.readline()
+        return x
 
     def read_value_for(self, bibcode):
         """return the value from the file for the passed bibcode
         returns default value if bibcoce is not in file
 
         return value is a dict with the key of self.filetype
-          dicts from reads on multiple files can be easily merged
 
         some files repeat a bibcode on consecutive lines to provide multiple values
         other files do not repeat a bibcode and provide multiple values on a single line
         other files (e.g., relevance/docmetrics.tab) have multiple values
+        some files have associated effects on values like property field
         this reader handles all cases based on the file property dict
         """
         # first, are we at eof
         current_line = self.getline()
         if not current_line:
             # here if we are already at eof, bibcode isn't in file
-            # print('at eof for {} for bibcode {}'.format(self.filetype, bibcode))
-            return self.convert_value(self.default_value)
+            return self.convert_value(data_files[self.filetype]['default_value'])
 
         # next, skip over lines in file until we:
         #   either find the passed bibcode or determine it isn't in the file
         skip_count = 0
-        current_line = current_line.strip()
-        while current_line[:19].strip() < bibcode:
-            current_line = self.getline().strip()
+        while len(current_line) != 0 and self.get_bibcode(current_line) < bibcode:
+            current_line = self.getline()
             skip_count = skip_count + 1
-            if not current_line:
-                # print('bibcode not in file for {} for bibcode {}, read in {}'.format(self.filetype, bibcode, current_line))
-                return self.convert_value(self.default_value)
 
         # at this point, we have either read to the desired bibcode
         # or it doesn't exist and we read past it
-        if bibcode != current_line[:19]:
+        if len(current_line) == 0 or bibcode != self.get_bibcode(current_line):
             # bibcode not in file
             self.pushline(current_line)
-            # print('bibcode not in file for {}  for bibcode {}, read in {}'.format(self.filetype, bibcode, current_line))
             return self.convert_value(data_files[self.filetype]['default_value'])
 
         if isinstance(data_files[self.filetype]['default_value'], bool):
-            # print('boolean value for bibcode {}, read in {}'.format(self.filetype, bibcode, current_line))
-            return self.convert_value(True)  # boolean files hold singleton values
+            return self.convert_value(True)  # boolean files only hold bibcodes, all values are True
 
         # at this point, we have the first line with the bibcode in it
         # roll up possible other values on adjacent lines in file
-
         value = []
-        value.append(current_line[20:].strip())
+        value.append(self.get_rest(current_line))
         current_line = self.getline()
-        while data_files[self.filetype].get('multiline', False) and (current_line is not None) and (bibcode == current_line[:19]):
-            value.append(current_line[20:].strip())
+        while data_files[self.filetype].get('multiline', False) and (current_line is not None) and (bibcode == self.get_bibcode(current_line)):
+            value.append(self.get_rest(current_line))
             current_line = self.getline()
-        # app.logger.info('number of read lines = {} for {}'.format(len(value), self.filetype))
             
         # at this point we have read beyond the desired bibcode, must back up
-        # app.logger.info('file adjust going from {} to {} for {}'.format(self._iostream.tell(), current_location, self.filetype))
         self.pushline(current_line)
         # finally, convert raw input into something useful
-        # print('at end of function for {} for bibcode {}, read in {}'.format(self.filetype, bibcode, value))
         return self.convert_value(value)
         
     def convert_value(self, value):
@@ -158,7 +133,7 @@ class StandardFileReader(ADSClassicInputStream):
 
         if isinstance(value, str) and '\x00' in value:
             # there should not be nulls in strings
-            app.logger.error('in columnFileIngest.convert_value` with null value in string: {}', value)
+            app.logger.error('error string contained a null in file {} {}, line number: {}, value: {}'.format(self.filetype, self.filename, self.read_count, value))
             value = value.replace('\x00', '')
 
         return_value = value
@@ -175,20 +150,9 @@ class StandardFileReader(ADSClassicInputStream):
                 if data_files[self.filetype].get('string_to_number', True):
                     # convert valid ints and floats to numeric representation
                     t = []
-                    try:
-                        for y in x:
-                            if y.isdigit():
-                                t.append(int(y))
-                            elif isFloat(y):
-                                t.append(float(y))
-                            else:
-                                # value is a string
-                                t.append(y.strip())
-                        z.append(t)
-                    except ValueError as e:
-                        app.logger.error('ValueError in reader.proces_value, value: {}, default_value: {}, {}'.format(value, self.default_value, str(e)))
-                        app.logger.error(traceback.format_exc())
-                        z.append(self.default_value)
+                    for y in x:
+                        t.append(self.convert_scalar(y))
+                    z.append(t)
             return_value = z
             if len(return_value) == 1:
                 return_value = return_value[0]
@@ -266,22 +230,25 @@ class StandardFileReader(ADSClassicInputStream):
             d[k] = v
         return d
 
+    def get_bibcode(self, s):
+        """return the  bibcode from the from of the line"""
+        if s is None:
+            return None
+        if len(s) < self.bibcode_length:
+            app.logger.error('error, invalid short line in file {} {} at line {}, line length less then length of bibcode'.format(self.filetype, self.filename, self.read_count, s))
+            return s
+        return s[:self.bibcode_length].strip()
 
-def isFloat(s):
-    try:
-        float(s)
-        return True
-    except ValueError:
-        return False
-
-
-class TestFileReader(StandardFileReader):
-
-    def __init__(self, filetype, filename):
-        super(StandardFileReader, self).__init__(filetype, filename)
-
-    def read_value_for(self, bibcode):
-        current_line = self._iostream.readline()
-        return current_line
-
+    def get_rest(self, s):
+        """return the text after the bibcode and first tab separator"""
+        return s[self.bibcode_length + 1:].strip()
+                                 
+    def convert_scalar(self, s):
+        if s.isdigit():
+            return int(s)
+        try:
+            x = float(s)
+            return x
+        except ValueError:
+            return s.strip()
 

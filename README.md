@@ -66,7 +66,7 @@ About 30 files need to be consumed.  As noted above, the different
 data files have different customs and quirks.  This complicates
 reading all the files.  The
 code to deal with the complications in a single reader class, 
-StandardFileReader in adsdata/reader.py.  The goal of the reader is
+NonbibFileReader in adsdata/reader.py.  The goal of the reader is
 generate "ready to use" data that needs little further massaging.  It
 supports a small "description language" where the idiosyncrasies and
 customs of each file are explicitly declared.  

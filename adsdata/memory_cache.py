@@ -6,9 +6,10 @@ from adsdata import tasks
 # code for in-memory caches
 
 logger = tasks.app.logger
+bibcode_length = 19
 
 
-class BaseNetwork:
+class Network:
 
     def __init__(self, filename):
         self.network = self._load(filename)
@@ -21,16 +22,20 @@ class BaseNetwork:
 
     def _load(self, filename):
         """load file containing entire citation network into dict"""
-        global logger
+        global logger, bibcode_length
         d = defaultdict(list)
         count = 0
+        expected_length = 2 * bibcode_length + 1
         with open(filename, 'r', encoding='utf-8') as f:
             for line in f:
                 # need more clean up on input
                 line = line.strip()
-                bibcode1 = line[:19]
-                bibcode2 = line[20:39]
-                d[bibcode1].append(bibcode2)
+                if len(line) == expected_length:
+                    bibcode1 = line[:19]
+                    bibcode2 = line[20:39]
+                    d[bibcode1].append(bibcode2)
+                else:
+                    logger.error('error in network cache reading {}, line = {}'.format(filename, line))
                 count += 1
                 if count % 1000000 == 0:
                     logger.info('reading {}, count = {}'.format(filename, count))
@@ -45,20 +50,6 @@ class BaseNetwork:
         
     def get(self, bibcode):
         return self.network[bibcode]
-
-
-class ReferenceNetwork(BaseNetwork):
-
-    def __init__(self, filename):
-        """load file containing entire citation network into dict"""
-        BaseNetwork.__init__(self, filename)
-
-
-class CitationNetwork(BaseNetwork):
-    
-    def __init__(self, filename):
-        """load file containing entire citation network into dict"""
-        BaseNetwork.__init__(self, filename)
 
 
 class Refereed:
@@ -82,7 +73,10 @@ class Refereed:
             for line in f:
                 # need more clean up on input
                 line = line.strip()
-                d.append(line)
+                if len(line) == bibcode_length:
+                    d.append(line)
+                else:
+                    logger.error('error in refereed cache reading {}, line = {}'.format(filename, line))
                 count += 1
                 if count % 1000000 == 0:
                     logger.info('reading refereed, count = {}'.format(count))

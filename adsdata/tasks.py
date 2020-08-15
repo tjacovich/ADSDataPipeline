@@ -57,6 +57,5 @@ def task_output_metrics(msg):
     app.forward_message(msg)
 
 
-
 if __name__ == '__main__':
     app.start()

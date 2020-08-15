@@ -14,20 +14,20 @@ class TestReader(unittest.TestCase):
     
     def test_refereed(self):
         with patch('builtins.open', return_value=StringIO('AAAAAAAAAAAAAAAAAAA\nBBBBBBBBBBBBBBBBBBB\nDDDDDDDDDDDDDDDDDDD\nEEEEEEEEEEEEEEEEEEE')):
-            f = reader.StandardFileReader('refereed', 'filename')
+            f = reader.NonbibFileReader('refereed', 'filename')
             self.assertEqual({'refereed': {'refereed': True, 'property': ['REFEREED']}}, f.read_value_for('AAAAAAAAAAAAAAAAAAA'))
             self.assertEqual({'refereed': {'refereed': True, 'property': ['REFEREED']}}, f.read_value_for('BBBBBBBBBBBBBBBBBBB'))
             self.assertEqual({'refereed': {'refereed': False}}, f.read_value_for('CCCCCCCCCCCCCCCCCCC'))
             self.assertEqual({'refereed': {'refereed': True, 'property': ['REFEREED']}}, f.read_value_for('DDDDDDDDDDDDDDDDDDD'))
 
         with patch('builtins.open', return_value=StringIO('AAAAAAAAAAAAAAAAAAA\nBBBBBBBBBBBBBBBBBBB\nDDDDDDDDDDDDDDDDDDD\nEEEEEEEEEEEEEEEEEEE')):
-            f = reader.StandardFileReader('refereed', 'filename')
+            f = reader.NonbibFileReader('refereed', 'filename')
             self.assertEqual({'refereed': {'refereed': True, 'property': ['REFEREED']}}, f.read_value_for('BBBBBBBBBBBBBBBBBBB'))
             self.assertEqual({'refereed': {'refereed': True, 'property': ['REFEREED']}}, f.read_value_for('DDDDDDDDDDDDDDDDDDD'))
             self.assertEqual({'refereed': {'refereed': True, 'property': ['REFEREED']}}, f.read_value_for('EEEEEEEEEEEEEEEEEEE'))
 
         with patch('builtins.open', return_value=StringIO('AAAAAAAAAAAAAAAAAAA\nBBBBBBBBBBBBBBBBBBB\nDDDDDDDDDDDDDDDDDDD\nEEEEEEEEEEEEEEEEEEE')):
-            f = reader.StandardFileReader('refereed', 'filename')
+            f = reader.NonbibFileReader('refereed', 'filename')
             self.assertEqual({'refereed': {'refereed': False}}, f.read_value_for('CCCCCCCCCCCCCCCCCCC'))
             self.assertEqual({'refereed': {'refereed': True, 'property': ['REFEREED']}}, f.read_value_for('EEEEEEEEEEEEEEEEEEE'))
             self.assertEqual({'refereed': {'refereed': False}}, f.read_value_for('FFFFFFFFFFFFFFFFFFF'))
@@ -38,7 +38,7 @@ class TestReader(unittest.TestCase):
 BBBBBBBBBBBBBBBBBBB\tB
 DDDDDDDDDDDDDDDDDDD\tD
 EEEEEEEEEEEEEEEEEEE\tE""")):
-            f = reader.StandardFileReader('reads', 'filename')
+            f = reader.NonbibFileReader('reads', 'filename')
             self.assertEqual({'reads': ['A']}, f.read_value_for('AAAAAAAAAAAAAAAAAAA'))
             self.assertEqual({'reads': ['B']}, f.read_value_for('BBBBBBBBBBBBBBBBBBB'))
             self.assertEqual({'reads': []}, f.read_value_for('CCCCCCCCCCCCCCCCCCC'))
@@ -51,7 +51,7 @@ EEEEEEEEEEEEEEEEEEE\tE""")):
 BBBBBBBBBBBBBBBBBBB\tB
 DDDDDDDDDDDDDDDDDDD\tD
 EEEEEEEEEEEEEEEEEEE\tE""")):
-            f = reader.StandardFileReader('reads', 'filename')
+            f = reader.NonbibFileReader('reads', 'filename')
             self.assertEqual({'reads': ['B']}, f.read_value_for('BBBBBBBBBBBBBBBBBBB'))
             self.assertEqual({'reads': ['D']}, f.read_value_for('DDDDDDDDDDDDDDDDDDD'))
             self.assertEqual({'reads': ['E']}, f.read_value_for('EEEEEEEEEEEEEEEEEEE'))
@@ -61,7 +61,7 @@ EEEEEEEEEEEEEEEEEEE\tE""")):
 BBBBBBBBBBBBBBBBBBB\tB
 DDDDDDDDDDDDDDDDDDD\tD
 EEEEEEEEEEEEEEEEEEE\tE""")):
-            f = reader.StandardFileReader('reads', 'filename')
+            f = reader.NonbibFileReader('reads', 'filename')
             self.assertEqual({'reads': []}, f.read_value_for('CCCCCCCCCCCCCCCCCCC'))
             self.assertEqual({'reads': ['E']}, f.read_value_for('EEEEEEEEEEEEEEEEEEE'))
             self.assertEqual({'reads': []}, f.read_value_for('FFFFFFFFFFFFFFFFFFF'))
@@ -75,7 +75,7 @@ BBBBBBBBBBBBBBBBBBB\tB
 DDDDDDDDDDDDDDDDDDD\tD
 DDDDDDDDDDDDDDDDDDD\tDD
 EEEEEEEEEEEEEEEEEEE\tE""")):
-            f = reader.StandardFileReader('citation', 'filename')
+            f = reader.NonbibFileReader('citation', 'filename')
             self.assertEqual({'citation': ['A', 'AA', 'AAA']}, f.read_value_for('AAAAAAAAAAAAAAAAAAA'))
             self.assertEqual({'citation': ['B']}, f.read_value_for('BBBBBBBBBBBBBBBBBBB'))
             self.assertEqual({'citation': []}, f.read_value_for('CCCCCCCCCCCCCCCCCCC'))
@@ -88,14 +88,14 @@ EEEEEEEEEEEEEEEEEEE\tE""")):
         # facet_datasources/datasources.links
         self.maxDiff = None
         with patch('builtins.open', return_value=StringIO('AAAAAAAAAAAAAAAAAAA\tARI\t1\thttp://dc.g-vo.org/arigfh/katkat/byhdw/qp/1202')):
-            f = reader.StandardFileReader('data_link', 'filename')
+            f = reader.NonbibFileReader('data_link', 'filename')
             v = f.read_value_for('AAAAAAAAAAAAAAAAAAA')
             a = {'data_link': {'link_type': 'DATA', 'link_sub_type': 'ARI', 'item_count': 1, 'property': ['DATA'],
                                'url': ['http://dc.g-vo.org/arigfh/katkat/byhdw/qp/1202'], 'title': ['']}}
             self.assertEqual(a, v)
 
         with patch('builtins.open', return_value=StringIO('2004MNRAS.354L..31M\tCDS\t2\thttp://$VIZIER$/viz-bin/VizieR?-source=J/MNRAS/354/L31\n2004MNRAS.354L..31M\tVizier\t1\thttp://$VIZIER$/viz-bin/VizieR?-source=J/MNRAS/354/L31')):
-            f = reader.StandardFileReader('data_link', 'filename')
+            f = reader.NonbibFileReader('data_link', 'filename')
             v = f.read_value_for('2004MNRAS.354L..31M')
             a = {'data_link':
                  [{"url": ["http://$VIZIER$/viz-bin/VizieR?-source=J/MNRAS/354/L31"], "title": [""], "item_count": 2, "link_type": "DATA", "link_sub_type": "CDS", 'property': ['DATA']},
@@ -104,14 +104,14 @@ EEEEEEEEEEEEEEEEEEE\tE""")):
 
         # electr/all.links
         with patch('builtins.open', return_value=StringIO('AAAAAAAAAAAAAAAAAAA\thttps://doi.org/10.3931%2Fe-rara-477')):
-            f = reader.StandardFileReader('pub_html', 'filename')
+            f = reader.NonbibFileReader('pub_html', 'filename')
             x = f.read_value_for('AAAAAAAAAAAAAAAAAAA')
             self.assertEqual({'pub_html': {'link_type': 'ESOURCE', 'link_sub_type': 'PUB_HTML',
                                            'url': ['https://doi.org/10.3931%2Fe-rara-477']}}, x)
 
         # eprint_html/all.links
         with patch('builtins.open', return_value=StringIO('AAAAAAAAAAAAAAAAAAA\thttps://arxiv.org/abs/0908.1823')):
-            f = reader.StandardFileReader('eprint_html', 'filename')
+            f = reader.NonbibFileReader('eprint_html', 'filename')
             v = f.read_value_for('AAAAAAAAAAAAAAAAAAA')
             a = {'eprint_html': {'link_type': 'ESOURCE', 'link_sub_type': 'EPRINT_HTML',
                                  'url': 'https://arxiv.org/abs/0908.1823',
@@ -123,12 +123,12 @@ EEEEEEEEEEEEEEEEEEE\tE""")):
         self.maxDiff = None
         download_line = '1057wjlf.book.....C\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t1'
         with patch('builtins.open', return_value=StringIO(download_line)):
-            f = reader.StandardFileReader('download', 'filename')
+            f = reader.NonbibFileReader('download', 'filename')
             x = f.read_value_for('1057wjlf.book.....C')
             self.assertEqual({'download': [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]}, x)
         citation_lines = '1890GSAB....1..411D\t2011ESRv..106..215H\n1890GSAB....1..411D\t2014SedG..311...60T\n1890GSAB....1..411D\t2015GSAB..127.1816C'
         with patch('builtins.open', return_value=StringIO(citation_lines)):
-            f = reader.StandardFileReader('citation', 'filename')
+            f = reader.NonbibFileReader('citation', 'filename')
             x = f.read_value_for('1890GSAB....1..411D')
             self.assertEqual({'citation': ['2011ESRv..106..215H', '2014SedG..311...60T', '2015GSAB..127.1816C']}, x)
 
@@ -141,7 +141,7 @@ EEEEEEEEEEEEEEEEEEE\tE""")):
                      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 1, 0, 0, 1, 0, 0, 0, 0, 0]]
 
-        r = reader.StandardFileReader('download', './adsdata/tests/data1/config/links/reads/downloads.links')
+        r = reader.NonbibFileReader('download', './adsdata/tests/data1/config/links/reads/downloads.links')
         for i in range(0, len(bibcodes)):
             x = r.read_value_for(bibcodes[i])
             a = {'download': downloads[i]}
@@ -149,7 +149,7 @@ EEEEEEEEEEEEEEEEEEE\tE""")):
 
     def test_relevance(self):
         self.maxDiff = None
-        r = reader.StandardFileReader('relevance', './adsdata/tests/data1/config/links/relevance/docmetrics.tab')
+        r = reader.NonbibFileReader('relevance', './adsdata/tests/data1/config/links/relevance/docmetrics.tab')
         v = r.read_value_for('1905PhRvI..21..247N')
         self.assertTrue('relevance' in v)
         # self.assertEqual(4, len(v['relevance'].keys()))
@@ -168,14 +168,14 @@ EEEEEEEEEEEEEEEEEEE\tE""")):
 
     def test_refereed_from_file(self):
         self.maxDiff = None
-        r = reader.StandardFileReader('refereed', './adsdata/tests/data1/config/links/refereed/all.links')
+        r = reader.NonbibFileReader('refereed', './adsdata/tests/data1/config/links/refereed/all.links')
         v = r.read_value_for('2004MNRAS.354L..31M')
         a = {'refereed': {'refereed': True, 'property': ['REFEREED']}}
         self.assertEqual(a, v)
     
     def test_toc(self):
         self.maxDiff = None
-        r = reader.StandardFileReader('toc', './adsdata/tests/data1/config/links/toc/all.links')
+        r = reader.NonbibFileReader('toc', './adsdata/tests/data1/config/links/toc/all.links')
         v = r.read_value_for('2003ASPC..295..361M')
         a = {'toc': {'toc': True, 'link_type': 'TOC', 'link_sub_type': 'NA'}}
         self.assertEqual(a, v)
@@ -185,7 +185,7 @@ EEEEEEEEEEEEEEEEEEE\tE""")):
 
     def test_private(self):
         self.maxDiff = None
-        r = reader.StandardFileReader('private', './adsdata/tests/data1/config/links/private/all.links')
+        r = reader.NonbibFileReader('private', './adsdata/tests/data1/config/links/private/all.links')
         v = r.read_value_for('1920NW......8..958S')
         a = {'private': {'private': True, 'property': ['PRIVATE']}}
         self.assertEqual(a, v)
@@ -196,7 +196,7 @@ EEEEEEEEEEEEEEEEEEE\tE""")):
     def test_associated(self):
         self.maxDiff = None
         with patch('builtins.open', return_value=StringIO('1850AJ......1...72H\t1850AJ......1...57H Main Paper\n1850AJ......1...72H\t1850AJ......1...72H Erratum')):
-            f = reader.StandardFileReader('associated', 'filename')
+            f = reader.NonbibFileReader('associated', 'filename')
             v = f.read_value_for('1850AJ......1...72H')
             a = {'associated': {'link_type': 'ASSOCIATED', 'link_sub_type': 'NA',
                                 'url': ['1850AJ......1...57H', '1850AJ......1...72H'],
@@ -205,7 +205,7 @@ EEEEEEEEEEEEEEEEEEE\tE""")):
 
         # a few bibcodes only have one entry in associated
         with patch('builtins.open', return_value=StringIO('1993yCat.3135....0C\t1993yCat.3135....0C Catalog Description')):
-            f = reader.StandardFileReader('associated', 'filename')
+            f = reader.NonbibFileReader('associated', 'filename')
             v = f.read_value_for('1993yCat.3135....0C')
             a = {'associated': {'link_type': 'ASSOCIATED', 'link_sub_type': 'NA',
                                 'url': ['1993yCat.3135....0C'],
@@ -215,25 +215,25 @@ EEEEEEEEEEEEEEEEEEE\tE""")):
     def test_simbad(self):
         self.maxDiff = None
         with patch('builtins.open', return_value=StringIO('1857AN.....45...89S\t1500441\tLP*')):
-            f = reader.StandardFileReader('simbad_objects', 'filename')
+            f = reader.NonbibFileReader('simbad_objects', 'filename')
             v = f.read_value_for('1857AN.....45...89S')
             self.assertEqual({'simbad_objects': ['1500441 LP*']}, v)
         with patch('builtins.open', return_value=StringIO('2010A&A...521A..55C\t2419335\treg\n2010A&A...521A..55C\t3754378\tGrG')):
-            f = reader.StandardFileReader('simbad_objects', 'filename')
+            f = reader.NonbibFileReader('simbad_objects', 'filename')
             v = f.read_value_for('2010A&A...521A..55C')
             self.assertEqual({'simbad_objects': ['2419335 reg', '3754378 GrG']}, v)
 
     def test_ned(self):
         self.maxDiff = None
         with patch('builtins.open', return_value=StringIO('1885AN....112..285E\tMESSIER_031\tG\n1885AN....112..285E\tSN_1885A\tSN')):
-            f = reader.StandardFileReader('ned_objects', 'filename')
+            f = reader.NonbibFileReader('ned_objects', 'filename')
             v = f.read_value_for('1885AN....112..285E')
             self.assertEqual({'ned_objects': ["MESSIER_031 G", "SN_1885A SN"]}, v)
 
     def test_presentation(self):
         self.maxDiff = None
         with patch('builtins.open', return_value=StringIO('1997kbls.confE..10C\thttp://online.kitp.ucsb.edu/online/bblunch/carroll/')):
-            f = reader.StandardFileReader('presentation', 'filename')
+            f = reader.NonbibFileReader('presentation', 'filename')
             v = f.read_value_for('1997kbls.confE..10C')
             a = {'presentation': {'link_type': 'PRESENTATION', 'link_sub_type': 'NA',
                                   'url': ['http://online.kitp.ucsb.edu/online/bblunch/carroll/']}}
@@ -242,7 +242,7 @@ EEEEEEEEEEEEEEEEEEE\tE""")):
     def test_librarycatalog(self):
         self.maxDiff = None
         with patch('builtins.open', return_value=StringIO('1810hdla.book.....V\thttp://www.worldcat.org/oclc/02869597')):
-            f = reader.StandardFileReader('librarycatalog', 'filename')
+            f = reader.NonbibFileReader('librarycatalog', 'filename')
             v = f.read_value_for('1810hdla.book.....V')
             a = {'librarycatalog': {'link_type': 'LIBRARYCATALOG', 'link_sub_type': 'NA',
                                     'url': ['http://www.worldcat.org/oclc/02869597']}}
@@ -251,15 +251,28 @@ EEEEEEEEEEEEEEEEEEE\tE""")):
     def test_ocrabstract(self):
         self.maxDiff = None
         with patch('builtins.open', return_value=StringIO('1886Natur..34Q.131.\n1954PhRv...96..730K\n')):
-            f = reader.StandardFileReader('ocrabstract', 'filename')
+            f = reader.NonbibFileReader('ocrabstract', 'filename')
             v = f.read_value_for('1954PhRv...96..730K')
             a = {'ocrabstract': {'property': ['OCRABSTRACT'], 'ocrabstract': True}}
             self.assertEqual(a, v)
         
-    def test_isfloat(self):
-        self.maxDiff = None
-        self.assertTrue(reader.isFloat('1.2'))
-        self.assertTrue(reader.isFloat('1'))
-        self.assertFalse(reader.isFloat('abc'))
-        self.assertFalse(reader.isFloat('ab.c'))
+    def test_convert_scalar(self):
+        with patch('builtins.open', return_value=StringIO('')):
+            f = reader.NonbibFileReader('refereed', 'filename')
+            self.assertEqual(f.convert_scalar('1'), 1)
+            self.assertAlmostEqual(f.convert_scalar('1.2'), 1.2)
+            self.assertEqual(f.convert_scalar('abc'), 'abc')
+            self.assertEqual(f.convert_scalar('ab.c'), 'ab.c')
+
+    def test_invalid_bibcode(self):
+        with patch('builtins.open', return_value=StringIO('AAAAAAAAAAAAAAAAAAA\nBBB\nDDDDDDDDDDDDDDDDDDD\nEEEEEEEEEEEEEEEEEEE')):
+            with patch('adsdata.tasks.app.logger') as m:
+                f = reader.NonbibFileReader('refereed', 'filename')
+                self.assertEqual({'refereed': {'refereed': True, 'property': ['REFEREED']}}, f.read_value_for('AAAAAAAAAAAAAAAAAAA'))
+                self.assertEqual({'refereed': {'refereed': False}}, f.read_value_for('BBBBBBBBBBBBBBBBBBB'))
+                self.assertEqual({'refereed': {'refereed': False}}, f.read_value_for('CCCCCCCCCCCCCCCCCCC'))
+                self.assertEqual({'refereed': {'refereed': True, 'property': ['REFEREED']}}, f.read_value_for('DDDDDDDDDDDDDDDDDDD'))
+                self.assertTrue(m.error.called)
+
+
         
