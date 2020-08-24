@@ -265,6 +265,7 @@ EEEEEEEEEEEEEEEEEEE\tE""")):
             self.assertEqual(f.convert_scalar('ab.c'), 'ab.c')
 
     def test_invalid_bibcode(self):
+        """verify short input lines are skipped and logged as errors"""
         with patch('builtins.open', return_value=StringIO('AAAAAAAAAAAAAAAAAAA\nBBB\nDDDDDDDDDDDDDDDDDDD\nEEEEEEEEEEEEEEEEEEE')):
             with patch('adsdata.tasks.app.logger') as m:
                 f = reader.NonbibFileReader('refereed', 'filename')
@@ -274,5 +275,28 @@ EEEEEEEEEEEEEEEEEEE\tE""")):
                 self.assertEqual({'refereed': {'refereed': True, 'property': ['REFEREED']}}, f.read_value_for('DDDDDDDDDDDDDDDDDDD'))
                 self.assertTrue(m.error.called)
 
+    def test_get_bibcode(self):
+        with patch('builtins.open', return_value=StringIO('')):
+            with patch('adsdata.tasks.app.logger') as m:
+                f = reader.NonbibFileReader('citations', 'filename')
+                x = f.get_bibcode('short')
+                self.assertEqual(x, 'short')
+                self.assertTrue(m.error.called)
+                m.reset_mock()
+                x = f.get_bibcode('1234567890123456789\tvalue\n')
+                self.assertEqual('1234567890123456789', x)
+                self.assertFalse(m.error.called)
+                
+    def test_get_rest(self):
+        with patch('builtins.open', return_value=StringIO('')):
+            with patch('adsdata.tasks.app.logger') as m:
+                f = reader.NonbibFileReader('citations', 'filename')
+                x = f.get_rest('short')
+                self.assertEqual(x, '')
+                self.assertTrue(m.error.called)
+                m.reset_mock()
+                x = f.get_rest('1234567890123456789\tvalue\n')
+                self.assertEqual('value', x)
+                self.assertFalse(m.error.called)
 
-        
+

@@ -40,19 +40,19 @@ def compare_aux(k, d1, d2):
         for r1 in d1[k]:
             current_bibcode = r1['bibcode']
             r2 = get_citation_data_dict(current_bibcode, d2[k])
-            if r2 is None:
+            if r2 is None or r1 is None:
                 print('fail, bibcode {} not in rn_citation_data {}'.format(current_bibcode, d2))
                 fail = True
-            if r1['cityear'] != r2['cityear']:
+            elif r1['cityear'] != r2['cityear']:
                 print('fail, cityear does not match{}, {}, {}'.format(d1['bibcode'], r1, r2))
                 fail = True
-            if r1['pubyear'] != r2['pubyear']:
+            elif r1['pubyear'] != r2['pubyear']:
                 print('fail, pubyear does not match{}, {}, {}'.format(d1['bibcode'], r1, r2))
                 fail = True
-            if abs(r1['auth_norm'] - r2['auth_norm']) > r1['auth_norm'] * .05:
+            elif abs(r1['auth_norm'] - r2['auth_norm']) > r1['auth_norm'] * .05:
                 print('fail, auth_norm does not match{}, {}, {}'.format(d1['bibcode'], r1, r2))
                 fail = True
-            if abs(r1['ref_norm'] - r2['ref_norm']) > r1['ref_norm'] * .05:
+            elif abs(r1['ref_norm'] - r2['ref_norm']) > r1['ref_norm'] * .05:
                 print('fail, ref_norm does not match{}, {}, {}'.format(d1['bibcode'], r1, r2))
                 fail = True
     elif type(d1[k]) in (str, int, bool):
@@ -108,4 +108,4 @@ def get_citation_data_dict(bibcode, a):
 
 
 if __name__ == '__main__':
-    compare('/Users/smcdonald/tmp/solrDelta/20200730/newMetricsChanged.20200730', '/Users/smcdonald/tmp/solrDelta/20200730/oldMetricsChanged.20200730')
+    compare('/Users/smcdonald/tmp/solrDelta/20200804/newMetricsChanged.20200804', '/Users/smcdonald/tmp/solrDelta/20200804/oldMetricsChanged.20200804')
