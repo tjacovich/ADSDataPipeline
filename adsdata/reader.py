@@ -50,8 +50,15 @@ class NonbibFileReader(object):
         self.buffer = s
 
     def readline(self):
-        """used to read file containing list of canonical bibcodes"""
+        """return the next valid line or empty string at eof 
+           used ot read all files"""
         self.read_count += 1
+        if self.buffer:
+            line = self.buffer
+            self.buffer = None
+            return line
+        if self._iostream.closed:
+            return ''
         line = self._iostream.readline()
         while len(line) > 0 and len(line) < self.bibcode_length:
             app.logger.error('error, invalid short line in readline {} filename: {} at line {}, line length less then length of bibcode, line: {}'.format(self.filetype, self.filename, self.read_count, line))
@@ -59,23 +66,6 @@ class NonbibFileReader(object):
             line = self._iostream.readline()
         return line
     
-    def getline(self):
-        """returns the next valid line or empty string at eof"""
-        if self.buffer:
-            x = self.buffer
-            self.buffer = None
-            return x
-        elif self._iostream.closed:
-            return ''
-        
-        self.read_count += 1
-        x = self._iostream.readline()
-        while len(x) > 0 and len(x) < self.bibcode_length:
-            app.logger.error('error, invalid short line in file {} filename: {} at line {}, line length less then length of bibcode, line: {}'.format(self.filetype, self.filename, self.read_count, x))
-            self.read_count += 1
-            x = self._iostream.readline()
-        return x
-
     def read_value_for(self, bibcode):
         """return the value from the file for the passed bibcode
         returns default value if bibcoce is not in file
@@ -88,9 +78,9 @@ class NonbibFileReader(object):
         some files have associated effects on values like property field
         this reader handles all cases based on the file property dict
         """
-        # first, are we at eof
-        current_line = self.getline()
-        if not current_line:
+        # first, are we at eof?
+        current_line = self.readline()
+        if len(current_line) == 0:
             # here if we are already at eof, bibcode isn't in file
             return self.convert_value(data_files[self.filetype]['default_value'])
 
@@ -98,7 +88,7 @@ class NonbibFileReader(object):
         #   either find the passed bibcode or determine it isn't in the file
         skip_count = 0
         while len(current_line) != 0 and self.get_bibcode(current_line) < bibcode:
-            current_line = self.getline()
+            current_line = self.readline()
             skip_count = skip_count + 1
 
         # at this point, we have either read to the desired bibcode
@@ -115,10 +105,10 @@ class NonbibFileReader(object):
         # roll up possible other values on adjacent lines in file
         value = []
         value.append(self.get_rest(current_line))
-        current_line = self.getline()
+        current_line = self.readline()
         while data_files[self.filetype].get('multiline', False) and (current_line is not None) and (bibcode == self.get_bibcode(current_line)):
             value.append(self.get_rest(current_line))
-            current_line = self.getline()
+            current_line = self.readline()
             
         # at this point we have read beyond the desired bibcode, must back up
         self.pushline(current_line)
@@ -156,7 +146,6 @@ class NonbibFileReader(object):
             return_value = z
             if len(return_value) == 1:
                 return_value = return_value[0]
-                    
         elif 'interleave' in data_files[self.filetype] and value != data_files[self.filetype]['default_value']:
             # here on multi-line dict (e.g., associations)
             # interleave data on successive lines e.g., merge first element in each array, second element, etc.
@@ -165,14 +154,16 @@ class NonbibFileReader(object):
             for k in data_files[self.filetype]['subparts']:
                 x[k] = []
             for r in value:
-                parts = r.split(' ', 1)
-                ks = data_files[self.filetype]['subparts']
-                for i in range(len(parts)):
-                    k = ks[i]
-                    if i >= len(x):
-                        v = ''
-                    v = parts[i].strip()
-                    x[k].append(v)
+                # For instance, in associations 'r' should contain:
+                #   URL title
+                # where title may contain spaces too
+                parts = r.split(' ', 1)  # parts will contain [URL, title]
+                if len(parts) < len(data_files[self.filetype]['subparts']):
+                    app.logger.error('error in reader with interleave for {} file {}, incomplete value in line.  value = {}, parts = {} at line'.format(self.filetype, self.filename, value, parts, self.read_count))
+                else:
+                    for i, k in enumerate(data_files[self.filetype]['subparts']):
+                        v = parts[i].strip()
+                        x[k].append(v)
             return_value = x
         elif (data_files[self.filetype].get('tabs_to_spaces', False)):
             # files like simbad_objects have tabs that we simply convert to spaces
@@ -210,23 +201,18 @@ class NonbibFileReader(object):
                 if type(v) is dict and type(x) is dict:
                     x.update(v)
                 else:
-                    app.logger.error('serious error in reader.add_extra_values, non dict value, value = {}, current = {}'.format(x, v, current))
+                    app.logger.error('serious error in reader.add_extra_values, non dict value, extra_values = {}, processing element = {},  passed current = {}'.format(x, v, current))
 
     def convert_subparts(self, current):
         d = {}
-        for i in range(len(data_files[self.filetype]['subparts'])):
-            k = data_files[self.filetype]['subparts'][i]
+        for i, k in enumerate(data_files[self.filetype]['subparts']):
+            v = ''
+            if i < len(current):
+                v = current[i]
             if type(k) is list:
                 # here if key is in a list by itself which means values should be in a list
                 k = k[0]
-                v = ''
-                if i < len(current):
-                    v = current[i]
                 v = [v]
-            else:
-                v = ''  # default value when file only contains first n values (e.g, 'title' value often not in line)
-                if i < len(current):
-                    v = current[i]
             d[k] = v
         return d
 
@@ -235,12 +221,15 @@ class NonbibFileReader(object):
         if s is None:
             return None
         if len(s) < self.bibcode_length:
-            app.logger.error('error, invalid short line in file {} {} at line {}, line length less then length of bibcode'.format(self.filetype, self.filename, self.read_count, s))
+            app.logger.error('error, invalid short line in file {} {} at line {}, line length less then length of bibcode, line = {}'.format(self.filetype, self.filename, self.read_count, s))
             return s
         return s[:self.bibcode_length].strip()
 
     def get_rest(self, s):
         """return the text after the bibcode and first tab separator"""
+        if len(s) < self.bibcode_length + 1:
+            app.logger.error('error, in get_rest with invalid short line in file {} {} at line {}, line length less then length of bibcode plus 1, line = {}'.format(self.filetype, self.filename, self.read_count, s))
+            return ''
         return s[self.bibcode_length + 1:].strip()
                                  
     def convert_scalar(self, s):
