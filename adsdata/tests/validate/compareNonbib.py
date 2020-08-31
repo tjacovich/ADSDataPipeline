@@ -14,17 +14,19 @@ import json
 def compare(file1, file2):
     with open(file1) as f1, open(file2) as f2:
         for x, y in zip(f1, f2):
-            l1 = x.strip()
-            l2 = y.strip()
-            if len(l1) > 0 or len(l2) > 0:
-                d1 = json.loads(l1)
-                d2 = json.loads(l2)
-                fail = False
-                for k in d1:
-                    fail = compare_aux(k, d1, d2)
-                    if fail is False:
-                        print('success!! {}'.format(d1['bibcode']))
-
+            try:
+                l1 = x.strip()
+                l2 = y.strip()
+                if len(l1) > 0 or len(l2) > 0:
+                    d1 = json.loads(l1)
+                    d2 = json.loads(l2)
+                    fail = False
+                    for k in d1:
+                        fail = compare_aux(k, d1, d2)
+                        if fail is False:
+                            print('success!! {}'.format(d1['bibcode']))
+            except json.decoder.JSONDecodeError:
+                print('error parsing input file, \nline 1 = {} \nline 2 = {}\n\n'.format(x, y))
 
 def compare_aux(k, d1, d2):
     fail = False
@@ -62,5 +64,5 @@ def get_url(d):
 
 
 if __name__ == '__main__':
-    compare('/Users/smcdonald/tmp/solrDelta/20200730/newNonbibChanged.20200730', '/Users/smcdonald/tmp/solrDelta/20200730/oldNonbibChanged.20200730')
+    compare('/Users/smcdonald/tmp/solrDelta/20200826/newNonbibChanged.20200826', '/Users/smcdonald/tmp/solrDelta/20200826/oldNonbibChanged.20200826')
 
