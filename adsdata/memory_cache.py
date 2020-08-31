@@ -94,9 +94,6 @@ class _Network:
     def __next__(self):
         return self.network.__next__()
         
-    #def get(self, bibcode):
-    #    return self.network[bibcode]
-
 
 class _Refereed:
     """Reads refereed file into a  python set instance

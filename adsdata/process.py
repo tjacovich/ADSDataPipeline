@@ -267,13 +267,13 @@ class Processor:
         if citations:
             citation_num = len(citations)
         refereed_citations = []
-        reference_num = len(bibcode_to_references.get(bibcode))
+        reference_num = len(bibcode_to_references[bibcode])
         total_normalized_citations = 0.0
 
         if citation_num:
             for citation_bibcode in citations:
-                citation_refereed = citation_bibcode in refereed.network
-                len_citation_reference = len(bibcode_to_references.get(citation_bibcode))
+                citation_refereed = citation_bibcode in refereed
+                len_citation_reference = len(bibcode_to_references[citation_bibcode])
                 citation_normalized_references = 1.0 / float(max(5, len_citation_reference))
                 total_normalized_citations += citation_normalized_references
                 tmp_json = {"bibcode":  citation_bibcode,
