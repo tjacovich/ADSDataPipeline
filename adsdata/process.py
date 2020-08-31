@@ -5,61 +5,30 @@ from adsmsg import NonBibRecord, NonBibRecordList, MetricsRecord, MetricsRecordL
 from adsdata import tasks, reader
 from adsdata.memory_cache import Cache
 from adsdata.file_defs import data_files
-from adsputils import load_config
-
-# read data for the current bibcode from all the files
-# generate a complete nonbib record
-# send it to master
-# generate a complete metrics record
-# send it to master
 
 
- # class Processor
-    #  Attributes:
-    #  - cache
-    #  - readers = {'canonical': NonbibFileReader, 'stuff': NonbibFileReader}
-    #  Methods:
-    #  - _init_cache <= called in the constructor
-    #  - _open_all(root_dir='/proj/ads/abstracts') <= called in the constructor
-    #     - loop through all the file_defs
-    #       new NonbibFileReader(data_description from file_defs)
-    #       store object in readers attribute
-    #  - _read_next_bibcode(bibcode):
-    #  - _close_all():
-    #  - bibcodes(list of bibcodes, flag to compute metrics)
-    #  - _compute_metrics <= called by bibcodes(...) [moved from metrics.py]
-    #  - _convert
-    #  - _convert_data_link(filetype, value):
-    #  - _add_citation_count_norm_field(return_value, original):
-    #  - _add_refereed_property(return_value):
-    #  - _add_article_property(return_value, d):
-    #  - _add_data_summary(return_value):
-    #
-    #  !! TO BE DELETED:
-    #  - read_next():
-    #  - skip_lines(n):
-    #  - get_cache():
-    #  - compute_diffs():
-
-    
 class Processor:
+    """use reader and cache to compute nonbib and metrics protobufs, send to master"""
 
     def __init__(self, compute_metrics=True):
         self.comptue_metrics = compute_metrics
         self.logger = tasks.app.logger
-        # config = load_config()
-        self._open_all()
 
     def __enter__(self):
+        self._open_all()
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
         self._close_all()
 
     def process_bibcodes(self, bibcodes):
-        """send nonbib and metrics records to master for the passed bibcodes"""
+        """send nonbib and metrics records to master for the passed bibcodes
+    
+        for each bibcode
+            read nonbib data from files, generate nonbib protobuf
+            compute metrics, generate protobuf"""
         count = 0
-        # used to batch up messages to master for improved performance
+        # batch up messages to master for improved performance
         nonbib_protos = NonBibRecordList()
         metrics_protos = MetricsRecordList()
         
@@ -71,25 +40,15 @@ class Processor:
                 converted = self._convert(nonbib)
                 if count % 100 == 0:
                     self.logger.info('bibcode: {}, nonbib converted: {}'.format(bibcode, converted))
-                try:
-                    nonbib_proto = NonBibRecord(**converted)
-                    nonbib_protos.nonbib_records.extend([nonbib_proto._data])
-                    # self.logger.info('bibcode: {}, nonbib protobuf: {}'.format(bibcode, nonbib_proto))
-                except KeyError as e:
-                    self.logger.error('serious error in process.process_bibcodes converting nonbib record to protobuf, bibcode: {}, error: {},\n unconverted record: {}, \n converted record: {}'.format(bibcode, e, nonbib, converted))
-                    self.logger.exception('nonbib stacktrace')
+                nonbib_proto = NonBibRecord(**converted)
+                nonbib_protos.nonbib_records.extend([nonbib_proto._data])
                 if self.compute_metrics:
                     met = self._compute_metrics(nonbib)
                     if count % 100 == 0:
                         self.logger.info('bibcode: {}, metrics: {}'.format(bibcode, met))
                     count += 1
-                    try:
-                        metrics_proto = MetricsRecord(**met)
-                        metrics_protos.metrics_records.extend([metrics_proto._data])
-                        # self.logger.info('bibcode: {}, metrics protobuf: {}'.format(bibcode, metrics_proto))
-                    except KeyError as e:
-                        self.logger.error('serious error in process.process_bibcodes converting metrics record to protobuf, bibcode: {}, error: {},\n nonbib: {} \n metrics: {}: {}'.format(bibcode, e, nonbib, met))
-                        self.logger.exception('metrics stacktrace')
+                    metrics_proto = MetricsRecord(**met)
+                    metrics_protos.metrics_records.extend([metrics_proto._data])
             except Exception as e:
                 self.logger.error('serious error in process.process_bibcodes for bibcode {}, error {}'.format(bibcode, e))
                 self.logger.exception('general stacktrace')

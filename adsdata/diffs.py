@@ -6,11 +6,6 @@ from adsdata import tasks
 
 logger = tasks.app.logger
 
-    # class Diff
-    # Attributes:
-    # Methods:
-    #  - compute(root_dir=...) # classmethods
-    #     - Raise exception if return code != 0
     #  - _sort_input_files(root_dir='logs/input/'):
     #  - _compute_changed_bibcodes(root_dir='logs/input/'):
     #  - _merge_changed_bibcodes(root_dir='logs/input/'):
@@ -24,7 +19,7 @@ class Diff:
     list of changed bibcodes are put in a file"""
 
     @classmethod
-    def compute_diffs(cls):
+    def compute(cls):
         logger.info('compute diffs starting')
         cls._sort_input_files()
         cls._compute_changed_bibcodes()
@@ -32,7 +27,7 @@ class Diff:
         logger.info('compute diffs completed')
 
     @classmethod
-    def _execute(cls, command, **kwargs):
+    def execute(cls, command, **kwargs):
         """execute the passed shell command"""
         logger.info('in diffs, executing shell command {}'.format(command))
         p = Popen(command, shell=True, stdout=PIPE, stderr=PIPE, **kwargs)

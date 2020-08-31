@@ -4,12 +4,10 @@
 import argparse
 import datetime
 
-from adsdata import diffs, tasks
+from adsdata import tasks
 from adsdata.diffs import Diff
 from adsdata.process import Processor
-
-
-app = tasks.app
+from adsdata.memory_cache import Cache
 
 # python3 run.py PROCESS_BIBCODES bibcode1,bibcode2 [--no-metrics]
 # python3 run.py PROCESS_FILE filename.txt [--no-metrics]
@@ -49,10 +47,11 @@ def main():
     args = parser.parse_args()
     
     if args.action == 'COMPUTE_DIFF':
-        Diff.compute_diffs()
+        Diff.compute()
     else:
-        # process.init_cache(root_dir=app.conf.get('INPUT_DATA_ROOT', './adsdata/tests/data1/config/'))
-        # process.open_all(root_dir=app.conf.get('INPUT_DATA_ROOT', './adsdata/tests/data1/config/'))
+        # where with PROCESS_BIBCODES or PROCESS_FILE
+        if args.compute_metrics:
+            Cache.init()
         if args.action == 'PROCESS_BIBCODES':
             # parse and sort
             bibcodes = args.bibcodes.sort()
@@ -61,11 +60,8 @@ def main():
             print('processedbibcodes {}'.format(bibcodes))
 
         elif args.action == 'PROCESS_FILE':
-            # first sort input file
-            r = diffs.execute('asdfsort -o {} {}'.format(args.input_filename, args.input_filename))
-            if r[0] != 0:
-                raise Exception('unable to sort input file {}, return code =, {}, out = {}, err = {}'.format(args.input_filename, r[0], r[1], r[2]))
-            # send batches of bibcodes to processing
+            Diff.execute('sort -o {} {}'.format(args.input_filename, args.input_filename))
+            # send bibcodes from file to processing in batches
             count = 0
             bibcodes = []
             with open(args.input_filename, 'r') as f, Processor(compute_metrics=args.compute_metrics) as processor:
@@ -77,8 +73,8 @@ def main():
                     if len(bibcodes) % 100 == 0:
                         processor.process_bibcodes(bibcodes)
                         bibcodes = []
-            if len(bibcodes) > 0:
-                processor.process_bibcodes(bibcodes)
+                if len(bibcodes) > 0:
+                    processor.process_bibcodes(bibcodes)
             print('{}: completed processing bibcodes from {}, count = {}'.format(datetime.datetime.now(), args.input_filename, count))
 
 
