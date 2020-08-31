@@ -2,26 +2,6 @@
 from adsdata import tasks
 from adsputils import load_config
 
-    # class NonbibFileReader(object):
-    #  Attributes:
-    #  - data_description
-    #  Methods:
-    #  - __init__(self, filetype, filename): <= pass data_description from file_defs.py
-    #  - __enter__(self, *args, **kwargs):
-    #  - __exit__(self, *args, **kwargs):
-    #  - __iter__(self):
-    #  - next(self):
-    #  - close(self):
-    #  - pushline(self, s):
-    #  - readline(self):
-    #  - read_value_for(self, bibcode):
-    #  - convert_value(self, value):
-    #  - add_extra_values(self, current):
-    #  - convert_subparts(self, current):
-    #  - get_bibcode(self, s):
-    #  - get_rest(self, s):
-    #  - convert_scalar(self, s):
-
 
 class NonbibFileReader(object):
     """reads nonbib column files
@@ -69,7 +49,7 @@ class NonbibFileReader(object):
 
     def readline(self):
         """return the next valid line or empty string at eof 
-           used ot read all files"""
+           used to read all files"""
         self.read_count += 1
         if self.buffer:
             line = self.buffer
