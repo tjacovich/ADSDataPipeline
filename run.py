@@ -78,8 +78,7 @@ def main():
                         processor.process_bibcodes(bibcodes)
                         bibcodes = []
             if len(bibcodes) > 0:
-                pass
-            # process.process_bibcodes(bibcodes, compute_metrics=args.compute_metrics)
+                processor.process_bibcodes(bibcodes)
             print('{}: completed processing bibcodes from {}, count = {}'.format(datetime.datetime.now(), args.input_filename, count))
 
 
