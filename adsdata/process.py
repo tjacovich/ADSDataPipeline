@@ -11,7 +11,7 @@ class Processor:
     """use reader and cache to compute nonbib and metrics protobufs, send to master"""
 
     def __init__(self, compute_metrics=True):
-        self.comptue_metrics = compute_metrics
+        self.compute_metrics = compute_metrics
         self.logger = tasks.app.logger
 
     def __enter__(self):
