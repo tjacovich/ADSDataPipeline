@@ -69,10 +69,12 @@ def main():
                     if count % 10000 == 0:
                         print('{}: processed bibcodes count = {}'.format(datetime.datetime.now(), count))
                     count = count + 1
-                    bibcodes.append(line.strip())
-                    if len(bibcodes) % 100 == 0:
-                        processor.process_bibcodes(bibcodes)
-                        bibcodes = []
+                    line = line.strip()
+                    if line:
+                        bibcodes.append(line)
+                        if len(bibcodes) % 100 == 0:
+                            processor.process_bibcodes(bibcodes)
+                            bibcodes = []
                 if len(bibcodes) > 0:
                     processor.process_bibcodes(bibcodes)
             print('{}: completed processing bibcodes from {}, count = {}'.format(datetime.datetime.now(), args.input_filename, count))

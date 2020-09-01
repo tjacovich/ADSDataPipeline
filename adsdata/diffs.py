@@ -44,7 +44,7 @@ class Diff:
             f = root_dir + '/current/' + data_files[x]['path']
             command = 'sort -o {} {}'.format(f, f)
             logger.info('in diffs, sorting {}'.format(f))
-            cls._execute(command)
+            cls.execute(command)
 
     @classmethod
     def _compute_changed_bibcodes(cls, root_dir='logs/input/'):
@@ -60,7 +60,7 @@ class Diff:
             #          find changes  | remove comm leading tab, blank lines|get bibcode|dedup|filter out non-canonical  | current, previous, output file, today's canonical bibcodes
             command = "comm -3 {} {} | sed 's/^[ \\t]*//g' | sed '/^$/d' | cut -f 1 | uniq | comm -1 -2 - {}  > {}".format(c, p, root_dir + '/current/' + data_files['canonical']['path'], changed_bibs)
             logger.info('in diffs, computing changes to {}'.format(c))
-            cls._execute(command)
+            cls.execute(command)
 
     @classmethod
     def _merge_changed_bibcodes(cls, root_dir='logs/input/'):
@@ -70,10 +70,10 @@ class Diff:
             f = root_dir + '/current/' + data_files[x]['path'] + '.changedbibs'
             command = 'cat {} >> {}'.format(f, o)
             logger.info('in diffs, concatenating changes from {}'.format(f))
-            cls._execute(command)
+            cls.execute(command)
         command = 'sort --unique -o {} {}'.format(o, o)
         logger.info('in diffs, sorting changed bibcodes {}'.format(o))
-        cls._execute(command)
+        cls.execute(command)
 
 
 
