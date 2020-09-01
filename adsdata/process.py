@@ -219,7 +219,7 @@ class Processor:
         bibcode_to_references = Cache.get('reference')
         bibcode_to_cites = Cache.get('citation')
 
-        citations = bibcode_to_cites.get(bibcode)
+        citations = bibcode_to_cites[bibcode]
         citations_json_records = []
         citation_normalized_references = 0.0
         citation_num = 0
@@ -266,7 +266,7 @@ class Processor:
                         'downloads': downloads,
                         'modtime': modtime,
                         'reads': reads,
-                        'refereed': d.get('refereed', {}).get('refereed', False),
+                        'refereed': bibcode in refereed,
                         'refereed_citations': refereed_citations,
                         'refereed_citation_num': refereed_citation_num,
                         'reference_num': reference_num,
