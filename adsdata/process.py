@@ -13,6 +13,7 @@ class Processor:
     def __init__(self, compute_metrics=True):
         self.compute_metrics = compute_metrics
         self.logger = tasks.app.logger
+        self.readers = {}
 
     def __enter__(self):
         self._open_all()
