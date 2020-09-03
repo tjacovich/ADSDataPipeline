@@ -47,7 +47,7 @@ class NonbibFileReader(object):
             self.logger.error('error in file {}, {}, _pushline called when buffer was not empty.  File line number: read line: {}, buffer: {}'.format(self.filetype, self.filename, self.read_count, s, self.buffer))
         self.buffer = s
 
-    def readline(self):
+    def _readline(self):
         """return the next valid line or empty string at eof 
            used to read all files"""
         self.read_count += 1
@@ -77,7 +77,7 @@ class NonbibFileReader(object):
         this reader handles all cases based on the file property dict
         """
         # first, are we at eof?
-        current_line = self.readline()
+        current_line = self._readline()
         if len(current_line) == 0:
             # here if we are already at eof, bibcode isn't in file
             return self._convert_value(self.file_info['default_value'])
@@ -86,7 +86,7 @@ class NonbibFileReader(object):
         #   either find the passed bibcode or determine it isn't in the file
         skip_count = 0
         while len(current_line) != 0 and self._get_bibcode(current_line) < bibcode:
-            current_line = self.readline()
+            current_line = self._readline()
             skip_count = skip_count + 1
 
         # at this point, we have either read to the desired bibcode
@@ -103,10 +103,10 @@ class NonbibFileReader(object):
         # roll up possible other values on adjacent lines in file
         value = []
         value.append(self._get_rest(current_line))
-        current_line = self.readline()
+        current_line = self._readline()
         while self.file_info.get('multiline', False) and (current_line is not None) and (bibcode == self._get_bibcode(current_line)):
             value.append(self._get_rest(current_line))
-            current_line = self.readline()
+            current_line = self._readline()
             
         # at this point we have read beyond the desired bibcode, must back up
         self._pushline(current_line)
