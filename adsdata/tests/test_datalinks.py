@@ -3,6 +3,7 @@ import unittest
 from mock import patch
 
 from adsdata import reader
+from adsdata.process import Processor
 from adsdata.file_defs import data_files
 
 
@@ -77,4 +78,46 @@ class TestReader(unittest.TestCase):
                              "link_type": "INSPIRE", "link_sub_type": "NA"}}
             self.assertEqual(a, v)
 
+    def test_merge(self):
+        """merge when link_type and link_sub_type match"""
+        self.maxDiff = None
+        d = [{"url": ["http://archive.stsci.edu/prepds/gems"],
+              "title": ["GEMS: Galaxy Evolution from Morphologies and SEDs (Hans-Walter Rix)"],
+              "item_count": 1,
+              "link_type": "DATA",
+              "link_sub_type": "MAST"},
+             {"url": ["https://arxiv.org/abs/astro-ph/0401427"],
+              "title": [""],
+              "item_count": 1,
+              "link_type": "ESOURCE",
+              "link_sub_type": "EPRINT_HTML"},
+             {"url": ["https://archive.stsci.edu/mastbibref.php?bibcode=2004ApJS..152..163R"],
+              "title": ["MAST References (HST)"],
+              "item_count": 1,
+              "link_type": "DATA",
+              "link_sub_type": "MAST"},
+             {"url": ["https://doi.org/10.1086%2F420885"],
+              "title": [""],
+              "link_type": "ESOURCE",
+              "link_sub_type": "PUB_HTML"}]
+        
+        a = [{"url": ["http://archive.stsci.edu/prepds/gems", "https://archive.stsci.edu/mastbibref.php?bibcode=2004ApJS..152..163R"],
+              "title": ["GEMS: Galaxy Evolution from Morphologies and SEDs (Hans-Walter Rix)", "MAST References (HST)"],
+              "item_count": 2,
+              "link_type": "DATA",
+              "link_sub_type": "MAST"},
+             {"url":
+              ["https://arxiv.org/abs/astro-ph/0401427"],
+              "title": [""],
+              "item_count": 1,
+              "link_type": "ESOURCE",
+              "link_sub_type": "EPRINT_HTML"},
+             {"url": ["https://doi.org/10.1086%2F420885"],
+              "title": [""],
+              "link_type": "ESOURCE",
+              "link_sub_type": "PUB_HTML"}]
+        p = Processor()
+        p._merge_data_links(d)
+        self.assertEqual(d, a)
+    
 
