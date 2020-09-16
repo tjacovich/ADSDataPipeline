@@ -61,7 +61,7 @@ class TestReader(unittest.TestCase):
                                 "property": ["DATA"],
                                 "link_sub_type": "CDS"},
                                {"url": ["https://$NED$/cgi-bin/objsearch?search_type=Search&refcode=2004MNRAS.354L..31M"], "property": ["DATA"],
-                                
+
                                 "title": ["NED Objects (1953)"], "item_count": 1953, "link_type": "DATA", "link_sub_type": "NED"},
                                {"url": ["http://$SIMBAD$/simbo.pl?bibcode=2004MNRAS.354L..31M"], "property": ["DATA"],
                                 "title": ["SIMBAD Objects (1)"], "item_count": 1, "link_type": "DATA", "link_sub_type": "SIMBAD"},
@@ -100,7 +100,7 @@ class TestReader(unittest.TestCase):
               "title": [""],
               "link_type": "ESOURCE",
               "link_sub_type": "PUB_HTML"}]
-        
+
         a = [{"url": ["http://archive.stsci.edu/prepds/gems", "https://archive.stsci.edu/mastbibref.php?bibcode=2004ApJS..152..163R"],
               "title": ["GEMS: Galaxy Evolution from Morphologies and SEDs (Hans-Walter Rix)", "MAST References (HST)"],
               "item_count": 2,
@@ -117,7 +117,7 @@ class TestReader(unittest.TestCase):
               "link_type": "ESOURCE",
               "link_sub_type": "PUB_HTML"}]
         p = Processor()
-        p._merge_data_links(d)
-        self.assertEqual(d, a)
-    
+        merged_d = p._merge_data_links(d)
+        self.assertEqual(merged_d, a)
+
 

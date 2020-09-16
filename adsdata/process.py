@@ -1,5 +1,6 @@
 
 from datetime import datetime
+from collections import defaultdict
 
 from adsmsg import NonBibRecord, NonBibRecordList, MetricsRecord, MetricsRecordList
 from adsdata import tasks, reader
@@ -24,7 +25,7 @@ class Processor:
 
     def process_bibcodes(self, bibcodes):
         """send nonbib and metrics records to master for the passed bibcodes
-    
+
         for each bibcode
             read nonbib data from files, generate nonbib protobuf
             compute metrics, generate protobuf"""
@@ -32,7 +33,7 @@ class Processor:
         # batch up messages to master for improved performance
         nonbib_protos = NonBibRecordList()
         metrics_protos = MetricsRecordList()
-        
+
         for bibcode in bibcodes:
             try:
                 nonbib = self._read_next_bibcode(bibcode)
@@ -109,11 +110,11 @@ class Processor:
                     return_value[k] = passed[filetype][k]
 
         self._add_refereed_property(return_value)
-        self._add_article_property(return_value, passed)  
+        self._add_article_property(return_value, passed)
         return_value['property'] = sorted(return_value['property'])
         return_value['esource'] = sorted(return_value['esource'])
         self._add_data_summary(return_value)
-        self._merge_data_links(return_value['data_links_rows'])
+        return_value['data_links_rows'] = self._merge_data_links(return_value['data_links_rows'])
         self._add_citation_count_norm_field(return_value, passed)
 
         # finally, delete the keys not in the nonbib protobuf
@@ -156,32 +157,30 @@ class Processor:
 
     def _merge_data_links(self, datalinks):
         """data links with matching link_type and link_sub_type must be merged"""
+        grouped = defaultdict(list)
+        # Find duplicated type:subtype entries
         for d in datalinks:
-            self._merge_data_links_aux(datalinks, d['link_type'], d['link_sub_type'])
+            key = "{}:{}".format(d['link_type'], d['link_sub_type'])
+            grouped[key].append(d)
+        if len(grouped) == len(datalinks):
+            # No duplicated entries found
+            return datalinks
+        else:
+            new_datalinks = []
+            for matches in grouped.values():
+                if len(matches) == 1:
+                    # Just one element of this kind, no need to merge
+                    new_datalinks.append(matches[0])
+                else:
+                    # Merge matched elements into a single element
+                    first = matches[0]
+                    for m in matches[1:]:
+                        first['url'].extend(m['url'])
+                        first['title'].extend(m['title'])
+                        first['item_count'] += m.get('item_count', 1)
+                    new_datalinks.append(first)
+            return new_datalinks
 
-    def _merge_data_links_aux(self, datalinks, link_type, link_sub_type):
-        # first gather all array elements what have this link_type and links_sub_type
-        matches = []
-        for d in datalinks:
-            if d['link_type'] == link_type and d['link_sub_type'] == link_sub_type:
-                matches.append(d)
-        if len(matches) > 1:
-            # merge matched into a single element
-            first = matches[0]
-            for m in matches[1:]:
-                first['url'].extend(m['url'])
-                first['title'].extend(m['title'])
-                first['item_count'] += m.get('item_count', 1)
-            self._delete_data_link(datalinks, m['url'])
-
-    def _delete_data_link(self, datalinks, url):
-        """we need ot delete elements from data links after they have been merged
-           since the array holds a dict we find index and delete by index"""
-        for i, d in enumerate(datalinks):
-            if url == d['url']:
-                del datalinks[i]
-                return
-        
     def _convert_data_link(self, filetype, value):
         """convert one data link row"""
         file_properties = data_files[filetype]
