@@ -227,6 +227,10 @@ EEEEEEEEEEEEEEEEEEE\tE""")):
             f = reader.NonbibFileReader('simbad_objects', data_files['simbad_objects'])
             v = f.read_value_for('2010A&A...521A..55C')
             self.assertEqual({'simbad_objects': ['2419335 reg', '3754378 GrG']}, v)
+        with patch('builtins.open', return_value=StringIO('1991PASP..103..494P\t947046\t')):
+            f = reader.NonbibFileReader('simbad_objects', data_files['simbad_objects'])
+            v = f.read_value_for('1991PASP..103..494P')
+            self.assertEqual({'simbad_objects': ['947046 ']}, v)
 
     def test_ned(self):
         self.maxDiff = None
@@ -234,6 +238,10 @@ EEEEEEEEEEEEEEEEEEE\tE""")):
             f = reader.NonbibFileReader('ned_objects', data_files['ned_objects'])
             v = f.read_value_for('1885AN....112..285E')
             self.assertEqual({'ned_objects': ["MESSIER_031 G", "SN_1885A SN"]}, v)
+        with patch('builtins.open', return_value=StringIO('1885AN....112..285E\tMESSIER_031\tG\n1885AN....112..285E\tSN_1885A')):
+            f = reader.NonbibFileReader('ned_objects', data_files['ned_objects'])
+            v = f.read_value_for('1885AN....112..285E')
+            self.assertEqual({'ned_objects': ["MESSIER_031 G", "SN_1885A "]}, v)
 
     def test_presentation(self):
         self.maxDiff = None

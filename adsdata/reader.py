@@ -130,7 +130,7 @@ class NonbibFileReader(object):
             if 'extra_values' in self.file_info and value != self.file_info['default_value']:
                 d.update(self.file_info['extra_values'])
             return {self.filetype: d}
-        elif (len(value) > 0 and '\t' in value[0] and not self.file_info.get('tabs_to_spaces', False)):
+        elif (len(value) > 0 and '\t' in value[0] and not self.file_info.get('tab_separated_pair', False)):
             # tab separator in string means we need to convert elements to array
             z = []
             for r in value:
@@ -163,11 +163,15 @@ class NonbibFileReader(object):
                         v = parts[i].strip()
                         x[k].append(v)
             return_value = x
-        elif (self.file_info.get('tabs_to_spaces', False)):
-            # files like simbad_objects have tabs that we simply convert to spaces
+        elif (self.file_info.get('tab_separated_pair', False)):
+            # files like simbad_objects, ned_objects have tabs separating an id and 0 or more types
             x = []
             for a in value:
-                x.append(a.replace('\t', ' '))
+                t = a.replace('\t', ' ')
+                if ' ' not in t:
+                    # when no type is present we need a trailing space
+                    t += ' '
+                x.append(t)
             return_value = x
         elif (len(value) > 1):
             x = []
