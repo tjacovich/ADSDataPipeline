@@ -10,7 +10,7 @@ data_files['author'] = {'path': 'links/facet_authors/all.links', 'default_value'
 data_files['citation'] = {'path': 'links/citation/all.links', 'default_value': [], 'multiline': True}
 data_files['download'] = {'path': 'links/reads/downloads.links', 'default_value': []}
 data_files['grants'] = {'path': 'links/grants/all.links', 'default_value': [], 'string_to_number': False, 'multiline': True}
-data_files['ned_objects'] = {'path': 'links/ned/ned_objects.tab', 'default_value': [], 'string_to_number': False, 'multiline': True, 'tabs_to_spaces': True}
+data_files['ned_objects'] = {'path': 'links/ned/ned_objects.tab', 'default_value': [], 'string_to_number': False, 'multiline': True, 'tab_separated_pair': True}
 data_files['nonarticle'] = {'path': 'links/nonarticle/all.links', 'default_value': False, 'multiline': True}
 data_files['ocrabstract'] = {'path': 'links/ocr/all.links', 'default_value': False,
                              'extra_values': {'property': ['OCRABSTRACT']}}
@@ -25,7 +25,7 @@ data_files['reference'] = {'path': 'links/reference/all.links', 'default_value':
 data_files['relevance'] = {'path': 'links/relevance/docmetrics.tab', 'default_value': {},
                            'subparts': ['boost', 'citation_count', 'read_count', 'norm_cites']}
 data_files['simbad_objects'] = {'path': 'links/simbad/simbad_objects.tab', 'default_value': [],
-                                'string_to_number': False, 'multiline': True, 'tabs_to_spaces': True}
+                                'string_to_number': False, 'multiline': True, 'tab_separated_pair': True}
 
 data_files['pub_html'] = {'path': 'links/electr/all.links', 'default_value': {},
                           'extra_values': {'link_type': 'ESOURCE', 'link_sub_type': 'PUB_HTML'},
