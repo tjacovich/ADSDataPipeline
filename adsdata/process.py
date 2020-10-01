@@ -29,7 +29,6 @@ class Processor:
         for each bibcode
             read nonbib data from files, generate nonbib protobuf
             compute metrics, generate protobuf"""
-        count = 0
         # batch up messages to master for improved performance
         nonbib_protos = NonBibRecordList()
         metrics_protos = MetricsRecordList()
@@ -37,18 +36,11 @@ class Processor:
         for bibcode in bibcodes:
             try:
                 nonbib = self._read_next_bibcode(bibcode)
-                if count % 100 == 0:
-                    self.logger.info('bibcode: {}, nonbib: {}'.format(bibcode, nonbib))
                 converted = self._convert(nonbib)
-                if count % 100 == 0:
-                    self.logger.info('bibcode: {}, nonbib converted: {}'.format(bibcode, converted))
                 nonbib_proto = NonBibRecord(**converted)
                 nonbib_protos.nonbib_records.extend([nonbib_proto._data])
                 if self.compute_metrics:
                     met = self._compute_metrics(nonbib)
-                    if count % 100 == 0:
-                        self.logger.info('bibcode: {}, metrics: {}'.format(bibcode, met))
-                    count += 1
                     metrics_proto = MetricsRecord(**met)
                     metrics_protos.metrics_records.extend([metrics_proto._data])
             except Exception as e:

@@ -83,8 +83,6 @@ class _Network:
                 else:
                     self.logger.error('error in network cache reading {}, line = {}'.format(filename, line))
                 count += 1
-                if count % 1000000 == 0:
-                    self.logger.info('reading {}, lines read = {}'.format(filename, count))
         self.logger.info('completed {}, lines read = {}'.format(filename, count))
         return d
 
