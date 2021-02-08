@@ -136,15 +136,19 @@ class Processor:
     def _add_data_summary(self, return_value):
         """iterate over all data links to create data field
 
-        "data": ["CDS:1", "NED:1953", "SIMBAD:1", "Vizier:1"]"""
-        data_value = []
+        "data": ["CDS:2", "NED:1953", "SIMBAD:1", "Vizier:1"]"""
         total_link_counts = 0
+        subtype_to_count = defaultdict(int)
         for r in return_value.get('data_links_rows', []):
             if r['link_type'] == 'DATA':
-                v = r['link_sub_type'] + ':' + str(r.get('item_count', 0))
-                data_value.append(v)
-                total_link_counts += int(r.get('item_count', 0))
-        return_value['data'] = sorted(data_value)
+                c = int(r.get('item_count', 0))
+                subtype_to_count[r['link_sub_type']] += c
+                total_link_counts += c
+        data_value = []
+        for k in sorted(subtype_to_count.keys()):
+            v = k + ':' + str(subtype_to_count[k])
+            data_value.append(v)
+        return_value['data'] = data_value
         return_value['total_link_counts'] = total_link_counts
 
     def _merge_data_links(self, datalinks):
