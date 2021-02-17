@@ -5,7 +5,7 @@ from collections import defaultdict
 from adsmsg import NonBibRecord, NonBibRecordList, MetricsRecord, MetricsRecordList
 from adsdata import tasks, reader
 from adsdata.memory_cache import Cache
-from adsdata.file_defs import data_files
+from adsdata.file_defs import data_files, computed_fields
 
 
 class Processor:
@@ -83,7 +83,7 @@ class Processor:
                         d = self._convert_data_link(filetype, v)
                         return_value['data_links_rows'].append(d)
                 else:
-                    self.logger.error('serious error in process.convert with {} {} {}'.format(filetype, type(value), value))
+                    self.logger.error('serious error in process._convert with {} {} {}'.format(filetype, type(value), value))
 
                 if file_properties['extra_values']['link_type'] == 'ESOURCE':
                     return_value['esource'].add(file_properties['extra_values']['link_sub_type'])
@@ -108,6 +108,19 @@ class Processor:
         self._add_data_summary(return_value)
         return_value['data_links_rows'] = self._merge_data_links(return_value['data_links_rows'])
         self._add_citation_count_norm_field(return_value, passed)
+
+        # time for computed fields
+        for k, v in computed_fields.items():
+            f = getattr(self, v['converter_function'], None)
+            if f is None:
+                self.logger.error('serious error in process._covert, expected converter_function {} for field {} not found'.format(v['converter_function'], k))
+            else:
+                x = f(return_value)
+                return_value.update(x)
+
+        for x in computed_fields.keys():
+            if 'sort' in x and x['sorted']:
+                return_value[x] = sorted(return_value[x])
 
         # finally, delete the keys not in the nonbib protobuf
         not_needed = ['author', 'canonical', 'citation', 'download', 'item_count', 'nonarticle', 'ocrabstract', 'private', 'pub_openaccess',
@@ -299,3 +312,7 @@ class Processor:
                         'rn_citation_data': citations_json_records}
         return return_value
 
+    def _compute_bibgroup_facet(self, d):
+        bibgroup = d.get('bibgroup', [])
+        bibgroup_facet = list(set(bibgroup))
+        return {'bibgroup_facet': bibgroup_facet}

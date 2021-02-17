@@ -58,6 +58,7 @@ class TestMemoryCache(unittest.TestCase):
             d = processor._read_next_bibcode('2003ASPC..295..361M')
             n = processor._convert(d)
             a = {"read_count": 4, "bibcode": "2003ASPC..295..361M",
+                 'bibgroup': ['Chandra Technical'], 'bibgroup_facet': ['Chandra Technical'],
                  "data_links_rows": [{"url": ["http://articles.adsabs.harvard.edu/pdf/2003ASPC..295..361M"], "link_type": "ESOURCE", "link_sub_type": "ADS_PDF", 'item_count': 0, 'title': ['']},
                                      {"url": ["http://articles.adsabs.harvard.edu/full/2003ASPC..295..361M"], "link_type": "ESOURCE", "link_sub_type": "ADS_SCAN", 'item_count': 0, 'title': ['']},
                                      {"url": [""], "link_type": "TOC", "link_sub_type": "NA", 'item_count': 0, 'title': ['']}],
@@ -69,6 +70,7 @@ class TestMemoryCache(unittest.TestCase):
             a = {"bibcode": "2004MNRAS.354L..31M",
                  "simbad_objects": ["3253618 G"],
                  "read_count": 20,
+                 "bibgroup": [], "bibgroup_facet": [],
                  "data_links_rows": [{"url": ["http://dx.doi.org/10.1111/j.1365-2966.2004.08374.x"], "link_type": "ESOURCE", "link_sub_type": "PUB_HTML", 'item_count': 0, 'title': ['']},
                                      {"url": ["https://arxiv.org/abs/astro-ph/0405472"], "link_type": "ESOURCE", "link_sub_type": "EPRINT_HTML", 'item_count': 0, 'title': ['']},
                                      {"url": ["https://academic.oup.com/mnras/pdf-lookup/doi/10.1111/j.1365-2966.2004.08374.x"], "link_type": "ESOURCE", "link_sub_type": "PUB_PDF", 'item_count': 0, 'title': ['']},
