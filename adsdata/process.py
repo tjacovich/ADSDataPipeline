@@ -118,10 +118,6 @@ class Processor:
                 x = f(return_value)
                 return_value.update(x)
 
-        for x in computed_fields.keys():
-            if 'sort' in x and x['sorted']:
-                return_value[x] = sorted(return_value[x])
-
         # finally, delete the keys not in the nonbib protobuf
         not_needed = ['author', 'canonical', 'citation', 'download', 'item_count', 'nonarticle', 'ocrabstract', 'private', 'pub_openaccess',
                       'reads', 'refereed', 'relevance', 'toc']
@@ -313,6 +309,8 @@ class Processor:
         return return_value
 
     def _compute_bibgroup_facet(self, d):
-        bibgroup = d.get('bibgroup', [])
-        bibgroup_facet = list(set(bibgroup))
+        bibgroup = d.get('bibgroup', None)
+        if bibgroup is None:
+            return {}
+        bibgroup_facet = sorted(list(set(bibgroup)))
         return {'bibgroup_facet': bibgroup_facet}

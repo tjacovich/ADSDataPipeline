@@ -70,7 +70,6 @@ class TestMemoryCache(unittest.TestCase):
             a = {"bibcode": "2004MNRAS.354L..31M",
                  "simbad_objects": ["3253618 G"],
                  "read_count": 20,
-                 "bibgroup": [], "bibgroup_facet": [],
                  "data_links_rows": [{"url": ["http://dx.doi.org/10.1111/j.1365-2966.2004.08374.x"], "link_type": "ESOURCE", "link_sub_type": "PUB_HTML", 'item_count': 0, 'title': ['']},
                                      {"url": ["https://arxiv.org/abs/astro-ph/0405472"], "link_type": "ESOURCE", "link_sub_type": "EPRINT_HTML", 'item_count': 0, 'title': ['']},
                                      {"url": ["https://academic.oup.com/mnras/pdf-lookup/doi/10.1111/j.1365-2966.2004.08374.x"], "link_type": "ESOURCE", "link_sub_type": "PUB_PDF", 'item_count': 0, 'title': ['']},
@@ -213,4 +212,9 @@ class TestMemoryCache(unittest.TestCase):
         self.assertAlmostEqual(a['auth_norm'], b['auth_norm'])
         self.assertAlmostEqual(a['ref_norm'], b['ref_norm'])
 
-
+    def test_compute_bibgroup_facet(self):
+        p = Processor()
+        self.assertEqual({}, p._compute_bibgroup_facet({}))
+        self.assertEqual({'bibgroup_facet': ['a']}, p._compute_bibgroup_facet({'bibgroup': ['a']}))
+        self.assertEqual({'bibgroup_facet': ['a', 'b']}, p._compute_bibgroup_facet({'bibgroup': ['a', 'b']}))
+        self.assertEqual({'bibgroup_facet': ['a', 'b']}, p._compute_bibgroup_facet({'bibgroup': ['a', 'b', 'a']}))

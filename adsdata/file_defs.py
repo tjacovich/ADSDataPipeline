@@ -7,7 +7,7 @@ from collections import OrderedDict
 data_files = OrderedDict()
 data_files['canonical'] = {'path': 'bibcodes.list.can', 'default_value': ''}
 data_files['author'] = {'path': 'links/facet_authors/all.links', 'default_value': []}
-data_files['bibgroup'] = {'path': 'links/bibgroups/all.links', 'default_value': [], 'multiline': True, 'copy_default': True}
+data_files['bibgroup'] = {'path': 'links/bibgroups/all.links', 'default_value': [], 'multiline': True}
 data_files['citation'] = {'path': 'links/citation/all.links', 'default_value': [], 'multiline': True}
 data_files['download'] = {'path': 'links/reads/downloads.links', 'default_value': []}
 data_files['grants'] = {'path': 'links/grants/all.links', 'default_value': [], 'string_to_number': False, 'multiline': True}
@@ -74,4 +74,4 @@ data_files['data_link'] = {'path': 'links/facet_datasources/datasources.links', 
 # computed fields are based on data read from the above files
 # each function name is a member function in process and takes the entire nonbib dict as an argument
 computed_fields = OrderedDict()
-computed_fields['bibgroup_facet'] = {'converter_function': '_compute_bibgroup_facet', 'sorted': True}
+computed_fields['bibgroup_facet'] = {'converter_function': '_compute_bibgroup_facet'}

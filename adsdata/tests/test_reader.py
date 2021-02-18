@@ -316,7 +316,6 @@ EEEEEEEEEEEEEEEEEEE\tE""")):
         with patch('builtins.open', return_value=StringIO('2003ASPC..295..361M\tChandra/Technical\n2021MNRAS.502..510J\tGTC\n2021MNRAS.502..510J\tKeck')):
             f = reader.NonbibFileReader('bibgroup', data_files['bibgroup'])
             self.assertEqual({'bibgroup': ["Chandra/Technical"]}, f.read_value_for('2003ASPC..295..361M'))
-            # "bibgroup_facet": ["Chandra/Technical"]
             self.assertEqual({'bibgroup': []}, f.read_value_for('2004zzzz..295..361M'))
             self.assertEqual({"bibgroup": ["GTC", "Keck"]}, f.read_value_for('2021MNRAS.502..510J'))
             self.assertEqual({"bibgroup": []}, f.read_value_for('2021ZZZZZ.502..510J'))
