@@ -58,6 +58,7 @@ class TestMemoryCache(unittest.TestCase):
             d = processor._read_next_bibcode('2003ASPC..295..361M')
             n = processor._convert(d)
             a = {"read_count": 4, "bibcode": "2003ASPC..295..361M",
+                 'bibgroup': ['Chandra Technical'], 'bibgroup_facet': ['Chandra Technical'],
                  "data_links_rows": [{"url": ["http://articles.adsabs.harvard.edu/pdf/2003ASPC..295..361M"], "link_type": "ESOURCE", "link_sub_type": "ADS_PDF", 'item_count': 0, 'title': ['']},
                                      {"url": ["http://articles.adsabs.harvard.edu/full/2003ASPC..295..361M"], "link_type": "ESOURCE", "link_sub_type": "ADS_SCAN", 'item_count': 0, 'title': ['']},
                                      {"url": [""], "link_type": "TOC", "link_sub_type": "NA", 'item_count': 0, 'title': ['']}],
@@ -211,4 +212,9 @@ class TestMemoryCache(unittest.TestCase):
         self.assertAlmostEqual(a['auth_norm'], b['auth_norm'])
         self.assertAlmostEqual(a['ref_norm'], b['ref_norm'])
 
-
+    def test_compute_bibgroup_facet(self):
+        p = Processor()
+        self.assertEqual({}, p._compute_bibgroup_facet({}))
+        self.assertEqual({'bibgroup_facet': ['a']}, p._compute_bibgroup_facet({'bibgroup': ['a']}))
+        self.assertEqual({'bibgroup_facet': ['a', 'b']}, p._compute_bibgroup_facet({'bibgroup': ['a', 'b']}))
+        self.assertEqual({'bibgroup_facet': ['a', 'b']}, p._compute_bibgroup_facet({'bibgroup': ['a', 'b', 'a']}))
