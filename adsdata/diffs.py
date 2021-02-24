@@ -1,4 +1,4 @@
-
+import os
 from subprocess import PIPE, Popen
 
 from adsdata.file_defs import data_files
@@ -6,15 +6,9 @@ from adsdata import tasks
 
 logger = tasks.app.logger
 
-    #  - _sort_input_files(root_dir='logs/input/'):
-    #  - _compute_changed_bibcodes(root_dir='logs/input/'):
-    #  - _merge_changed_bibcodes(root_dir='logs/input/'):
-    #  - _execute(command, **kwargs):
-
-
 class Diff:
     """use shell commands to generate the list of changed bibcodes
-    
+
     compares today's nonbib data to yesterday's
     list of changed bibcodes are put in a file"""
 
@@ -30,7 +24,9 @@ class Diff:
     def execute(cls, command, **kwargs):
         """execute the passed shell command"""
         logger.info('in diffs, executing shell command {}'.format(command))
-        p = Popen(command, shell=True, stdout=PIPE, stderr=PIPE, **kwargs)
+        env = os.environ.copy()
+        env["LC_ALL"] = "C" # force sorting to be byte-wise (required to be compatible with Classic generated files)
+        p = Popen(command, shell=True, stdout=PIPE, stderr=PIPE, env=env, **kwargs)
         out, err = p.communicate()
         if p.returncode != 0:
             msg = 'error executing command {}, error code = {}, out = {}, err = {}'.format(command, p.returncode, out, err)
