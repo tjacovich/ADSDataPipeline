@@ -25,7 +25,7 @@ class Diff:
         """execute the passed shell command"""
         logger.info('in diffs, executing shell command {}'.format(command))
         env = os.environ.copy()
-        env["LC_ALL"] = "C" # force sorting to be byte-wise (required to be compatible with Classic generated files)
+        env["LC_ALL"] = "C" # force sorting to be byte-wise (compatible with python string comparison)
         p = Popen(command, shell=True, stdout=PIPE, stderr=PIPE, env=env, **kwargs)
         out, err = p.communicate()
         if p.returncode != 0:
