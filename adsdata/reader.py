@@ -50,13 +50,13 @@ class NonbibFileReader(object):
     def _readline(self):
         """return the next valid line or empty string at eof 
            used to read all files"""
-        self.read_count += 1
         if self.buffer:
             line = self.buffer
             self.buffer = None
             return line
         if self._iostream.closed:
             return ''
+        self.read_count += 1
         line = self._iostream.readline()
         while len(line) > 0 and len(line) < self.bibcode_length:
             self.logger.error('error, invalid short line in readline {} filename: {} at line {}, line length less then length of bibcode, line: {}'.format(self.filetype, self.filename, self.read_count, line))
