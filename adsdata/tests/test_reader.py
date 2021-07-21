@@ -147,7 +147,17 @@ EEEEEEEEEEEEEEEEEEE\tE""")):
                 x = r.read_value_for(bibcodes[i])
                 a = {'download': downloads[i]}
                 self.assertEqual(a, x, 'for bibcode ' + bibcodes[i])
-                
+
+    def test_grants(self):
+        with patch('adsputils.load_config', return_value={'INPUT_DATA_ROOT': './test/data1/config/'}):
+            r = reader.NonbibFileReader('grants', data_files['grants'])
+            v = r.read_value_for('1980AJ.....85..780L')
+            self.assertTrue('grants' in v)
+            self.assertEqual(v['grants'], ['NSF-AST 0725267', 'NSF-AST 1211349'])
+            v = r.read_value_for('2010AJ....140..933R')
+            self.assertTrue('grants' in v)
+            self.assertEqual(v['grants'], ['NSF-AST 0706980'])
+        
     def test_relevance(self):
         self.maxDiff = None
         with patch('adsputils.load_config', return_value={'INPUT_DATA_ROOT': './test/data1/config/'}):
