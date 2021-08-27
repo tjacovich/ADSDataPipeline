@@ -21,7 +21,7 @@ class TestMemoryCache(unittest.TestCase):
         with Processor(compute_metrics=False) as processor, patch('adsputils.load_config', return_value={'INPUT_DATA_ROOT': './test/data1/config/'}):
             self.assertEqual(len(data_files), len(processor.readers))
             self.assertTrue(isinstance(processor.readers['citation'], reader.NonbibFileReader))
-                            
+
         self.assertEqual(0, len(processor.readers))
 
     def test_read(self):
@@ -31,7 +31,7 @@ class TestMemoryCache(unittest.TestCase):
             self.assertEqual(d['canonical'], '1057wjlf.book.....C')
             self.assertEqual(len(d['author']), 1)
             self.assertEqual(d['author'], ['Chao, C'])
-            self.assertFalse(d['citation'])
+            self.assertEqual(d['citation'], ['1800RSPT...90..255H', '1800RSPT...90..284H', '1800RSPT...90..437H', '1826AnP....82..133S', '1840RSPT..130....1H', '1883RSPT..174..935R', '1885Natur..32..245L', '1890GSAB....1..411D', '1893GSAB....5..225C', '1894GSAB....6..199C', '1896AN....140..161J', '1898ApJ.....7...86H', '1900JG......8..135D', '1901AnP...309..104H', '1902RSPTA.199....1J', '1903AnP...317..449L', '1903GSAB...14..227N', '1904PhRvI..18..355N', '1905PhRvI..21..247N', '1905Sci....22..572G', '1906PhRvI..22..279N', '1906PhRvI..23...37N', '1906tdiu.book.....N', '1907AnP...329..164W', '1907PhRvI..25..362N', '1908AnP...330..377M', '1908Natur..78..366R', '1908PhRvI..26..312P', '1908PhRvI..26..454P', '1908PhRvI..27..209W', '1908PhRvI..27..367N', '1909AnP...333...75K', '1909RSPSA..82..172S', '1911PhRvI..32..492C', '1913LowOB...2...56S', '1913PhRv....2..450L', '1915AnP...353.1103S', '1915PA.....23...21S', '1916JG.....24..313B', '1917PhyZ...18..121E', '1917RSPSA..93..148R', '1918AJ.....31..185H', '1918ApJ....47....1M', '1920LicOB..10...64B', '1920Natur.105....8A', '1920Natur.106..468A', '1921ApJ....53..121B', '1921Natur.107..334A', '1921PhRv...18...31H', '1922Natur.109..813A', '1922Natur.110..664A', '1922Natur.110..732A', '1922PhRv...19..246M', '1922ZPhy...10..377F', '1924Natur.114..717A', '1924RSPSA.106..749B', '1925JOSA...11..233T', '1926RSPSA.110..709R', '1927ASSB...47...49L', '1927TeMAE..32..173W', '1928PCPS...24..180F', '1928RSPSA.119..173F', '1929PNAS...15..168H', '1929PhRv...33..954L', '1929PhRv...34...57M', '1929ZPhy...52..853K', '1930AnP...397..325B', '1930ApJ....71..102P', '1930JG.....38...88Q', '1930PhRv...35.1303E', '1930ZPhy...63..245L', '1931AnP...402..715K', '1931MNRAS..91..483L', '1931NW.....19..964K', '1931PhRv...37..405O', '1931PhRv...37.1276F', '1931PhRv...38.1827P', '1931RSPSA.132..487A', '1932AnP...406..531M', '1932JG.....40..305A', '1932PNAS...18..213E', '1932PhRv...39.1021B', '1932PhRv...41..364P', '1932PhRv...41..369B', '1932RSPSA.137..696Z', '1933ASSB...53...51L', '1933JChPh...1..515B', '1933RSPSA.142..142M', '1933RvMP....5...62R', '1933ZPhy...81..313M', '1933ZPhy...81..445B', '1933ZPhy...81..465F', '1934ApJ....79....8H', '1934GSAB...45.1017H', '1934JChPh...2..599O', '1934JRASC..28..303V', '1934PhRv...45....1B', '1934PhRv...45..488S', '1934RSPSA.146..483F'])
             self.assertEqual(d['download'], [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1])
             self.assertFalse(d['grants'])
             self.assertFalse(d['ned_objects'])
@@ -42,7 +42,7 @@ class TestMemoryCache(unittest.TestCase):
             self.assertEqual(d['readers'], ['4fc45951aa', '557ebfd055', '57fcb9018a'])
             self.assertEqual(d['reads'], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 21, 6])
             self.assertEqual(d['refereed'], {'refereed': False})
-            self.assertEqual(d['relevance'], {'norm_cites': 0, 'read_count': 25, 'boost': 0.32, 'citation_count': 0})
+            self.assertEqual(d['relevance'], {'norm_cites': 0, 'read_count': 25, 'boost': 0.32, 'deprecated_citation_count': 0})
 
     def test_protobuf(self):
         """make sure protobuf are created without an exception"""
@@ -188,7 +188,7 @@ class TestMemoryCache(unittest.TestCase):
                              "1997JGR...102.4463W", "1997Sci...278.1758S", "1998Sci...279.1686S"]
             for bib in PSSreferences:
                 Cache.get('reference')['1999P&SS...47..951S'].append(bib)
-                
+
             met = processor._compute_metrics(d)
             self.assertEqual(len(met['citations']), len(d['citations']), 'citations check')
             self.assertEqual(met['refereed_citation_num'], len(refereed) - 1)
@@ -199,7 +199,7 @@ class TestMemoryCache(unittest.TestCase):
                                  "bibcode": "1999P&SS...47..951S", "ref_norm": 0.02083333395421505}
             self.compare_citation_data(met['rn_citation_data'][0], rn_citation_data)
             self.compare_citation_data(met['rn_citation_data'][1], rn_citation_data1)
-            
+
             y = int(d['canonical'][:4])
             today = datetime.today()
             age = max(1.0, today.year - y + 1)

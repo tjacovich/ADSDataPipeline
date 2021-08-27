@@ -24,7 +24,7 @@ data_files['reads'] = {'path': 'links/reads/all.links', 'default_value': []}
 data_files['refereed'] = {'path': 'links/refereed/all.links', 'default_value': False, 'extra_values': {'property': ['REFEREED']}}
 data_files['reference'] = {'path': 'links/reference/all.links', 'default_value': [], 'multiline': True}
 data_files['relevance'] = {'path': 'links/relevance/docmetrics.tab', 'default_value': {},
-                           'subparts': ['boost', 'citation_count', 'read_count', 'norm_cites']}
+                           'subparts': ['boost', 'deprecated_citation_count', 'read_count', 'norm_cites']}
 data_files['simbad_objects'] = {'path': 'links/simbad/simbad_objects.tab', 'default_value': [],
                                 'string_to_number': False, 'multiline': True, 'tab_separated_pair': True}
 
