@@ -166,7 +166,7 @@ EEEEEEEEEEEEEEEEEEE\tE""")):
             self.assertTrue('relevance' in v)
             # self.assertEqual(4, len(v['relevance'].keys()))
             self.assertAlmostEqual(.11, v['relevance']['boost']) 
-            self.assertEqual(2, v['relevance']['citation_count'])
+            self.assertEqual(2, v['relevance']['deprecated_citation_count'])
             self.assertEqual(0, v['relevance']['read_count'])
             self.assertEqual(2386, v['relevance']['norm_cites'])
 
@@ -174,7 +174,7 @@ EEEEEEEEEEEEEEEEEEE\tE""")):
             self.assertTrue('relevance' in v)
             # self.assertEqual(4, len(v['relevance'].keys()))
             self.assertAlmostEqual(.15, v['relevance']['boost'])
-            self.assertEqual(0, v['relevance']['citation_count'])
+            self.assertEqual(0, v['relevance']['deprecated_citation_count'])
             self.assertEqual(4, v['relevance']['read_count'])
             self.assertEqual(0, v['relevance']['norm_cites'])
             

@@ -107,7 +107,7 @@ class Processor:
         return_value['esource'] = sorted(return_value['esource'])
         self._add_data_summary(return_value)
         return_value['data_links_rows'] = self._merge_data_links(return_value['data_links_rows'])
-        self._add_citation_count_norm_field(return_value, passed)
+        self._add_citation_count_fields(return_value, passed)
 
         # time for computed fields
         for k, v in computed_fields.items():
@@ -119,15 +119,18 @@ class Processor:
                 return_value.update(x)
 
         # finally, delete the keys not in the nonbib protobuf
-        not_needed = ['author', 'canonical', 'citation', 'download', 'item_count', 'nonarticle', 'ocrabstract', 'private', 'pub_openaccess',
+        not_needed = ['author', 'canonical', 'citation', 'deleted', 'deprecated_citation_count', 'doi', 'download', 'item_count', 'nonarticle',
+                      'ocrabstract', 'preprint', 'private', 'pub_openaccess', 'pub2arxiv',
                       'reads', 'refereed', 'relevance', 'toc']
         for n in not_needed:
             return_value.pop(n, None)
         return return_value
 
-    def _add_citation_count_norm_field(self, return_value, original):
+    def _add_citation_count_fields(self, return_value, original):
         author_count = len(original.get('author', ()))
-        return_value['citation_count_norm'] = return_value.get('citation_count', 0) / float(max(author_count, 1))
+        citation_count = len(return_value.get('citation', ()))
+        return_value['citation_count'] = citation_count
+        return_value['citation_count_norm'] = citation_count / float(max(author_count, 1))
 
     def _add_refereed_property(self, return_value):
         if'REFEREED' not in return_value['property']:
