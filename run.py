@@ -47,6 +47,10 @@ def main():
                                  required=True,
                                  type=str,
                                  help='Space delimited list of bibcodess.')
+    bibcodes_parser.add_argument('--CitationCapture',
+                            action='store_false',
+                            dest='compute_CC',
+                            help='Calculate protobufs only for CitationCapture records.')
     bibcodes_parser.add_argument('--no-metrics',
                                  dest='compute_metrics',
                                  action='store_false',
@@ -70,7 +74,7 @@ def main():
         if args.action == 'PROCESS_BIBCODES':
             # parse and sort
             bibcodes = args.bibcodes.sort()
-            with Processor(compute_metrics=args.compute_metrics) as processor:
+            with Processor(compute_metrics=args.compute_metrics, compute_CC=args.compute_CC) as processor:
                 processor.process_bibcodes(bibcodes)
             print('processedbibcodes {}'.format(bibcodes))
 
@@ -79,7 +83,7 @@ def main():
             # send bibcodes from file to processing in batches
             count = 0
             bibcodes = []
-            with open(args.input_filename, 'r') as f, Processor(compute_metrics=args.compute_metrics) as processor:
+            with open(args.input_filename, 'r') as f, Processor(compute_metrics=args.compute_metrics, compute_CC=args.compute_CC) as processor:
                 for line in f:
                     if count % 10000 == 0:
                         print('{}: processed bibcodes count = {}'.format(datetime.datetime.now(), count))

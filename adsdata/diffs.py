@@ -18,6 +18,7 @@ class Diff:
         cls._sort_input_files(CC_records = CC_records)
         cls._compute_changed_bibcodes(CC_records = CC_records)
         cls._merge_changed_bibcodes(CC_Records = CC_records)
+        cls._merge_network_files(CC_records = CC_records)
         logger.info('compute diffs completed')
 
     @classmethod
@@ -32,6 +33,25 @@ class Diff:
             msg = 'error executing command {}, error code = {}, out = {}, err = {}'.format(command, p.returncode, out, err)
             logger.error(msg)
             raise OSError(msg)
+   
+    @classmethod
+    def _merge_network_files(cls, root_dir='logs/input/', CC_records = False):
+        """Generate merged versions of the citation and reference files. Copy Classic files if CC_records not included."""
+        data_bib = data_files
+        for x in data_bib:
+            o = root_dir + '/current/' + data_bib[x]['path']+'.merged'
+            f = root_dir + '/current/' + data_bib[x]['path']
+            command = 'cat {} >> {}'.format(f, o)
+            logger.info('in diffs, concatenating changes from {}'.format(f))
+            cls.execute(command)
+        if CC_records:
+            data_bib = data_files_CC
+            for x in data_bib:
+                o = root_dir + '/current/' + data_bib[x]['path']+'.merged'
+                f = root_dir + '/current/' + data_bib[x]['path']
+                command = 'cat {} >> {}'.format(f, o)
+                logger.info('in diffs, concatenating changes from {}'.format(f))
+                cls.execute(command)
 
     @classmethod
     def _sort_input_files(cls, root_dir='logs/input/', CC_records = False):

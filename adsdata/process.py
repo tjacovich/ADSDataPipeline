@@ -11,8 +11,9 @@ from adsdata.file_defs import data_files, computed_fields
 class Processor:
     """use reader and cache to compute nonbib and metrics protobufs, send to master"""
 
-    def __init__(self, compute_metrics=True):
+    def __init__(self, compute_metrics=True, compute_CC = False):
         self.compute_metrics = compute_metrics
+        self.compute_CC = compute_CC
         self.logger = tasks.app.logger
         self.readers = {}
 
@@ -37,8 +38,9 @@ class Processor:
             try:
                 nonbib = self._read_next_bibcode(bibcode)
                 converted = self._convert(nonbib)
-                nonbib_proto = NonBibRecord(**converted)
-                nonbib_protos.nonbib_records.extend([nonbib_proto._data])
+                if not self.compute_CC:
+                    nonbib_proto = NonBibRecord(**converted)
+                    nonbib_protos.nonbib_records.extend([nonbib_proto._data])
                 if self.compute_metrics:
                     met = self._compute_metrics(nonbib)
                     metrics_proto = MetricsRecord(**met)
@@ -46,7 +48,7 @@ class Processor:
             except Exception as e:
                 self.logger.error('serious error in process.process_bibcodes for bibcode {}, error {}'.format(bibcode, e))
                 self.logger.exception('general stacktrace')
-        tasks.task_output_nonbib.delay(nonbib_protos)
+        if not self.compute_CC: tasks.task_output_nonbib.delay(nonbib_protos)
         tasks.task_output_metrics.delay(metrics_protos)
 
     def _convert(self, passed):
