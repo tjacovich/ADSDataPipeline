@@ -1,7 +1,7 @@
 import os
 from subprocess import PIPE, Popen
 
-from adsdata.file_defs import data_files, data_files_CC
+from adsdata.file_defs import data_files, data_files_CC, network_files
 from adsdata import tasks
 
 logger = tasks.app.logger
@@ -38,16 +38,17 @@ class Diff:
     def _merge_network_files(cls, root_dir='logs/input/', CC_records = False):
         """Generate merged versions of the citation and reference files. Copy Classic files if CC_records not included."""
         data_bib = data_files
-        for x in data_bib:
-            o = root_dir + '/current/' + data_bib[x]['path']+'.merged'
-            f = root_dir + '/current/' + data_bib[x]['path']
-            command = 'cat {} >> {}'.format(f, o)
-            logger.info('in diffs, concatenating changes from {}'.format(f))
-            cls.execute(command)
-        if CC_records:
+        if not CC_records:
+            for x in data_files_CC:
+                o = root_dir + '/current/' + network_files[x]['path']
+                f = root_dir + '/current/' + data_bib[x]['path']
+                command = 'cat {} >> {}'.format(f, o)
+                logger.info('in diffs, concatenating changes from {}'.format(f))
+                cls.execute(command)
+        else:
             data_bib = data_files_CC
-            for x in data_bib:
-                o = root_dir + '/current/' + data_bib[x]['path']+'.merged'
+            for x in data_files_CC:
+                o = root_dir + '/current/' + network_files[x]['path']
                 f = root_dir + '/current/' + data_bib[x]['path']
                 command = 'cat {} >> {}'.format(f, o)
                 logger.info('in diffs, concatenating changes from {}'.format(f))
