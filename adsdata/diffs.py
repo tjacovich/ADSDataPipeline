@@ -13,11 +13,11 @@ class Diff:
     list of changed bibcodes are put in a file"""
 
     @classmethod
-    def compute(cls):
+    def compute(cls, CC_records = False):
         logger.info('compute diffs starting')
-        cls._sort_input_files()
-        cls._compute_changed_bibcodes()
-        cls._merge_changed_bibcodes()
+        cls._sort_input_files(CC_records = CC_records)
+        cls._compute_changed_bibcodes(CC_records = CC_records)
+        cls._merge_changed_bibcodes(CC_Records = CC_records)
         logger.info('compute diffs completed')
 
     @classmethod
@@ -34,10 +34,15 @@ class Diff:
             raise OSError(msg)
 
     @classmethod
-    def _sort_input_files(cls, root_dir='logs/input/'):
+    def _sort_input_files(cls, root_dir='logs/input/', CC_records = False):
         """sort the input files in place"""
-        for x in data_files:
-            f = root_dir + '/current/' + data_files[x]['path']
+        if CC_records: 
+            data_bib = data_files_CC 
+        else: 
+            data_bib = data_files
+
+        for x in data_bib:
+            f = root_dir + '/current/' + data_bib[x]['path']
             command = 'sort -o {} {}'.format(f, f)
             logger.info('in diffs, sorting {}'.format(f))
             cls.execute(command)
@@ -64,13 +69,16 @@ class Diff:
             cls.execute(command)
 
     @classmethod
-    def _merge_changed_bibcodes(cls, root_dir='logs/input/'):
+    def _merge_changed_bibcodes(cls, root_dir='logs/input/', CC_records = False):
         """merge all the small change bibcode files into a single file"""
-        o = root_dir + '/current/' + 'changedBibcodes.txt'
+
         if CC_records: 
             data_bib = data_files_CC 
+            o = root_dir + '/current/' + 'changedBibcodes_CC.txt'
+
         else: 
             data_bib = data_files
+            o = root_dir + '/current/' + 'changedBibcodes.txt'
 
         for x in data_bib:
             f = root_dir + '/current/' + data_bib[x]['path'] + '.changedbibs'

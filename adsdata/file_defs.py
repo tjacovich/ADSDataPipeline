@@ -70,15 +70,17 @@ data_files['data_link'] = {'path': 'links/facet_datasources/datasources.links', 
                            'extra_values': {'link_type': 'DATA', 'property': ['DATA']}, 'multiline': True,
                            'subparts': ['link_sub_type', 'item_count', ['url'], ['title']]}
 
+# file properties definitions required to generate metrics for CitationCapture records
+# use dict to hold each input files and their properties and idiosycrasies
 data_files_CC = OrderedDict()
-data_files_CC['canonical'] = {'path': 'bibcodes.list.can', 'default_value': ''}
-data_files_CC['author'] = {'path': 'links/facet_authors/all.links', 'default_value': []}
-data_files_CC['bibgroup'] = {'path': 'links/bibgroups/all.links', 'default_value': [], 'multiline': True}
-data_files_CC['citation'] = {'path': 'links/citation/all.links', 'default_value': [], 'multiline': True}
-data_files_CC['download'] = {'path': 'links/reads/downloads.links', 'default_value': []}
-data_files_CC['reads'] = {'path': 'links/reads/all.links', 'default_value': []}
-data_files_CC['reference'] = {'path': 'links/reference/all.links', 'default_value': [], 'multiline': True}
-
+data_files_CC['canonical'] = {'path': 'bibcodes_CC.list.can', 'default_value': ''}
+data_files_CC['author'] = {'path': 'links/facet_authors/all_CC.links', 'default_value': []}
+data_files_CC['bibgroup'] = {'path': 'links/bibgroups/all_CC.links', 'default_value': [], 'multiline': True}
+data_files_CC['citation'] = {'path': 'links/citation/all_CC.links', 'default_value': [], 'multiline': True}
+#Not currently active, but included for potential future updates.
+#data_files_CC['download'] = {'path': 'links/reads/downloads.links', 'default_value': []}
+#data_files_CC['reads'] = {'path': 'links/reads/all.links', 'default_value': []}
+data_files_CC['reference'] = {'path': 'links/reference/all_CC.links', 'default_value': [], 'multiline': True}
 
 # computed fields are based on data read from the above files
 # each function name is a member function in process and takes the entire nonbib dict as an argument
