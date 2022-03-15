@@ -92,7 +92,5 @@ network_files = OrderedDict()
 network_files['citation']={'path': 'links/citation/all.links.merged', 'default_value': [], 'multiline': True}
 network_files['reference']={'path': 'links/reference/all.links.merged', 'default_value': [], 'multiline': True}
 network_files['refereed'] = {'path': 'links/refereed/all.links', 'default_value': False, 'extra_values': {'property': ['REFEREED']}}
-network_files['author'] = {'path': 'links/facet_authors/all.links.merged', 'default_value': []}
-network_files['bibgroup'] = {'path': 'links/bibgroups/all_CC.links.merged', 'default_value': [], 'multiline': True}
 
 
