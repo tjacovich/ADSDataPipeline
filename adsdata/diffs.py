@@ -1,7 +1,7 @@
 import os
 from subprocess import PIPE, Popen
 
-from adsdata.file_defs import data_files
+from adsdata.file_defs import data_files, data_files_CC
 from adsdata import tasks
 
 logger = tasks.app.logger
@@ -43,18 +43,23 @@ class Diff:
             cls.execute(command)
 
     @classmethod
-    def _compute_changed_bibcodes(cls, root_dir='logs/input/'):
-        """generates a list of changed bibcoces by comparing input files in directory named current to directory named previous
+    def _compute_changed_bibcodes(cls, root_dir='logs/input/', CC_records=False):
+        """generates a list of changed bibcodes by comparing input files in directory named current to directory named previous
 
         we use comm to compare each old file to corresponding new file, then strip changes down to just the canonical bibcodes
         for every input file we create a file of changed bibcodes"""
-        for x in data_files:
-            c = root_dir + '/current/' + data_files[x]['path']
-            p = root_dir + '/previous/' + data_files[x]['path']
-            changed_bibs = root_dir + '/current/' + data_files[x]['path'] + '.changedbibs'
+        if CC_records: 
+            data_bib = data_files_CC 
+        else: 
+            data_bib = data_files
+
+        for x in data_bib:
+            c = root_dir + '/current/' + data_bib[x]['path']
+            p = root_dir + '/previous/' + data_bib[x]['path']
+            changed_bibs = root_dir + '/current/' + data_bib[x]['path'] + '.changedbibs'
             # the process to computed changed bibcodes is:
             #          find changes  | remove comm leading tab, blank lines|get bibcode|dedup|filter out non-canonical  | current, previous, output file, today's canonical bibcodes
-            command = "comm -3 {} {} | sed 's/^[ \\t]*//g' | sed '/^$/d' | cut -f 1 | uniq | comm -1 -2 - {}  > {}".format(c, p, root_dir + '/current/' + data_files['canonical']['path'], changed_bibs)
+            command = "comm -3 {} {} | sed 's/^[ \\t]*//g' | sed '/^$/d' | cut -f 1 | uniq | comm -1 -2 - {}  > {}".format(c, p, root_dir + '/current/' + data_bib['canonical']['path'], changed_bibs)
             logger.info('in diffs, computing changes to {}'.format(c))
             cls.execute(command)
 
@@ -62,8 +67,13 @@ class Diff:
     def _merge_changed_bibcodes(cls, root_dir='logs/input/'):
         """merge all the small change bibcode files into a single file"""
         o = root_dir + '/current/' + 'changedBibcodes.txt'
-        for x in data_files:
-            f = root_dir + '/current/' + data_files[x]['path'] + '.changedbibs'
+        if CC_records: 
+            data_bib = data_files_CC 
+        else: 
+            data_bib = data_files
+
+        for x in data_bib:
+            f = root_dir + '/current/' + data_bib[x]['path'] + '.changedbibs'
             command = 'cat {} >> {}'.format(f, o)
             logger.info('in diffs, concatenating changes from {}'.format(f))
             cls.execute(command)
