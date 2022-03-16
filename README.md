@@ -21,17 +21,42 @@ avoid sending data to master for bibcodes that have not changed.
 Nonbib computes which bibcodes have changed data by comparing yesterday's
 data files to today's data files.  It computes a list of changed
 canonical bibcodes with a series of unix shell commands.  The command
-to compute changed bibcodes is "python3 run.py --diffs" and store them
-in the file at logs/input/current/changedBibcodes.txt.  
+to compute changed bibcodes is 
+```
+python3 run.py COMPUTE_DIFF
+```
+Changes to Classic bibcodes are stored in the file at logs/input/current/changedBibcodes.txt. Changes to CitationCapture bibcodes are stored in logs/input/current/changedBibcodes_CC.txt.
 
-This pipeline can send nonbib and metrics protobuf for a given list of
-bibcodes.  To update master with the changed bibcodes use the command
-"python3 run.py --filename logs/input/current/changedBibcodes.txt"
+This pipeline can send nonbib and metrics protobufs for a given list of
+bibcodes.  To update master with the changed bibcodes from a file use the command
+```
+#Process only Classic Records
+python3 run.py PROCESS_FILE logs/input/current/changedBibcodes.txt
+#Process Classic and CitationCapture Records
+python3 run.py PROCESS_FILE logs/input/current/changedBibcodes.txt --include-CitationCapture logs/input/current/changedBibcodes_CC.txt
+#Process only CitationCapture Records
+python3 run.py PROCESS_FILE logs/input/current/changedBibcodes_CC.txt --only-CitationCapture
+```
 To initialize master, simply process all of the canonical bibcodes:
-"python3 run.py --filename logs/input/current/bibcodes.list.can".
+```
+python3 run.py --filename logs/input/current/bibcodes.list.can --include-CitationCapture logs/input/current/bibcodes_CC.list.can
+```
 
+ADSDataPipeline can also process a space separated list of bibcodes using the command
+```
+#Only Classic Records
+python3 PROCESS_BIBCODES --bibcodes BIBCODE1 BIBCODE2 ... BIBCODEN
+#Only generated nonbib protobufs for Classic Records
+python3 PROCESS_BIBCODES --bibcodes BIBCODE1 BIBCODE2 ... BIBCODEN --no-metrics
+#Only CitationCapture Records
+python3 PROCESS_BIBCODES --bibcodes BIBCODE1 BIBCODE2 ... BIBCODEN --only-CitationCapture
+```
 
+### Notes:
 
+- **Because of the way bibcodes are handled, the pipeline cannot handle mixed groups of Classic and CitaitonCapture bibcodes specified with the `--bibcodes` flag.**
+
+- **For CitationCapture records, ADSDataPipeline only calculates the metrics protobuf so the `--no-metrics` flag cannot be called with any process that handles CitationCapture records.**
 # Memory Caches
 Computing metrics requires the entire reference and citation networks
 as well a list of all the refereed bibcodes.  The reference and
@@ -96,9 +121,6 @@ link_sub_type of NA.  To accomidate these constants each file property
 dict can include 'extra_values' that are merged with the data other for
 a bibcode.  This 'extra_values' field also holds 
 additional elements for the 'property' list.
-
-# Usage
-
 
 # Converting Nonbib Data To Protobuf
 The nonbib protobuf sent to master contains only a subset and a
