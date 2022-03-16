@@ -3,11 +3,19 @@
 
 import argparse
 import datetime
+import os
 
 from adsdata import tasks
 from adsdata.diffs import Diff
 from adsdata.process import Processor
 from adsdata.memory_cache import Cache
+
+from adsputils import setup_logging, load_config
+proj_home = os.path.realpath(os.path.dirname(__file__))
+config = load_config(proj_home=proj_home)
+logger = setup_logging('run.py', proj_home=proj_home,
+                        level=config.get('LOGGING_LEVEL', 'INFO'),
+                        attach_stdout=config.get('LOG_STDOUT', False))
 
 # python3 run.py PROCESS_BIBCODES bibcode1,bibcode2 [--no-metrics]
 # python3 run.py PROCESS_FILE filename.txt [--no-metrics]
@@ -33,6 +41,16 @@ def main():
                              action='store',
                              type=str,
                              help='Path to input file, required.')
+    file_parser.add_argument('--only-CitationCapture',
+                            action='store_false',
+                            dest='compute_CC',
+                            help='Calculate protobufs only for CitationCapture records.')
+    file_parser.add_argument('--include-CitationCapture',
+                            action='store',
+                            default=None,
+                            type=str,
+                            dest='CC_input',
+                            help='Path to input file, required.')    
     file_parser.add_argument('--no-metrics',
                              action='store_false',
                              dest='compute_metrics',
@@ -47,7 +65,7 @@ def main():
                                  required=True,
                                  type=str,
                                  help='Space delimited list of bibcodess.')
-    bibcodes_parser.add_argument('--CitationCapture',
+    bibcodes_parser.add_argument('--only-CitationCapture',
                             action='store_false',
                             dest='compute_CC',
                             help='Calculate protobufs only for CitationCapture records.')
@@ -57,7 +75,14 @@ def main():
                                  help='Only send nonbib protobufs to master, do not init cache or send metrics protobufs.')
     
     args = parser.parse_args()
-    
+    if args.CC_input and args.only_CC:
+        msg="Both --only-CitationCapture and --include-CitationCapture specified. Please check command line arguments."
+        logger.error(msg)
+        raise(msg)
+    if [bool(args.CC_input), args.only_CC, args.compute_metrics].count(True)>1:
+        msg="Cannot call --no-metrics with CitationCapture records included. Stopping."
+        logger.error(msg)
+        raise(msg)
     if args.action == 'COMPUTE_DIFF':
         #calculates Diff for all records sources
         if args.include_CC:
@@ -71,32 +96,60 @@ def main():
         # where with PROCESS_BIBCODES or PROCESS_FILE
         if args.compute_metrics:
             Cache.init()
+        
+        #Processes Bibcodes from CLI. Bibcodes must be either exlcusively from Classic or exclusively from CitationCapture.
         if args.action == 'PROCESS_BIBCODES':
             # parse and sort
             bibcodes = args.bibcodes.sort()
             with Processor(compute_metrics=args.compute_metrics, compute_CC=args.compute_CC) as processor:
                 processor.process_bibcodes(bibcodes)
-            print('processedbibcodes {}'.format(bibcodes))
+            logger.info('processedbibcodes {}'.format(bibcodes))
 
+        #Process bibcodes from files.
+        #If --include-CitationCapture, processes input_file as Classic and included file as CitationCapture records
+        #If  --only-CitationCapture, processes input_file as CitationCapture Records
+        #Else input_file is Classic records.
         elif args.action == 'PROCESS_FILE':
             Diff.execute('sort -o {} {}'.format(args.input_filename, args.input_filename))
             # send bibcodes from file to processing in batches
             count = 0
             bibcodes = []
-            with open(args.input_filename, 'r') as f, Processor(compute_metrics=args.compute_metrics, compute_CC=args.compute_CC) as processor:
-                for line in f:
-                    if count % 10000 == 0:
-                        print('{}: processed bibcodes count = {}'.format(datetime.datetime.now(), count))
-                    count = count + 1
-                    line = line.strip()
-                    if line:
-                        bibcodes.append(line)
-                        if len(bibcodes) % 100 == 0:
-                            processor.process_bibcodes(bibcodes)
-                            bibcodes = []
-                if len(bibcodes) > 0:
-                    processor.process_bibcodes(bibcodes)
-            print('{}: completed processing bibcodes from {}, count = {}'.format(datetime.datetime.now(), args.input_filename, count))
+
+            #First processes the classic file
+            if not args.compute_CC or args.CC_input:
+                with open(args.input_filename, 'r') as f, Processor(compute_metrics=args.compute_metrics) as processor:
+                    for line in f:
+                        if count % 10000 == 0:
+                            print('{}: processed bibcodes count = {}'.format(datetime.datetime.now(), count))
+                        count = count + 1
+                        line = line.strip()
+                        if line:
+                            bibcodes.append(line)
+                            if len(bibcodes) % 100 == 0:
+                                processor.process_bibcodes(bibcodes)
+                                bibcodes = []
+                    if len(bibcodes) > 0:
+                        processor.process_bibcodes(bibcodes)
+                logger.info('{}: completed processing bibcodes from {}, count = {}'.format(datetime.datetime.now(), args.input_filename, count))
+
+            #Then processes the CitationCapture file
+            if args.compute_CC or args.CC_input:
+                with open(args.CC_input, 'r') as f, Processor(compute_metrics=args.compute_metrics, Compute_CC=True) as processor:
+                    for line in f:
+                        if count % 10000 == 0:
+                            print('{}: processed bibcodes count = {}'.format(datetime.datetime.now(), count))
+                        count = count + 1
+                        line = line.strip()
+                        if line:
+                            bibcodes.append(line)
+                            if len(bibcodes) % 100 == 0:
+                                processor.process_bibcodes(bibcodes)
+                                bibcodes = []
+                    if len(bibcodes) > 0:
+                        processor.process_bibcodes(bibcodes)
+                logger.info('{}: completed processing bibcodes from {}, count = {}'.format(datetime.datetime.now(), args.input_filename, count))
+                            
+
 
 
 if __name__ == '__main__':

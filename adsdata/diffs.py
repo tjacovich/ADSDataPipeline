@@ -33,26 +33,6 @@ class Diff:
             msg = 'error executing command {}, error code = {}, out = {}, err = {}'.format(command, p.returncode, out, err)
             logger.error(msg)
             raise OSError(msg)
-   
-    @classmethod
-    def _merge_network_files(cls, root_dir='logs/input/', CC_records = False):
-        """Generate merged versions of the citation and reference files. Copy Classic files if CC_records not included."""
-        data_bib = data_files
-        if not CC_records:
-            for x in data_files_CC:
-                o = root_dir + '/current/' + network_files[x]['path']
-                f = root_dir + '/current/' + data_bib[x]['path']
-                command = 'cat {} >> {}'.format(f, o)
-                logger.info('in diffs, concatenating changes from {}'.format(f))
-                cls.execute(command)
-        else:
-            data_bib = data_files_CC
-            for x in data_files_CC:
-                o = root_dir + '/current/' + network_files[x]['path']
-                f = root_dir + '/current/' + data_bib[x]['path']
-                command = 'cat {} >> {}'.format(f, o)
-                logger.info('in diffs, concatenating changes from {}'.format(f))
-                cls.execute(command)
 
     @classmethod
     def _sort_input_files(cls, root_dir='logs/input/', CC_records = False):
@@ -110,5 +90,22 @@ class Diff:
         logger.info('in diffs, sorting changed bibcodes {}'.format(o))
         cls.execute(command)
 
-
+    @classmethod
+    def _merge_network_files(cls, root_dir='logs/input/', CC_records = False):
+        """Generate merged versions of the citation and reference files. Copy Classic files if CC_records not included."""
+        if not CC_records:
+            #We only want to generate merged files for ones that CitationCapture records need.
+            for x in data_files_CC:
+                o = root_dir + '/current/' + network_files[x]['path']
+                f = root_dir + '/current/' + data_files[x]['path']
+                command = 'cat {} >> {}'.format(f, o)
+                logger.info('in diffs, concatenating changes from {}'.format(f))
+                cls.execute(command)
+        else:
+            for x in data_files_CC:
+                o = root_dir + '/current/' + network_files[x]['path']
+                f = root_dir + '/current/' + data_files[x]['path']
+                command = 'cat {} >> {}'.format(f, o)
+                logger.info('in diffs, concatenating changes from {}'.format(f))
+                cls.execute(command)
 

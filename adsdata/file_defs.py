@@ -81,16 +81,17 @@ data_files_CC['reference'] = {'path': 'links/reference/all_CC.links', 'default_v
 #Not currently active, but included for potential future updates.
 #data_files_CC['download'] = {'path': 'links/reads/downloads.links', 'default_value': []}
 #data_files_CC['reads'] = {'path': 'links/reads/all.links', 'default_value': []}
-# computed fields are based on data read from the above files
-
-# each function name is a member function in process and takes the entire nonbib dict as an argument
-computed_fields = OrderedDict()
-computed_fields['bibgroup_facet'] = {'converter_function': '_compute_bibgroup_facet'}
 
 # file properties for the merged files required to handle both Classic and CitationCapture records.
 network_files = OrderedDict()
 network_files['citation']={'path': 'links/citation/all.links.merged', 'default_value': [], 'multiline': True}
 network_files['reference']={'path': 'links/reference/all.links.merged', 'default_value': [], 'multiline': True}
 network_files['refereed'] = {'path': 'links/refereed/all.links', 'default_value': False, 'extra_values': {'property': ['REFEREED']}}
+
+# computed fields are based on data read from the above files
+# each function name is a member function in process and takes the entire nonbib dict as an argument
+computed_fields = OrderedDict()
+computed_fields['bibgroup_facet'] = {'converter_function': '_compute_bibgroup_facet'}
+
 
 
