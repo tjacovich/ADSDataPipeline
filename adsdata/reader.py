@@ -41,7 +41,7 @@ class NonbibFileReader(object):
         del self._iostream
 
     def _pushline(self, s):
-        """the buffer is used when we read a line that is behond the desired bibcode
+        """the buffer is used when we read a line that is beyond the desired bibcode
            and we need to unread it"""
         if self.buffer:
             self.logger.error('error in file {}, {}, _pushline called when buffer was not empty.  File line number: read line: {}, buffer: {}'.format(self.filetype, self.filename, self.read_count, s, self.buffer))

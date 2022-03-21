@@ -78,9 +78,8 @@ data_files_CC['author'] = {'path': 'links/facet_authors/all_CC.links', 'default_
 data_files_CC['bibgroup'] = {'path': 'links/bibgroups/all_CC.links', 'default_value': [], 'multiline': True}
 data_files_CC['citation'] = {'path': 'links/citation/all_CC.links', 'default_value': [], 'multiline': True}
 data_files_CC['reference'] = {'path': 'links/reference/all_CC.links', 'default_value': [], 'multiline': True}
-#Not currently active, but included for potential future updates.
-#data_files_CC['download'] = {'path': 'links/reads/downloads.links', 'default_value': []}
-#data_files_CC['reads'] = {'path': 'links/reads/all.links', 'default_value': []}
+data_files_CC['download'] = {'path': 'links/reads/downloads.links', 'default_value': []}
+data_files_CC['reads'] = {'path': 'links/reads/all.links', 'default_value': []}
 
 # file properties for the merged files required to handle both Classic and CitationCapture records.
 network_files = OrderedDict()
