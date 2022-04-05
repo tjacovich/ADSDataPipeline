@@ -5,7 +5,7 @@ from collections import defaultdict
 from adsmsg import NonBibRecord, NonBibRecordList, MetricsRecord, MetricsRecordList
 from adsdata import tasks, reader
 from adsdata.memory_cache import Cache
-from adsdata.file_defs import data_files, computed_fields
+from adsdata.file_defs import data_files, data_files_CC, computed_fields
 
 
 class Processor:
@@ -13,6 +13,12 @@ class Processor:
     def __init__(self, compute_metrics=True, compute_CC = False):
         self.compute_metrics = compute_metrics
         self.compute_CC = compute_CC
+        self.data_dict = None
+        if self.compute_CC:
+            self.data_dict = data_files_CC
+        else:
+            self.data_dict = data_files
+
         self.logger = tasks.app.logger
         self.readers = {}
 
@@ -62,7 +68,7 @@ class Processor:
         return_value['property'] = set()
         return_value['esource'] = set()
         for filetype, value in passed.items():
-            file_properties = data_files[filetype]
+            file_properties = self.data_dict[filetype] #data_files[filetype]
             if filetype == 'canonical':
                 return_value['bibcode'] = passed['canonical']
             if (value is dict and dict and 'property' in value[filetype]):
@@ -189,7 +195,7 @@ class Processor:
 
     def _convert_data_link(self, filetype, value):
         """convert one data link row"""
-        file_properties = data_files[filetype]
+        file_properties = self.data_dict[filetype] #data_files[filetype]
         d = {}
         d['link_type'] = file_properties['extra_values']['link_type']
         link_sub_type_suffix = ''
@@ -224,7 +230,7 @@ class Processor:
         """read all the info for the passed bibcode into a dict"""
         d = {}
         d['canonical'] = bibcode
-        for x in data_files.keys():
+        for x in self.data_dict.keys(): #data_files.keys():
             if x != 'canonical':
                 v = self.readers[x].read_value_for(bibcode)
                 d.update(v)
@@ -233,11 +239,11 @@ class Processor:
     def _open_all(self):
         """open all input files"""
         self.readers = {}
-        for x in data_files.keys():
-            self.readers[x] = reader.NonbibFileReader(x, data_files[x])
+        for x in self.data_dict.keys(): #data_files.keys():
+            self.readers[x] = reader.NonbibFileReader(x, self.data_dict.keys()) #data_files[x])
 
     def _close_all(self):
-        for x in data_files.keys():
+        for x in self.data_dict.keys(): #data_files.keys():
             if x in self.readers:
                 self.readers[x].close()
                 self.readers.pop(x)
