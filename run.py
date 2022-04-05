@@ -45,12 +45,12 @@ def main():
                             action='store_false',
                             dest='compute_CC',
                             help='Calculate protobufs only for CitationCapture records.')
-    file_parser.add_argument('--include-CitationCapture',
+    file_parser.add_argument('--include-CitationCapture-file',
                             action='store',
                             default=None,
                             type=str,
                             dest='CC_input',
-                            help='Path to input file, required.')    
+                            help='Path to input file for CitationCapture records. Required for processing software records.')    
     file_parser.add_argument('--no-metrics',
                              action='store_false',
                              dest='compute_metrics',
@@ -76,7 +76,7 @@ def main():
     
     args = parser.parse_args()
     if args.CC_input and args.only_CC:
-        msg="Both --only-CitationCapture and --include-CitationCapture specified. Please check command line arguments."
+        msg="Both --only-CitationCapture and --include-CitationCapture-file specified. Please check command line arguments."
         logger.error(msg)
         raise(msg)
     if [bool(args.CC_input), args.only_CC, args.compute_metrics].count(True)>1:
