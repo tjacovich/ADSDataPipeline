@@ -82,9 +82,12 @@ data_files_CC['download'] = {'path': 'links/reads/downloads.links', 'default_val
 data_files_CC['reads'] = {'path': 'links/reads/all.links', 'default_value': []}
 
 # file properties for the merged files required to handle both Classic and CitationCapture records.
-network_files = OrderedDict()
+network_files = data_files.copy()
+network_files.pop('citation')
 network_files['citation']={'path': 'links/citation/all.links.merged', 'default_value': [], 'multiline': True}
+network_files.pop('reference')
 network_files['reference']={'path': 'links/reference/all.links.merged', 'default_value': [], 'multiline': True}
+network_files.pop('refereed')
 network_files['refereed'] = {'path': 'links/refereed/all.links', 'default_value': False, 'extra_values': {'property': ['REFEREED']}}
 
 # computed fields are based on data read from the above files
