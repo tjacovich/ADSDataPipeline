@@ -5,7 +5,6 @@ from adsputils import load_config
 
 class NonbibFileReader(object):
     """reads nonbib column files
-
     file reading/parsing is controlled by the file's properties dict in file_defs
     every line must start with a bibcode
     file must be sorted by bibcode
@@ -223,7 +222,7 @@ class NonbibFileReader(object):
         if s is None:
             return None
         if len(s) < self.bibcode_length:
-            self.logger.error('error, invalid short line in file {} {} at line {}, line length less then length of bibcode, line = {}'.format(self.filetype, self.filename, self.read_count, s))
+            self.logger.error('error, invalid short line in file {} {} at line {}, line length of {} is less then length of bibcode, line = {}'.format(self.filetype, self.filename, self.read_count, len(s), s))
             return s
         return s[:self.bibcode_length].strip()
 
