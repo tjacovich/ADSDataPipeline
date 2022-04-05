@@ -8,10 +8,8 @@ logger = tasks.app.logger
 
 class Diff:
     """use shell commands to generate the list of changed bibcodes
-
     compares today's nonbib data to yesterday's
     list of changed bibcodes are put in a file"""
-
     @classmethod
     def compute(cls, CC_records = False):
         logger.info('compute diffs starting')
@@ -51,7 +49,6 @@ class Diff:
     @classmethod
     def _compute_changed_bibcodes(cls, root_dir='logs/input/', CC_records=False):
         """generates a list of changed bibcodes by comparing input files in directory named current to directory named previous
-
         we use comm to compare each old file to corresponding new file, then strip changes down to just the canonical bibcodes
         for every input file we create a file of changed bibcodes"""
         if CC_records: 
@@ -72,7 +69,6 @@ class Diff:
     @classmethod
     def _merge_changed_bibcodes(cls, root_dir='logs/input/', CC_records = False):
         """merge all the small change bibcode files into a single file"""
-
         if CC_records: 
             data_bib = data_files_CC 
             o = root_dir + '/current/' + 'changedBibcodes_CC.txt'

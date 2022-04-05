@@ -11,7 +11,6 @@ from adsputils import load_config
 
 class Cache:
     """Provides the class method 'get' to obtain reference, citation or refereed data"""
-    
     _initted = False
     _reference_network = None
     _citation_network = None
@@ -47,7 +46,6 @@ class Cache:
 
 class _Network:
     """Reads network file into a python dict instance
-
     A network file (either citation network or reference network) contains two bibcodes
     on every line.  In the reference network file, the first bibcode references the
     second bibcode.  In the citation network file, the first bibcode is cited by the
@@ -95,10 +93,8 @@ class _Network:
 
 class _Refereed:
     """Reads refereed file into a  python set instance
-
     The input file contains one bibcode on each line.
     """
-
     bibcode_length = 19
     
     def __init__(self, filename):

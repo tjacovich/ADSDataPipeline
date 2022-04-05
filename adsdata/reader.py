@@ -9,7 +9,6 @@ class NonbibFileReader(object):
     every line must start with a bibcode
     file must be sorted by bibcode
     """
-
     bibcode_length = 19
     config = load_config()
 
@@ -114,10 +113,8 @@ class NonbibFileReader(object):
         
     def _convert_value(self, value):
         """convert file string line to something more useful
-        
         return a dict with filetype as key and value converted
         """
-
         if isinstance(value, str) and '\x00' in value:
             # there should not be nulls in strings
             self.logger.error('error string contained a null in file {} {}, line number: {}, value: {}'.format(self.filetype, self.filename, self.read_count, value))

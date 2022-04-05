@@ -10,7 +10,6 @@ from adsdata.file_defs import data_files, computed_fields
 
 class Processor:
     """use reader and cache to compute nonbib and metrics protobufs, send to master"""
-
     def __init__(self, compute_metrics=True, compute_CC = False):
         self.compute_metrics = compute_metrics
         self.compute_CC = compute_CC
@@ -26,7 +25,6 @@ class Processor:
 
     def process_bibcodes(self, bibcodes):
         """send nonbib and metrics records to master for the passed bibcodes
-
         for each bibcode
             read nonbib data from files, generate nonbib protobuf
             compute metrics, generate protobuf"""
@@ -53,7 +51,6 @@ class Processor:
 
     def _convert(self, passed):
         """convert full nonbib dict to what is needed for nonbib protobuf
-
         data links values are read from separate files so they are in separate dicts
             they must be merged into one field for the protobuf
         a couple fields are summarized
@@ -149,7 +146,6 @@ class Processor:
 
     def _add_data_summary(self, return_value):
         """iterate over all data links to create data field
-
         "data": ["CDS:2", "NED:1953", "SIMBAD:1", "Vizier:1"]"""
         total_link_counts = 0
         subtype_to_count = defaultdict(int)
@@ -248,7 +244,6 @@ class Processor:
 
     def _compute_metrics(self, d):
         """compute metrics dict based on the passed dict with the full nonbib record read and the cache"""
-
         bibcode = d['canonical']
         author_num = 1
         if 'author' in d and d['author']:

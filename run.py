@@ -5,7 +5,6 @@ import argparse
 import datetime
 import os
 
-from adsdata import tasks
 from adsdata.diffs import Diff
 from adsdata.process import Processor
 from adsdata.memory_cache import Cache
@@ -20,7 +19,6 @@ logger = setup_logging('run.py', proj_home=proj_home,
 # python3 run.py PROCESS_BIBCODES bibcode1,bibcode2 [--no-metrics]
 # python3 run.py PROCESS_FILE filename.txt [--no-metrics]
 #  python3 run.py COMPUTE_DIFF
-
 
 def main():
     parser = argparse.ArgumentParser(description='Process nonbib input data files and send data to master pipeline')
@@ -149,8 +147,6 @@ def main():
                         processor.process_bibcodes(bibcodes)
                 logger.info('{}: completed processing bibcodes from {}, count = {}'.format(datetime.datetime.now(), args.input_filename, count))
                             
-
-
 
 if __name__ == '__main__':
     main()
