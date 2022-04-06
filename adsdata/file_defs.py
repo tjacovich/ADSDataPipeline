@@ -71,7 +71,7 @@ data_files['data_link'] = {'path': 'links/facet_datasources/datasources.links', 
 
 # file properties definitions required to generate metrics for CitationCapture records
 # use dict to hold each input files and their properties and idiosycrasies
-data_files_CC = data_files.copy()
+data_files_CC =  OrderedDict()
 data_files_CC.pop('canonical', 'author', 'bibgroup', 'citation', 'reference', 'download', 'reads')
 data_files_CC['canonical'] = {'path': 'bibcodes_CC.list.can', 'default_value': ''}
 data_files_CC['author'] = {'path': 'links/facet_authors/all_CC.links', 'default_value': []}

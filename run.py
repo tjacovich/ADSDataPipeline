@@ -81,6 +81,7 @@ def main():
         msg="Cannot call --no-metrics with CitationCapture records included. Stopping."
         logger.error(msg)
         raise(msg)
+    
     if args.action == 'COMPUTE_DIFF':
         #calculates Diff for all records sources
         if args.include_CC:
@@ -88,8 +89,8 @@ def main():
             Diff.compute(CC_records=True)
         #Computes Diff for Classic records only if only_CC: False, else calculates only for CitationCapture records
         else:
-            Diff.compute(CC_records=args.only_CC)
-            
+            Diff.compute(CC_records=args.only_CC)     
+    
     else:
         # where with PROCESS_BIBCODES or PROCESS_FILE
         if args.compute_metrics:
