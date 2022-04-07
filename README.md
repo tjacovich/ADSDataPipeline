@@ -3,8 +3,7 @@ Reads flat/classic files with (mostly) non-bibliographic data and
 sends nonbib and metrics protobufs to master pipeline.
 
 # Overview
-There are ~30 input files.  Each row in every file begins with a
-begins with a bibcode.  It is followed by a tab character and then
+There are ~30 input files.  Each row in every file begins with a bibcode. It is followed by a tab character and then
 data from that bibcode.
 
 The nonbib protobuf holds a variety of information for a specific
