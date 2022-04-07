@@ -71,11 +71,9 @@ data_files['data_link'] = {'path': 'links/facet_datasources/datasources.links', 
 
 # file properties definitions required to generate metrics for CitationCapture records
 # use dict to hold each input files and their properties and idiosycrasies
-data_files_CC =  OrderedDict()
-data_files_CC.pop('canonical', 'author', 'bibgroup', 'citation', 'reference', 'download', 'reads')
+data_files_CC = OrderedDict()
 data_files_CC['canonical'] = {'path': 'bibcodes_CC.list.can', 'default_value': ''}
 data_files_CC['author'] = {'path': 'links/facet_authors/all_CC.links', 'default_value': []}
-data_files_CC['bibgroup'] = {'path': 'links/bibgroups/all_CC.links', 'default_value': [], 'multiline': True}
 data_files_CC['citation'] = {'path': 'links/citation/all_CC.links', 'default_value': [], 'multiline': True}
 data_files_CC['reference'] = {'path': 'links/reference/all_CC.links', 'default_value': [], 'multiline': True}
 data_files_CC['download'] = {'path': 'links/reads/downloads.links', 'default_value': []}
@@ -83,8 +81,8 @@ data_files_CC['reads'] = {'path': 'links/reads/all.links', 'default_value': []}
 
 # file properties for the merged files required to handle both Classic and CitationCapture records.
 network_files = OrderedDict()
-network_files['citation']={'path': 'links/citation/all.links.merged', 'default_value': [], 'multiline': True}
-network_files['reference']={'path': 'links/reference/all.links.merged', 'default_value': [], 'multiline': True}
+network_files['citation'] = {'path': 'links/citation/all.links.merged', 'default_value': [], 'multiline': True}
+network_files['reference'] = {'path': 'links/reference/all.links.merged', 'default_value': [], 'multiline': True}
 network_files['refereed'] = {'path': 'links/refereed/all.links', 'default_value': False, 'extra_values': {'property': ['REFEREED']}}
 
 # computed fields are based on data read from the above files
