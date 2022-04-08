@@ -53,7 +53,7 @@ python3 PROCESS_BIBCODES --bibcodes BIBCODE1 BIBCODE2 ... BIBCODEN --only-Citati
 
 ### Notes:
 
-- **Because of the way bibcodes are handled, the pipeline cannot handle mixed groups of Classic and CitaitonCapture bibcodes specified with the `--bibcodes` flag.**
+- **Because of the way bibcodes are handled, the pipeline cannot handle mixed groups of Classic and CitationCapture bibcodes specified with the `--bibcodes` flag.**
 
 - **For CitationCapture records, ADSDataPipeline only calculates the metrics protobuf so the `--no-metrics` flag cannot be called with any process that handles CitationCapture records.**
 # Memory Caches

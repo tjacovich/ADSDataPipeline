@@ -26,11 +26,12 @@ def main():
     diff_parser = subparsers.add_parser('COMPUTE_DIFF',
                                         help='Compute changed bibcodes by comparing current and previous data sets.  Changed bibcodes are stored in the file ./logs/input/current/changedBibcodes.txt.')
     diff_parser.add_argument('--include-CitationCapture',
-                            action='store_false',
+                            action='store_true',
+                            default=False,
                             dest='include_CC',
                             help='Calculate changes for Classic and CitationCapture records.')
     diff_parser.add_argument('--only-CitationCapture',
-                            action='store_false',
+                            action='store_true',
                             dest='only_CC',
                             help='Calculate changes only for CitationCapture records.')
     file_parser = subparsers.add_parser('PROCESS_FILE',
@@ -40,7 +41,8 @@ def main():
                              type=str,
                              help='Path to input file, required.')
     file_parser.add_argument('--only-CitationCapture',
-                            action='store_false',
+                            action='store_true',
+                            default=False,
                             dest='compute_CC',
                             help='Calculate protobufs only for CitationCapture records.')
     file_parser.add_argument('--include-CitationCapture-file',
@@ -73,14 +75,7 @@ def main():
                                  help='Only send nonbib protobufs to master, do not init cache or send metrics protobufs.')
     
     args = parser.parse_args()
-    if args.CC_input and args.only_CC:
-        msg="Both --only-CitationCapture and --include-CitationCapture-file specified. Please check command line arguments."
-        logger.error(msg)
-        raise(msg)
-    if [bool(args.CC_input), args.only_CC, args.compute_metrics].count(True)>1:
-        msg="Cannot call --no-metrics with CitationCapture records included. Stopping."
-        logger.error(msg)
-        raise(msg)
+
     
     if args.action == 'COMPUTE_DIFF':
         #calculates Diff for all records sources
@@ -92,6 +87,16 @@ def main():
             Diff.compute(CC_records=args.only_CC)     
     
     else:
+        if args.CC_input and args.only_CC:
+            msg="Both --only-CitationCapture and --include-CitationCapture-file specified. Please check command line arguments."
+            logger.error(msg)
+            raise Exception(msg)
+
+        if [bool(args.CC_input), args.only_CC, args.compute_metrics].count(True)>1:
+            msg="Cannot call --no-metrics with CitationCapture records included. Stopping."
+            logger.error(msg)
+            raise Exception(msg)
+
         # where with PROCESS_BIBCODES or PROCESS_FILE
         if args.compute_metrics:
             Cache.init()

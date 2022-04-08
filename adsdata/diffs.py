@@ -15,7 +15,7 @@ class Diff:
         logger.info('compute diffs starting')
         cls._sort_input_files(CC_records = CC_records)
         cls._compute_changed_bibcodes(CC_records = CC_records)
-        cls._merge_changed_bibcodes(CC_Records = CC_records)
+        cls._merge_changed_bibcodes(CC_records = CC_records)
         cls._merge_network_files(CC_records = CC_records)
         logger.info('compute diffs completed')
 
@@ -91,14 +91,14 @@ class Diff:
         """Generate merged versions of the citation and reference files. Copy Classic files if CC_records not included."""
         if not CC_records:
             #We only want to generate merged files for ones that CitationCapture records need.
-            for x in data_files_CC:
+            for x in network_files:
                 o = root_dir + '/current/' + network_files[x]['path']
                 f = root_dir + '/current/' + data_files[x]['path']
                 command = 'cat {} >> {}'.format(f, o)
                 logger.info('in diffs, concatenating changes from {}'.format(f))
                 cls.execute(command)
         else:
-            for x in data_files_CC:
+            for x in network_files:
                 o = root_dir + '/current/' + network_files[x]['path']
                 f = root_dir + '/current/' + data_files[x]['path']
                 command = 'cat {} >> {}'.format(f, o)
