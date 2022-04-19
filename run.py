@@ -93,16 +93,6 @@ def main():
             logger.info("Computing Diffs for {} Records".format(name))
 
     else:
-        if args.CC_input and args.compute_CC:
-            msg="Both --only-CitationCapture and --include-CitationCapture-file specified. Please check command line arguments."
-            logger.error(msg)
-            raise Exception(msg)
-
-        if [bool(args.CC_input), args.compute_CC, not bool(args.compute_metrics)].count(True)>1:
-            msg="Cannot call --no-metrics with CitationCapture records included. Stopping."
-            logger.error(msg)
-            raise Exception(msg)
-
         # where with PROCESS_BIBCODES or PROCESS_FILE
         if args.compute_metrics:
             Cache.init()
@@ -110,6 +100,11 @@ def main():
         #Processes Bibcodes from CLI. Bibcodes must be either exlcusively from Classic or exclusively from CitationCapture.
         if args.action == 'PROCESS_BIBCODES':
             # parse and sort
+            if [bool(args.compute_CC), not bool(args.compute_metrics)].count(True)>1:
+                msg="Cannot call --no-metrics with CitationCapture records included. Stopping."
+                logger.error(msg)
+                raise Exception(msg)
+
             bibcodes = args.bibcodes.sort()
             with Processor(compute_metrics=args.compute_metrics, compute_CC=args.compute_CC) as processor:
                 processor.process_bibcodes(bibcodes)
@@ -120,6 +115,16 @@ def main():
         #If  --only-CitationCapture, processes input_file as CitationCapture Records
         #Else input_file is Classic records.
         elif args.action == 'PROCESS_FILE':
+            if args.CC_input and args.compute_CC:
+                msg="Both --only-CitationCapture and --include-CitationCapture-file specified. Please check command line arguments."
+                logger.error(msg)
+                raise Exception(msg)
+
+            if [bool(args.CC_input), args.compute_CC, not bool(args.compute_metrics)].count(True)>1:
+                msg="Cannot call --no-metrics with CitationCapture records included. Stopping."
+                logger.error(msg)
+                raise Exception(msg)
+
             Diff.execute('sort -o {} {}'.format(args.input_filename, args.input_filename))
 
             # send bibcodes from file to processing in batches
