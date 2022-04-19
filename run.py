@@ -16,7 +16,7 @@ logger = setup_logging('run.py', proj_home=proj_home,
                         level=config.get('LOGGING_LEVEL', 'INFO'),
                         attach_stdout=config.get('LOG_STDOUT', False))
 
-# python3 run.py PROCESS_BIBCODES bibcode1,bibcode2 [--no-metrics]
+# python3 run.py PROCESS_BIBCODES --bibcodes bibcode1 bibcode2 ... bibcodeN [--no-metrics]
 # python3 run.py PROCESS_FILE filename.txt [--no-metrics]
 #  python3 run.py COMPUTE_DIFF
 
@@ -96,11 +96,12 @@ def main():
         if args.compute_metrics:
             Cache.init()
         
-        #Processes Bibcodes from CLI. Bibcodes must be either exlcusively from Classic or exclusively from CitationCapture.
+        #Processes Bibcodes from CLI. Bibcodes must be either exlcusively from Classic (default)
+        # or exclusively from CitationCapture with --only-CitationCapture. 
         if args.action == 'PROCESS_BIBCODES':
             # parse and sort
             if [bool(args.compute_CC), not bool(args.compute_metrics)].count(True)>1:
-                msg="Cannot call --no-metrics with CitationCapture records included. Stopping."
+                msg="Cannot call --no-metrics with CitationCapture records. Stopping."
                 logger.error(msg)
                 raise Exception(msg)
                 
@@ -109,7 +110,7 @@ def main():
                 processor.process_bibcodes(bibcodes)
             logger.info('processedbibcodes {}'.format(bibcodes))
 
-        #Process bibcodes from files.
+        #Process bibcodes from file.
         #If --include-CitationCapture, processes input_file as Classic and included file as CitationCapture records
         #If  --only-CitationCapture, processes input_file as CitationCapture Records
         #Else input_file is Classic records.

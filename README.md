@@ -38,7 +38,7 @@ python3 run.py PROCESS_FILE logs/input/current/changedBibcodes_CC.txt --only-Cit
 ```
 To initialize master, simply process all of the canonical bibcodes:
 ```
-python3 run.py --filename logs/input/current/bibcodes.list.can --include-CitationCapture logs/input/current/bibcodes_CC.list.can
+python3 run.py logs/input/current/bibcodes.list.can --include-CitationCapture logs/input/current/bibcodes_CC.list.can
 ```
 
 ADSDataPipeline can also process a space separated list of bibcodes using the command
@@ -63,6 +63,8 @@ citation networks are cached in memory into python defaultdicts where
 the key is the bibcode and the default value is [].  Refereed status
 is cached in a python set of bibcodes.  The cache code reads these
 files directly, it does not use the reader.py code.
+
+The `COMPUTE_DIFFS` command produces merged network files that contain both CitationCapture and Classic records. These can be identified by the `.merged` extension.
 
 # Nonbib Processing
 Conceptually, the code reads one line from each of the ~30 input

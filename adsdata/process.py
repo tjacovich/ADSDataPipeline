@@ -18,7 +18,6 @@ class Processor:
             self.data_dict = data_files_CC
         else:
             self.data_dict = data_files
-
         self.logger = tasks.app.logger
         self.readers = {}
 
