@@ -81,12 +81,17 @@ def main():
     if args.action == 'COMPUTE_DIFF':
         #calculates Diff for all records sources
         if args.include_CC:
+            logger.info("Computing Diffs for both Classic and CitationCapture Records")
             Diff.compute()
             Diff.compute(CC_records=True)
+        
         #Computes Diff for Classic records only if compute_CC: False, else calculates only for CitationCapture records
         else:
-            Diff.compute(CC_records=args.compute_CC)     
-    
+            Diff.compute(CC_records=args.compute_CC)   
+            name = "Classic"
+            if args.compute_CC: name = "CitationCapture" 
+            logger.info("Computing Diffs for {} Records".format(name))
+
     else:
         if args.CC_input and args.compute_CC:
             msg="Both --only-CitationCapture and --include-CitationCapture-file specified. Please check command line arguments."

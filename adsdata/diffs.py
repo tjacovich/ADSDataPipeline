@@ -89,19 +89,21 @@ class Diff:
     @classmethod
     def _merge_network_files(cls, root_dir='logs/input/', CC_records = False):
         """Generate merged versions of the citation and reference files. Copy Classic files if CC_records not included."""
-        if not CC_records:
-            #We only want to generate merged files for ones that CitationCapture records need.
-            for x in network_files:
+        #We only want to generate merged files for ones that CitationCapture records need.
+        for x in network_files:
+            if x != 'refereed':
                 o = root_dir + '/current/' + network_files[x]['path']
                 f = root_dir + '/current/' + data_files[x]['path']
-                command = 'cat {} >> {}'.format(f, o)
+                command = 'cat {} > {}'.format(f, o)
                 logger.info('in diffs, concatenating changes from {}'.format(f))
                 cls.execute(command)
-        else:
+        
+        if CC_records:
             for x in network_files:
-                o = root_dir + '/current/' + network_files[x]['path']
-                f = root_dir + '/current/' + data_files[x]['path']
-                command = 'cat {} >> {}'.format(f, o)
-                logger.info('in diffs, concatenating changes from {}'.format(f))
-                cls.execute(command)
+                if x != 'refereed':
+                    o = root_dir + '/current/' + network_files[x]['path']
+                    f = root_dir + '/current/' + data_files_CC[x]['path']
+                    command = 'cat {} >> {}'.format(f, o)
+                    logger.info('in diffs, concatenating changes from {}'.format(f))
+                    cls.execute(command)
 
