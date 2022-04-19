@@ -60,11 +60,10 @@ def main():
                                             help='Send data to master for the bibcodes provided on the command line.')
     bibcodes_parser.add_argument('--bibcodes',
                                 action='store',
-                                default=None,
+                                default=[],
                                 dest='bibcodes',
                                 nargs='+',
                                 required=True,
-                                type=str,
                                 help='Space delimited list of bibcodess.')
     bibcodes_parser.add_argument('--only-CitationCapture',
                                 action='store_false',
@@ -104,8 +103,8 @@ def main():
                 msg="Cannot call --no-metrics with CitationCapture records included. Stopping."
                 logger.error(msg)
                 raise Exception(msg)
-
-            bibcodes = args.bibcodes.sort()
+                
+            bibcodes = sorted(args.bibcodes)
             with Processor(compute_metrics=args.compute_metrics, compute_CC=args.compute_CC) as processor:
                 processor.process_bibcodes(bibcodes)
             logger.info('processedbibcodes {}'.format(bibcodes))
