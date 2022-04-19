@@ -240,7 +240,7 @@ class Processor:
         """open all input files"""
         self.readers = {}
         for x in self.data_dict.keys(): #data_files.keys():
-            self.readers[x] = reader.NonbibFileReader(x, self.data_dict.keys()) #data_files[x])
+            self.readers[x] = reader.NonbibFileReader(x, self.data_dict[x]) #data_files[x])
 
     def _close_all(self):
         for x in self.data_dict.keys(): #data_files.keys():

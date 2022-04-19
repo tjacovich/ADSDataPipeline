@@ -32,14 +32,15 @@ def main():
                             help='Calculate changes for Classic and CitationCapture records.')
     diff_parser.add_argument('--only-CitationCapture',
                             action='store_true',
-                            dest='only_CC',
+                            dest='compute_CC',
                             help='Calculate changes only for CitationCapture records.')
     file_parser = subparsers.add_parser('PROCESS_FILE',
                                         help='Send nonbib and metrics protobufs to master for the list of bibcodes in the provided file')
     file_parser.add_argument('input_filename',
-                             action='store',
-                             type=str,
-                             help='Path to input file, required.')
+                            action='store',
+                            default=None,
+                            type=str,
+                            help='Path to input file, required.')
     file_parser.add_argument('--only-CitationCapture',
                             action='store_true',
                             default=False,
@@ -52,27 +53,27 @@ def main():
                             dest='CC_input',
                             help='Path to input file for CitationCapture records. Required for processing software records.')    
     file_parser.add_argument('--no-metrics',
-                             action='store_false',
-                             dest='compute_metrics',
-                             help='Only send nonbib protobufs to master, do not init cache or send metrics protobufs')
+                            action='store_false',
+                            dest='compute_metrics',
+                            help='Only send nonbib protobufs to master, do not init cache or send metrics protobufs')
     bibcodes_parser = subparsers.add_parser('PROCESS_BIBCODES',
                                             help='Send data to master for the bibcodes provided on the command line.')
     bibcodes_parser.add_argument('--bibcodes',
-                                 action='store',
-                                 default=None,
-                                 dest='bibcodes',
-                                 nargs='+',
-                                 required=True,
-                                 type=str,
-                                 help='Space delimited list of bibcodess.')
+                                action='store',
+                                default=None,
+                                dest='bibcodes',
+                                nargs='+',
+                                required=True,
+                                type=str,
+                                help='Space delimited list of bibcodess.')
     bibcodes_parser.add_argument('--only-CitationCapture',
-                            action='store_false',
-                            dest='compute_CC',
-                            help='Calculate protobufs only for CitationCapture records.')
+                                action='store_false',
+                                dest='compute_CC',
+                                help='Calculate protobufs only for CitationCapture records.')
     bibcodes_parser.add_argument('--no-metrics',
-                                 dest='compute_metrics',
-                                 action='store_false',
-                                 help='Only send nonbib protobufs to master, do not init cache or send metrics protobufs.')
+                                dest='compute_metrics',
+                                action='store_false',
+                                help='Only send nonbib protobufs to master, do not init cache or send metrics protobufs.')
     
     args = parser.parse_args()
 
@@ -82,17 +83,17 @@ def main():
         if args.include_CC:
             Diff.compute()
             Diff.compute(CC_records=True)
-        #Computes Diff for Classic records only if only_CC: False, else calculates only for CitationCapture records
+        #Computes Diff for Classic records only if compute_CC: False, else calculates only for CitationCapture records
         else:
-            Diff.compute(CC_records=args.only_CC)     
+            Diff.compute(CC_records=args.compute_CC)     
     
     else:
-        if args.CC_input and args.only_CC:
+        if args.CC_input and args.compute_CC:
             msg="Both --only-CitationCapture and --include-CitationCapture-file specified. Please check command line arguments."
             logger.error(msg)
             raise Exception(msg)
 
-        if [bool(args.CC_input), args.only_CC, args.compute_metrics].count(True)>1:
+        if [bool(args.CC_input), args.compute_CC, not bool(args.compute_metrics)].count(True)>1:
             msg="Cannot call --no-metrics with CitationCapture records included. Stopping."
             logger.error(msg)
             raise Exception(msg)
@@ -115,6 +116,7 @@ def main():
         #Else input_file is Classic records.
         elif args.action == 'PROCESS_FILE':
             Diff.execute('sort -o {} {}'.format(args.input_filename, args.input_filename))
+
             # send bibcodes from file to processing in batches
             count = 0
             bibcodes = []
@@ -135,10 +137,18 @@ def main():
                     if len(bibcodes) > 0:
                         processor.process_bibcodes(bibcodes)
                 logger.info('{}: completed processing bibcodes from {}, count = {}'.format(datetime.datetime.now(), args.input_filename, count))
+            
+            count = 0
+            bibcodes = []
 
             #Then processes the CitationCapture file
             if args.compute_CC or args.CC_input:
-                with open(args.CC_input, 'r') as f, Processor(compute_metrics=args.compute_metrics, Compute_CC=True) as processor:
+                if args.CC_input:
+                    Diff.execute('sort -o {} {}'.format(args.CC_input, args.CC_input))
+                else:
+                    args.CC_input = args.input_filename
+                    Diff.execute('sort -o {} {}'.format(args.CC_input, args.CC_input))
+                with open(args.CC_input, 'r') as f, Processor(compute_metrics=args.compute_metrics, compute_CC=True) as processor:
                     for line in f:
                         if count % 10000 == 0:
                             print('{}: processed bibcodes count = {}'.format(datetime.datetime.now(), count))
