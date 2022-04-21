@@ -8,13 +8,8 @@ import os
 from adsdata.diffs import Diff
 from adsdata.process import Processor
 from adsdata.memory_cache import Cache
-
-from adsputils import setup_logging, load_config
-proj_home = os.path.realpath(os.path.dirname(__file__))
-config = load_config(proj_home=proj_home)
-logger = setup_logging('run.py', proj_home=proj_home,
-                        level=config.get('LOGGING_LEVEL', 'INFO'),
-                        attach_stdout=config.get('LOG_STDOUT', False))
+from adsdata.tasks import app
+logger = app.logger
 
 # python3 run.py PROCESS_BIBCODES --bibcodes bibcode1 bibcode2 ... bibcodeN [--no-metrics]
 # python3 run.py PROCESS_FILE filename.txt [--no-metrics]
@@ -136,7 +131,7 @@ def main():
                 with open(args.input_filename, 'r') as f, Processor(compute_metrics=args.compute_metrics) as processor:
                     for line in f:
                         if count % 10000 == 0:
-                            print('{}: processed bibcodes count = {}'.format(datetime.datetime.now(), count))
+                            logger.info('{}: processed bibcodes count = {}'.format(datetime.datetime.now(), count))
                         count = count + 1
                         line = line.strip()
                         if line:
@@ -161,7 +156,7 @@ def main():
                 with open(args.CC_input, 'r') as f, Processor(compute_metrics=args.compute_metrics, compute_CC=True) as processor:
                     for line in f:
                         if count % 10000 == 0:
-                            print('{}: processed bibcodes count = {}'.format(datetime.datetime.now(), count))
+                            logger.info('{}: processed bibcodes count = {}'.format(datetime.datetime.now(), count))
                         count = count + 1
                         line = line.strip()
                         if line:
@@ -171,7 +166,7 @@ def main():
                                 bibcodes = []
                     if len(bibcodes) > 0:
                         processor.process_bibcodes(bibcodes)
-                logger.info('{}: completed processing bibcodes from {}, count = {}'.format(datetime.datetime.now(), args.input_filename, count))
+                logger.info('{}: completed processing bibcodes from {}, count = {}'.format(datetime.datetime.now(), args.CC_input, count))
                             
 
 if __name__ == '__main__':
