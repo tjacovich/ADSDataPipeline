@@ -28,7 +28,8 @@ def task_output_nonbib(msg):
     :return: no return
     """
     app.logger.debug('Will forward this nonbib record: %s', msg)
-    app.forward_message(msg)
+    if not app.conf['CELERY_ALWAYS_EAGER']:
+        app.forward_message(msg)
 
 
 @app.task(queue='output-metrics')
@@ -46,7 +47,8 @@ def task_output_metrics(msg):
     :return: no return
     """
     app.logger.debug('Will forward this metrics record: %s', msg)
-    app.forward_message(msg)
+    if not app.conf['CELERY_ALWAYS_EAGER']:
+        app.forward_message(msg)
 
 
 if __name__ == '__main__':

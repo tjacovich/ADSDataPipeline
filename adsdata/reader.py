@@ -2,7 +2,6 @@
 from adsdata import tasks
 from adsputils import load_config
 
-
 class NonbibFileReader(object):
     """reads nonbib column files
     file reading/parsing is controlled by the file's properties dict in file_defs
@@ -64,7 +63,7 @@ class NonbibFileReader(object):
     
     def read_value_for(self, bibcode):
         """return the value from the file for the passed bibcode
-        returns default value if bibcoce is not in file
+        returns default value if bibcode is not in file
 
         return value is a dict with the key of self.filetype
 
@@ -102,7 +101,7 @@ class NonbibFileReader(object):
         value = []
         value.append(self._get_rest(current_line))
         current_line = self._readline()
-        while self.file_info.get('multiline', False) and (current_line is not None) and (bibcode == self._get_bibcode(current_line)):
+        while self.file_info.get('multiline', False) and (current_line not in [None, '']) and (bibcode == self._get_bibcode(current_line)):
             value.append(self._get_rest(current_line))
             current_line = self._readline()
             
