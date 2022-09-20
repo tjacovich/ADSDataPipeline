@@ -27,7 +27,7 @@ def main():
                             help='Calculate changes for Classic and CitationCapture records.')
     diff_parser.add_argument('--only-CitationCapture',
                             action='store_true',
-                            dest='compute_CC',
+                            dest='only_CC',
                             help='Calculate changes only for CitationCapture records.')
     file_parser = subparsers.add_parser('PROCESS_FILE',
                                         help='Send nonbib and metrics protobufs to master for the list of bibcodes in the provided file')
@@ -39,7 +39,7 @@ def main():
     file_parser.add_argument('--only-CitationCapture',
                             action='store_true',
                             default=False,
-                            dest='compute_CC',
+                            dest='only_CC',
                             help='Calculate protobufs only for CitationCapture records.')
     file_parser.add_argument('--include-CitationCapture-file',
                             action='store',
@@ -62,7 +62,7 @@ def main():
                                 help='Space delimited list of bibcodess.')
     bibcodes_parser.add_argument('--only-CitationCapture',
                                 action='store_false',
-                                dest='compute_CC',
+                                dest='only_CC',
                                 help='Calculate protobufs only for CitationCapture records.')
     bibcodes_parser.add_argument('--no-metrics',
                                 dest='compute_metrics',
@@ -79,11 +79,11 @@ def main():
             Diff.compute()
             Diff.compute(CC_records=True)
         
-        #Computes Diff for Classic records only if compute_CC: False, else calculates only for CitationCapture records
+        #Computes Diff for Classic records only if only_CC: False, else calculates only for CitationCapture records
         else:
-            Diff.compute(CC_records=args.compute_CC)   
+            Diff.compute(CC_records=args.only_CC)   
             name = "Classic"
-            if args.compute_CC: name = "CitationCapture" 
+            if args.only_CC: name = "CitationCapture" 
             logger.info("Computing Diffs for {} Records".format(name))
 
     else:
@@ -95,13 +95,13 @@ def main():
         # or exclusively from CitationCapture with --only-CitationCapture. 
         if args.action == 'PROCESS_BIBCODES':
             # parse and sort
-            if [bool(args.compute_CC), not bool(args.compute_metrics)].count(True)>1:
+            if [bool(args.only_CC), not bool(args.compute_metrics)].count(True)>1:
                 msg="Cannot call --no-metrics with CitationCapture records. Stopping."
                 logger.error(msg)
                 raise Exception(msg)
                 
             bibcodes = sorted(args.bibcodes)
-            with Processor(compute_metrics=args.compute_metrics, compute_CC=args.compute_CC) as processor:
+            with Processor(compute_metrics=args.compute_metrics, compute_CC=args.only_CC) as processor:
                 processor.process_bibcodes(bibcodes)
             logger.info('processedbibcodes {}'.format(bibcodes))
 
@@ -110,12 +110,12 @@ def main():
         #If  --only-CitationCapture, processes input_file as CitationCapture Records
         #Else input_file is Classic records.
         elif args.action == 'PROCESS_FILE':
-            if args.CC_input and args.compute_CC:
+            if args.CC_input and args.only_CC:
                 msg="Both --only-CitationCapture and --include-CitationCapture-file specified. Please check command line arguments."
                 logger.error(msg)
                 raise Exception(msg)
 
-            if [bool(args.CC_input), args.compute_CC, not bool(args.compute_metrics)].count(True)>1:
+            if [bool(args.CC_input), args.only_CC, not bool(args.compute_metrics)].count(True)>1:
                 msg="Cannot call --no-metrics with CitationCapture records included. Stopping."
                 logger.error(msg)
                 raise Exception(msg)
@@ -127,7 +127,7 @@ def main():
             bibcodes = []
 
             #First processes the classic file
-            if not args.compute_CC or args.CC_input:
+            if not args.only_CC:
                 with open(args.input_filename, 'r') as f, Processor(compute_metrics=args.compute_metrics) as processor:
                     for line in f:
                         if count % 10000 == 0:
@@ -147,12 +147,11 @@ def main():
             bibcodes = []
 
             #Then processes the CitationCapture file
-            if args.compute_CC or args.CC_input:
-                if args.CC_input:
-                    Diff.execute('sort -o {} {}'.format(args.CC_input, args.CC_input))
-                else:
-                    args.CC_input = args.input_filename
-                    Diff.execute('sort -o {} {}'.format(args.CC_input, args.CC_input))
+            if args.only_CC or args.CC_input:
+                #Stores input file name in CC_input file if we are running CC only.
+                if not args.CC_input: args.CC_input = args.input_filename
+                Diff.execute('sort -o {} {}'.format(args.CC_input, args.CC_input))
+
                 with open(args.CC_input, 'r') as f, Processor(compute_metrics=args.compute_metrics, compute_CC=True) as processor:
                     for line in f:
                         if count % 10000 == 0:
