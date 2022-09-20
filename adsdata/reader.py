@@ -2,15 +2,12 @@
 from adsdata import tasks
 from adsputils import load_config
 
-
 class NonbibFileReader(object):
     """reads nonbib column files
-
     file reading/parsing is controlled by the file's properties dict in file_defs
     every line must start with a bibcode
     file must be sorted by bibcode
     """
-
     bibcode_length = 19
     config = load_config()
 
@@ -41,7 +38,7 @@ class NonbibFileReader(object):
         del self._iostream
 
     def _pushline(self, s):
-        """the buffer is used when we read a line that is behond the desired bibcode
+        """the buffer is used when we read a line that is beyond the desired bibcode
            and we need to unread it"""
         if self.buffer:
             self.logger.error('error in file {}, {}, _pushline called when buffer was not empty.  File line number: read line: {}, buffer: {}'.format(self.filetype, self.filename, self.read_count, s, self.buffer))
@@ -66,7 +63,7 @@ class NonbibFileReader(object):
     
     def read_value_for(self, bibcode):
         """return the value from the file for the passed bibcode
-        returns default value if bibcoce is not in file
+        returns default value if bibcode is not in file
 
         return value is a dict with the key of self.filetype
 
@@ -104,7 +101,7 @@ class NonbibFileReader(object):
         value = []
         value.append(self._get_rest(current_line))
         current_line = self._readline()
-        while self.file_info.get('multiline', False) and (current_line is not None) and (bibcode == self._get_bibcode(current_line)):
+        while self.file_info.get('multiline', False) and (current_line not in [None, '']) and (bibcode == self._get_bibcode(current_line)):
             value.append(self._get_rest(current_line))
             current_line = self._readline()
             
@@ -115,10 +112,8 @@ class NonbibFileReader(object):
         
     def _convert_value(self, value):
         """convert file string line to something more useful
-        
         return a dict with filetype as key and value converted
         """
-
         if isinstance(value, str) and '\x00' in value:
             # there should not be nulls in strings
             self.logger.error('error string contained a null in file {} {}, line number: {}, value: {}'.format(self.filetype, self.filename, self.read_count, value))
@@ -223,7 +218,7 @@ class NonbibFileReader(object):
         if s is None:
             return None
         if len(s) < self.bibcode_length:
-            self.logger.error('error, invalid short line in file {} {} at line {}, line length less then length of bibcode, line = {}'.format(self.filetype, self.filename, self.read_count, s))
+            self.logger.error('error, invalid short line in file {} {} at line {}, line length of {} is less then length of bibcode, line = {}'.format(self.filetype, self.filename, self.read_count, len(s), s))
             return s
         return s[:self.bibcode_length].strip()
 

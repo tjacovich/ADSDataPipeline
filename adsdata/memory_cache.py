@@ -2,7 +2,7 @@
 from collections import defaultdict
 
 from adsdata import tasks
-from adsdata.file_defs import data_files
+from adsdata.file_defs import network_files
 from adsputils import load_config
 
 # Code for in-memory caches of citation network, reference network and refereed list
@@ -11,7 +11,6 @@ from adsputils import load_config
 
 class Cache:
     """Provides the class method 'get' to obtain reference, citation or refereed data"""
-    
     _initted = False
     _reference_network = None
     _citation_network = None
@@ -39,15 +38,14 @@ class Cache:
         if cls._initted is False:
             config = load_config()
             root_dir = config.get('INPUT_DATA_ROOT', './adsdata/tests/data1/config/')
-            cls._reference_network = _Network(root_dir + data_files['reference']['path'])
-            cls._citation_network = _Network(root_dir + data_files['citation']['path'])
-            cls._refereed_list = _Refereed(root_dir + data_files['refereed']['path'])
+            cls._reference_network = _Network(root_dir + network_files['reference']['path'])
+            cls._citation_network = _Network(root_dir + network_files['citation']['path'])
+            cls._refereed_list = _Refereed(root_dir + network_files['refereed']['path'])
             cls._initted = True
 
 
 class _Network:
     """Reads network file into a python dict instance
-
     A network file (either citation network or reference network) contains two bibcodes
     on every line.  In the reference network file, the first bibcode references the
     second bibcode.  In the citation network file, the first bibcode is cited by the
@@ -95,10 +93,8 @@ class _Network:
 
 class _Refereed:
     """Reads refereed file into a  python set instance
-
     The input file contains one bibcode on each line.
     """
-
     bibcode_length = 19
     
     def __init__(self, filename):

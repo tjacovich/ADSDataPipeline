@@ -5,14 +5,19 @@ from collections import defaultdict
 from adsmsg import NonBibRecord, NonBibRecordList, MetricsRecord, MetricsRecordList
 from adsdata import tasks, reader
 from adsdata.memory_cache import Cache
-from adsdata.file_defs import data_files, computed_fields
+from adsdata.file_defs import data_files, data_files_CC, computed_fields
 
 
 class Processor:
     """use reader and cache to compute nonbib and metrics protobufs, send to master"""
-
-    def __init__(self, compute_metrics=True):
+    def __init__(self, compute_metrics=True, compute_CC = False):
         self.compute_metrics = compute_metrics
+        self.compute_CC = compute_CC
+        self.data_dict = None
+        if self.compute_CC:
+            self.data_dict = data_files_CC
+        else:
+            self.data_dict = data_files
         self.logger = tasks.app.logger
         self.readers = {}
 
@@ -25,7 +30,6 @@ class Processor:
 
     def process_bibcodes(self, bibcodes):
         """send nonbib and metrics records to master for the passed bibcodes
-
         for each bibcode
             read nonbib data from files, generate nonbib protobuf
             compute metrics, generate protobuf"""
@@ -37,8 +41,9 @@ class Processor:
             try:
                 nonbib = self._read_next_bibcode(bibcode)
                 converted = self._convert(nonbib)
-                nonbib_proto = NonBibRecord(**converted)
-                nonbib_protos.nonbib_records.extend([nonbib_proto._data])
+                if not self.compute_CC:
+                    nonbib_proto = NonBibRecord(**converted)
+                    nonbib_protos.nonbib_records.extend([nonbib_proto._data])
                 if self.compute_metrics:
                     met = self._compute_metrics(nonbib)
                     metrics_proto = MetricsRecord(**met)
@@ -46,12 +51,11 @@ class Processor:
             except Exception as e:
                 self.logger.error('serious error in process.process_bibcodes for bibcode {}, error {}'.format(bibcode, e))
                 self.logger.exception('general stacktrace')
-        tasks.task_output_nonbib.delay(nonbib_protos)
+        if not self.compute_CC: tasks.task_output_nonbib.delay(nonbib_protos)
         tasks.task_output_metrics.delay(metrics_protos)
 
     def _convert(self, passed):
         """convert full nonbib dict to what is needed for nonbib protobuf
-
         data links values are read from separate files so they are in separate dicts
             they must be merged into one field for the protobuf
         a couple fields are summarized
@@ -63,7 +67,7 @@ class Processor:
         return_value['property'] = set()
         return_value['esource'] = set()
         for filetype, value in passed.items():
-            file_properties = data_files[filetype]
+            file_properties = self.data_dict[filetype] #data_files[filetype]
             if filetype == 'canonical':
                 return_value['bibcode'] = passed['canonical']
             if (value is dict and dict and 'property' in value[filetype]):
@@ -147,7 +151,6 @@ class Processor:
 
     def _add_data_summary(self, return_value):
         """iterate over all data links to create data field
-
         "data": ["CDS:2", "NED:1953", "SIMBAD:1", "Vizier:1"]"""
         total_link_counts = 0
         subtype_to_count = defaultdict(int)
@@ -191,7 +194,7 @@ class Processor:
 
     def _convert_data_link(self, filetype, value):
         """convert one data link row"""
-        file_properties = data_files[filetype]
+        file_properties = self.data_dict[filetype] #data_files[filetype]
         d = {}
         d['link_type'] = file_properties['extra_values']['link_type']
         link_sub_type_suffix = ''
@@ -226,7 +229,7 @@ class Processor:
         """read all the info for the passed bibcode into a dict"""
         d = {}
         d['canonical'] = bibcode
-        for x in data_files.keys():
+        for x in self.data_dict.keys(): #data_files.keys():
             if x != 'canonical':
                 v = self.readers[x].read_value_for(bibcode)
                 d.update(v)
@@ -235,18 +238,17 @@ class Processor:
     def _open_all(self):
         """open all input files"""
         self.readers = {}
-        for x in data_files.keys():
-            self.readers[x] = reader.NonbibFileReader(x, data_files[x])
+        for x in self.data_dict.keys(): #data_files.keys():
+            self.readers[x] = reader.NonbibFileReader(x, self.data_dict[x]) #data_files[x])
 
     def _close_all(self):
-        for x in data_files.keys():
+        for x in self.data_dict.keys(): #data_files.keys():
             if x in self.readers:
                 self.readers[x].close()
                 self.readers.pop(x)
 
     def _compute_metrics(self, d):
         """compute metrics dict based on the passed dict with the full nonbib record read and the cache"""
-
         bibcode = d['canonical']
         author_num = 1
         if 'author' in d and d['author']:

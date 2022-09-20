@@ -27,7 +27,6 @@ data_files['relevance'] = {'path': 'links/relevance/docmetrics.tab', 'default_va
                            'subparts': ['boost', 'deprecated_citation_count', 'read_count', 'norm_cites']}
 data_files['simbad_objects'] = {'path': 'links/simbad/simbad_objects.tab', 'default_value': [],
                                 'string_to_number': False, 'multiline': True, 'tab_separated_pair': True}
-
 data_files['pub_html'] = {'path': 'links/electr/all.links', 'default_value': {},
                           'extra_values': {'link_type': 'ESOURCE', 'link_sub_type': 'PUB_HTML'},
                           'subparts': [['url']]}
@@ -70,8 +69,26 @@ data_files['data_link'] = {'path': 'links/facet_datasources/datasources.links', 
                            'extra_values': {'link_type': 'DATA', 'property': ['DATA']}, 'multiline': True,
                            'subparts': ['link_sub_type', 'item_count', ['url'], ['title']]}
 
+# file properties definitions required to generate metrics for CitationCapture records
+# use dict to hold each input files and their properties and idiosycrasies
+data_files_CC = OrderedDict()
+data_files_CC['canonical'] = {'path': 'bibcodes_CC.list.can', 'default_value': ''}
+data_files_CC['author'] = {'path': 'links/facet_authors/all_CC.links', 'default_value': []}
+data_files_CC['citation'] = {'path': 'links/citation/all_CC.links', 'default_value': [], 'multiline': True}
+data_files_CC['reference'] = {'path': 'links/reference/all_CC.links', 'default_value': [], 'multiline': True}
+data_files_CC['download'] = {'path': 'links/reads/downloads.links', 'default_value': []}
+data_files_CC['reads'] = {'path': 'links/reads/all.links', 'default_value': []}
+
+# file properties for the merged files required to handle both Classic and CitationCapture records.
+network_files = OrderedDict()
+network_files['citation'] = {'path': 'links/citation/all.links.merged', 'default_value': [], 'multiline': True}
+network_files['reference'] = {'path': 'links/reference/all.links.merged', 'default_value': [], 'multiline': True}
+network_files['refereed'] = {'path': 'links/refereed/all.links', 'default_value': False, 'extra_values': {'property': ['REFEREED']}}
 
 # computed fields are based on data read from the above files
 # each function name is a member function in process and takes the entire nonbib dict as an argument
 computed_fields = OrderedDict()
 computed_fields['bibgroup_facet'] = {'converter_function': '_compute_bibgroup_facet'}
+
+
+
