@@ -73,9 +73,9 @@ data_files['data_link'] = {'path': 'links/facet_datasources/datasources.links', 
 # use dict to hold each input files and their properties and idiosycrasies
 data_files_CC = OrderedDict()
 data_files_CC['canonical'] = {'path': 'bibcodes_CC.list.can', 'default_value': ''}
-data_files_CC['author'] = {'path': 'links/facet_authors/all_CC.links', 'default_value': []}
-data_files_CC['citation'] = {'path': 'links/citation/all_CC.links', 'default_value': [], 'multiline': True}
-data_files_CC['reference'] = {'path': 'links/reference/all_CC.links', 'default_value': [], 'multiline': True}
+data_files_CC['author'] = {'path': 'links/facet_authors/facet_authors_CC.list', 'default_value': []}
+data_files_CC['citation'] = {'path': 'links/citation/citations_CC.list', 'default_value': [], 'multiline': True}
+data_files_CC['reference'] = {'path': 'links/reference/references_CC.list', 'default_value': [], 'multiline': True}
 data_files_CC['download'] = {'path': 'links/reads/downloads.links', 'default_value': []}
 data_files_CC['reads'] = {'path': 'links/reads/all.links', 'default_value': []}
 

@@ -32,7 +32,7 @@ bibcodes.  To update master with the changed bibcodes from a file use the comman
 #Process only Classic Records
 python3 run.py PROCESS_FILE logs/input/current/changedBibcodes.txt
 #Process Classic and CitationCapture Records
-python3 run.py PROCESS_FILE logs/input/current/changedBibcodes.txt --include-CitationCapture logs/input/current/changedBibcodes_CC.txt
+python3 run.py PROCESS_FILE logs/input/current/changedBibcodes.txt --include-CitationCapture-file logs/input/current/changedBibcodes_CC.txt
 #Process only CitationCapture Records
 python3 run.py PROCESS_FILE logs/input/current/changedBibcodes_CC.txt --only-CitationCapture
 ```

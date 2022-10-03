@@ -60,6 +60,12 @@ class Diff:
             c = root_dir + '/current/' + data_bib[x]['path']
             p = root_dir + '/previous/' + data_bib[x]['path']
             changed_bibs = root_dir + '/current/' + data_bib[x]['path'] + '.changedbibs'
+            
+            #if the path does not exist in previous/ (possible for CC_records) initialize an empty file.
+            if not os.path.isfile(p) and CC_records:
+                command = "touch -d {}".format(p)
+                cls.execute(command)
+
             # the process to computed changed bibcodes is:
             #          find changes  | remove comm leading tab, blank lines|get bibcode|dedup|filter out non-canonical  | current, previous, output file, today's canonical bibcodes
             command = "comm -3 {} {} | sed 's/^[ \\t]*//g' | sed '/^$/d' | cut -f 1 | uniq | comm -1 -2 - {}  > {}".format(c, p, root_dir + '/current/' + data_bib['canonical']['path'], changed_bibs)
