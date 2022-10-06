@@ -1,6 +1,7 @@
 
 from collections import OrderedDict
-
+from adsputils import load_config
+config = load_config()
 # file properties definitions
 # use dict to hold each input files and their properties and idiosycrasies
 
@@ -72,12 +73,15 @@ data_files['data_link'] = {'path': 'links/facet_datasources/datasources.links', 
 # file properties definitions required to generate metrics for CitationCapture records
 # use dict to hold each input files and their properties and idiosycrasies
 data_files_CC = OrderedDict()
-data_files_CC['canonical'] = {'path': 'bibcodes_CC.list.can', 'default_value': ''}
-data_files_CC['author'] = {'path': 'links/facet_authors/facet_authors_CC.list', 'default_value': []}
-data_files_CC['citation'] = {'path': 'links/citation/citations_CC.list', 'default_value': [], 'multiline': True}
-data_files_CC['reference'] = {'path': 'links/reference/references_CC.list', 'default_value': [], 'multiline': True}
+env_name = config.get('ENVIRONMENT', 'back-dev')
+data_files_CC['canonical'] = {'path': 'bibcodes_CC.list.can.'+str(env_name), 'default_value': ''}
+data_files_CC['author'] = {'path': 'links/facet_authors/facet_authors_CC.list.'+str(env_name), 'default_value': []}
+data_files_CC['citation'] = {'path': 'links/citation/citations_CC.list.'+str(env_name), 'default_value': [], 'multiline': True}
+data_files_CC['reference'] = {'path': 'links/reference/references_CC.list.'+str(env_name), 'default_value': [], 'multiline': True}
+
 data_files_CC['download'] = {'path': 'links/reads/downloads.links', 'default_value': []}
 data_files_CC['reads'] = {'path': 'links/reads/all.links', 'default_value': []}
+
 
 # file properties for the merged files required to handle both Classic and CitationCapture records.
 network_files = OrderedDict()

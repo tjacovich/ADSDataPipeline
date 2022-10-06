@@ -112,4 +112,7 @@ class Diff:
                     command = 'cat {} >> {}'.format(f, o)
                     logger.info('in diffs, concatenating changes from {}'.format(f))
                     cls.execute(command)
+                    command = 'sort --unique -o {} {}'.format(o, o)
+                    logger.info('in diffs, sorting entries in {}'.format(o))
+                    cls.execute(command)
 
