@@ -99,10 +99,16 @@ class NonbibFileReader(object):
         # at this point, we have the first line with the bibcode in it
         # roll up possible other values on adjacent lines in file
         value = []
-        value.append(self._get_rest(current_line))
+        if self.file_info['path'] == 'links/gpn/all.links':
+            value.append("/".join(self._get_rest(current_line).split("\t")))
+        else:
+            value.append(self._get_rest(current_line))
         current_line = self._readline()
         while self.file_info.get('multiline', False) and (current_line not in [None, '']) and (bibcode == self._get_bibcode(current_line)):
-            value.append(self._get_rest(current_line))
+            if self.file_info['path'] == 'links/gpn/all.links':
+                value.append("/".join(self._get_rest(current_line).split("\t")))
+            else:
+                value.append(self._get_rest(current_line))
             current_line = self._readline()
             
         # at this point we have read beyond the desired bibcode, must back up
