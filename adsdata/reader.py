@@ -99,13 +99,13 @@ class NonbibFileReader(object):
         # at this point, we have the first line with the bibcode in it
         # roll up possible other values on adjacent lines in file
         value = []
-        if self.file_info['path'] == 'links/gpn/all.links':
+        if 'gpn/' in self.file_info['path'] or 'uat/' in self.file_info['path']:
             value.append("/".join(self._get_rest(current_line).split("\t")))
         else:
             value.append(self._get_rest(current_line))
         current_line = self._readline()
         while self.file_info.get('multiline', False) and (current_line not in [None, '']) and (bibcode == self._get_bibcode(current_line)):
-            if self.file_info['path'] == 'links/gpn/all.links':
+            if 'gpn/' in self.file_info['path'] or 'uat/' in self.file_info['path']:
                 value.append("/".join(self._get_rest(current_line).split("\t")))
             else:
                 value.append(self._get_rest(current_line))

@@ -2,7 +2,6 @@
 import unittest
 from mock import patch, mock_open
 from datetime import datetime
-
 from adsmsg import NonBibRecord
 from adsdata import reader
 from adsdata.process import Processor
@@ -44,6 +43,24 @@ class TestMemoryCache(unittest.TestCase):
             self.assertEqual(d['relevance'], {'norm_cites': 0, 'read_count': 25, 'boost': 0.32, 'deprecated_citation_count': 0})
 
         with Processor(compute_metrics=False) as processor, patch('adsputils.load_config', return_value={'INPUT_DATA_ROOT': './test/data1/config/'}):
+            d = processor._read_next_bibcode('2020ApJ...892..106M')
+            self.assertEqual(d['canonical'], '2020ApJ...892..106M')
+            self.assertFalse(d['grants'])
+            self.assertFalse(d['ned_objects'])
+            self.assertTrue(d['nonarticle'])
+            self.assertEqual(d['ocrabstract'], {'ocrabstract': False})
+            self.assertEqual(d['private'], {'private': False})
+            self.assertEqual(d['pub_openaccess'], {'pub_openaccess': False})
+            self.assertEqual(d['refereed'], {'refereed': False})
+            self.assertFalse(d['gpn'])
+            self.assertEqual(d['uat'], ['cosmology/origin of the universe/early universe/recombination (cosmology)/cosmic background radiation/cosmic microwave background radiation/322',
+                                        'cosmology/origin of the universe/big bang theory/recombination (cosmology)/cosmic background radiation/cosmic microwave background radiation/322',
+                                        'observational astronomy/astronomical methods/radio astronomy/cosmic noise/cosmic background radiation/cosmic microwave background radiation/322',
+                                        'cosmology/astronomical radiation sources/radio sources/radio continuum emission/5',
+                                        'interstellar medium/interstellar emissions/radio continuum emission/5',
+                                        'stellar astronomy/stellar types/stellar evolutionary types/evolved stars/subgiant stars/1646'])
+
+        with Processor(compute_metrics=False) as processor, patch('adsputils.load_config', return_value={'INPUT_DATA_ROOT': './test/data1/config/'}):
             d = processor._read_next_bibcode('2024Icar..40815837G')
             self.assertEqual(d['canonical'], '2024Icar..40815837G')
             self.assertFalse(d['grants'])
@@ -54,6 +71,7 @@ class TestMemoryCache(unittest.TestCase):
             self.assertEqual(d['pub_openaccess'], {'pub_openaccess': False})
             self.assertEqual(d['refereed'], {'refereed': False})
             self.assertEqual(d['gpn'], ['Moon/Mare/Mare Imbrium/3678', 'Moon/Crater/Alder/171', 'Moon/Crater/Finsen/1959', 'Moon/Crater/Leibnitz/3335'])
+
     def test_protobuf(self):
         """make sure protobuf are created without an exception"""
         with Processor(compute_metrics=False) as processor, patch('adsputils.load_config', return_value={'INPUT_DATA_ROOT': './test/data1/config/'}):

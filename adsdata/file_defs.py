@@ -70,6 +70,7 @@ data_files['data_link'] = {'path': 'links/facet_datasources/datasources.links', 
                            'extra_values': {'link_type': 'DATA', 'property': ['DATA']}, 'multiline': True,
                            'subparts': ['link_sub_type', 'item_count', ['url'], ['title']]}
 data_files['gpn'] = {'path': 'links/gpn/all.links', 'default_value': [], 'multiline': True}
+data_files['uat'] = {'path': 'links/uat/all.links', 'default_value': [], 'multiline': True}
 
 # file properties definitions required to generate metrics for CitationCapture records
 # use dict to hold each input files and their properties and idiosycrasies

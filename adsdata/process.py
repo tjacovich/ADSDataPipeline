@@ -7,7 +7,6 @@ from adsdata import tasks, reader
 from adsdata.memory_cache import Cache
 from adsdata.file_defs import data_files, data_files_CC, computed_fields
 
-
 class Processor:
     """use reader and cache to compute nonbib and metrics protobufs, send to master"""
     def __init__(self, compute_metrics=True, compute_CC = False):

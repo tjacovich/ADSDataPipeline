@@ -334,4 +334,12 @@ EEEEEEEEEEEEEEEEEEE\tE""")):
         self.assertEqual({'gpn': ['Moon/Crater/Langrenus/3273']}, f.read_value_for('2000Icar..146..420D'))
         self.assertEqual({'gpn': ['Mars/Patera/Apollinaris Patera/323', 'Mars/Fossa/Medusae Fossae/3795', 'Mars/Fossa/Sirenum Fossae/5575', 'Mars/Terra/Terra Cimmeria/5930', 'Mars/Terra/Terra Sirenum/5932', 'Mars/Crater/Copernicus/1297','Mars/Crater/Gusev/2289','Mars/Crater/Kepler/2991','Mars/Crater/New Plymouth/4231','Mars/Crater/Newton/4236'] },f.read_value_for('2004JGRE..10912009I'))
 
+    def test_uat(self):
+        f = reader.NonbibFileReader('uat', data_files['uat'])
+        self.assertEqual({'uat': ['observational astronomy/astronomical instrumentation/early astronomical instruments/astronomical sextants/93',
+                                  'observational astronomy/astronomical techniques/astrometry/astronomical coordinate systems/equatorial coordinate system/celestial sphere/467']}, f.read_value_for('2021ApJ...911..101D'))
+        self.assertEqual({'uat': ['solar system astronomy/lunar science/selenology/lunar features/lunar transient phenomena/976',
+                                    'galaxies/protogalaxies/573',
+                                    'stellar astronomy/stellar physics/stellar properties/stellar oscillations/rapid stellar oscillations/1363',
+                                    'stellar astronomy/astroseismology/stellar oscillations/rapid stellar oscillations/1363',]}, f.read_value_for('2021ApJ...922..164M'))
 
