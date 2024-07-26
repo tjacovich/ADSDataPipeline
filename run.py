@@ -28,6 +28,7 @@ def main():
     diff_parser.add_argument('--only-CitationCapture',
                             action='store_true',
                             dest='only_CC',
+                            default=False,
                             help='Calculate changes only for CitationCapture records.')
     file_parser = subparsers.add_parser('PROCESS_FILE',
                                         help='Send nonbib and metrics protobufs to master for the list of bibcodes in the provided file')
@@ -63,10 +64,12 @@ def main():
     bibcodes_parser.add_argument('--only-CitationCapture',
                                 action='store_false',
                                 dest='only_CC',
+                                default=False,
                                 help='Calculate protobufs only for CitationCapture records.')
     bibcodes_parser.add_argument('--no-metrics',
                                 dest='compute_metrics',
                                 action='store_false',
+                                default=False,
                                 help='Only send nonbib protobufs to master, do not init cache or send metrics protobufs.')
     
     args = parser.parse_args()
