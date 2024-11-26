@@ -52,7 +52,7 @@ class TestMemoryCache(unittest.TestCase):
             self.assertEqual(d['private'], {'private': False})
             self.assertEqual(d['pub_openaccess'], {'pub_openaccess': False})
             self.assertEqual(d['refereed'], {'refereed': False})
-            self.assertFalse(d['gpn'])
+            self.assertFalse(d['planetary_feature'])
             self.assertEqual(d['uat'], ['cosmology/origin of the universe/early universe/recombination (cosmology)/cosmic background radiation/cosmic microwave background radiation/322',
                                         'cosmology/origin of the universe/big bang theory/recombination (cosmology)/cosmic background radiation/cosmic microwave background radiation/322',
                                         'observational astronomy/astronomical methods/radio astronomy/cosmic noise/cosmic background radiation/cosmic microwave background radiation/322',
@@ -70,7 +70,7 @@ class TestMemoryCache(unittest.TestCase):
             self.assertEqual(d['private'], {'private': False})
             self.assertEqual(d['pub_openaccess'], {'pub_openaccess': False})
             self.assertEqual(d['refereed'], {'refereed': False})
-            self.assertEqual(d['gpn'], ['Moon/Mare/Mare Imbrium/3678', 'Moon/Crater/Alder/171', 'Moon/Crater/Finsen/1959', 'Moon/Crater/Leibnitz/3335'])
+            self.assertEqual(d['planetary_feature'], ['Moon/Mare/Mare Imbrium/3678', 'Moon/Crater/Alder/171', 'Moon/Crater/Finsen/1959', 'Moon/Crater/Leibnitz/3335'])
 
     def test_protobuf(self):
         """make sure protobuf are created without an exception"""
