@@ -49,6 +49,12 @@ data_files['author_html'] = {'path': 'links/author_html/all.links', 'default_val
 data_files['author_pdf'] = {'path': 'links/author_pdf/all.links', 'default_value': {},
                             'extra_values': {'link_type': 'ESOURCE', 'link_sub_type': 'AUTHOR_PDF', 'property': ['AUTHOR_OPENACCESS', 'OPENACCESS']},
                             'subparts': ['url']}
+data_files['pmc_html'] = {'path': 'links/pmc_html/PMC.dat', 'default_value': {},
+                             'extra_values': {'link_type': 'ESOURCE', 'link_sub_type': 'PMC_HTML', 'property': ['PMC_OPENACCESS', 'OPENACCESS']},
+                             'subparts': ['url']}
+data_files['pmc_pdf'] = {'path': 'links/pmc_pdf/PMC.dat', 'default_value': {},
+                            'extra_values': {'link_type': 'ESOURCE', 'link_sub_type': 'PMC_PDF', 'property': ['PMC_OPENACCESS', 'OPENACCESS']},
+                            'subparts': ['url']}
 data_files['ads_scan'] = {'path': 'links/ads_scan/all.links', 'default_value': {},
                           'extra_values': {'link_type': 'ESOURCE', 'link_sub_type': 'ADS_SCAN', 'property': ['ADS_OPENACCESS', 'OPENACCESS']},
                           'subparts': [['url']]}
