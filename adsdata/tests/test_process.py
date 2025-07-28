@@ -90,7 +90,7 @@ class TestMemoryCache(unittest.TestCase):
                  "data_links_rows": [{"url": ["http://articles.adsabs.harvard.edu/pdf/2003ASPC..295..361M"], "link_type": "ESOURCE", "link_sub_type": "ADS_PDF", 'item_count': 0, 'title': ['']},
                                      {"url": ["http://articles.adsabs.harvard.edu/full/2003ASPC..295..361M"], "link_type": "ESOURCE", "link_sub_type": "ADS_SCAN", 'item_count': 0, 'title': ['']},
                                      {"url": [""], "link_type": "TOC", "link_sub_type": "NA", 'item_count': 0, 'title': ['']}],
-                 "esource": ["ADS_PDF", "ADS_SCAN"], "property": ["ADS_OPENACCESS", "ARTICLE", "ESOURCE", "NOT REFEREED", "OPENACCESS", "TOC"], "boost": 0.15, 'citation_count': 0, 'norm_cites': 0, 'citation_count_norm': 0.0, 'data': [], 'total_link_counts': 0}
+                 "esource": ["ADS_PDF", "ADS_SCAN"], "property": ["ADS_OPENACCESS", "ARTICLE", "ESOURCE", "NOT REFEREED", "OPENACCESS", "TOC"], "boost": 0.15, 'citation_count': 0, 'credit_count': 0, 'mention': ['2020xxxx.soft.....X', '2021yyyy.soft.....Y'], 'mention_count': 2,'norm_cites': 0, 'citation_count_norm': 0.0, 'data': [], 'total_link_counts': 0}
             self.assertEqual(a, n)
 
             d = processor._read_next_bibcode('2004MNRAS.354L..31M')
@@ -114,6 +114,10 @@ class TestMemoryCache(unittest.TestCase):
                  "data": ["CDS:1", "NED:1953", "SIMBAD:1", "Vizier:1"],
                  "citation_count_norm": 49.5,
                  "citation_count": 99,
+                 "credit": ["2001CoPhC.136..319S"],
+                 "credit_count": 1,
+                 "mention": ["2020xxxx.soft.....X"],
+                 "mention_count": 1,
                  "property": ["ADS_OPENACCESS", "ARTICLE", "ASSOCIATED", "DATA", "EPRINT_OPENACCESS", "ESOURCE", "INSPIRE", "OPENACCESS", "PUB_OPENACCESS", "REFEREED"],
                  "total_link_counts": 1956,
                  "esource": ["ADS_PDF", "ADS_SCAN", "EPRINT_HTML", "EPRINT_PDF", "PUB_HTML", "PUB_PDF"],
