@@ -6,6 +6,8 @@ config = load_config()
 # use dict to hold each input files and their properties and idiosycrasies
 
 data_files = OrderedDict()
+data_files['mention'] = {'path': 'links/mention/all.links', 'default_value': [], 'multiline': True}
+data_files['credit'] = {'path': 'links/credit/all.links', 'default_value': [], 'multiline': True}
 data_files['canonical'] = {'path': 'bibcodes.list.can', 'default_value': ''}
 data_files['author'] = {'path': 'links/facet_authors/all.links', 'default_value': []}
 data_files['bibgroup'] = {'path': 'links/bibgroups/all.links', 'default_value': [], 'multiline': True}
