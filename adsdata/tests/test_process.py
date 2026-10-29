@@ -120,7 +120,7 @@ class TestMemoryCache(unittest.TestCase):
                  "credit_count": 1,
                  "mention": ["2020xxxx.soft.....X"],
                  "mention_count": 1,
-                 "property": ["ADS_OPENACCESS", "ARTICLE", "ASSOCIATED", "DATA", "EPRINT_OPENACCESS", "ESOURCE", "INSPIRE", "OPENACCESS", "PUB_OPENACCESS", "REFEREED"],
+                 "property": ["ADS_OPENACCESS", "ARTICLE", "ASSOCIATED", 'CORETRUSTSEAL', "DATA", "EPRINT_OPENACCESS", "ESOURCE", "INSPIRE", "OPENACCESS", "PUB_OPENACCESS", "REFEREED"],
                  "total_link_counts": 1956,
                  "esource": ["ADS_PDF", "ADS_SCAN", "EPRINT_HTML", "EPRINT_PDF", "PUB_HTML", "PUB_PDF"],
                  "boost": 0.4399999976158142}
