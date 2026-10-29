@@ -25,6 +25,7 @@ data_files['pub_openaccess'] = {'path': 'links/openaccess/pub.dat', 'default_val
 data_files['readers'] = {'path': 'links/alsoread_bib/all.links', 'default_value': [], 'multiline': True}
 data_files['reads'] = {'path': 'links/reads/all.links', 'default_value': []}
 data_files['refereed'] = {'path': 'links/refereed/all.links', 'default_value': False, 'extra_values': {'property': ['REFEREED']}}
+data_files['coretrustseal'] = {'path': 'links/coretrustseal/all.links', 'default_value': False, 'extra_values': {'property': ['CORETRUSTSEAL']}}
 data_files['reference'] = {'path': 'links/reference/all.links', 'default_value': [], 'multiline': True}
 data_files['relevance'] = {'path': 'links/relevance/docmetrics.tab', 'default_value': {},
                            'subparts': ['boost', 'deprecated_citation_count', 'read_count', 'norm_cites']}
