@@ -122,9 +122,9 @@ class Processor:
                 return_value.update(x)
 
         # finally, delete the keys not in the nonbib protobuf
-        not_needed = ['author', 'canonical', 'citation', 'deleted', 'deprecated_citation_count', 'doi', 'download', 'item_count', 'nonarticle',
+        not_needed = ['author', 'canonical', 'citation', 'coretrustseal', 'deleted', 'deprecated_citation_count', 'doi', 'download', 'item_count', 'nonarticle',
                       'ocrabstract', 'preprint', 'private', 'pub_openaccess', 'pub2arxiv',
-                      'reads', 'refereed', 'relevance', 'toc', 'coretrustseal']
+                      'reads', 'refereed', 'relevance', 'toc']
         for n in not_needed:
             return_value.pop(n, None)
         return return_value
